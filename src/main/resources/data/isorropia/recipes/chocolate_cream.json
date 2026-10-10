@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "C",
+    "W"
+  ],
+  "key": {
+    "C": {
+      "item": "isorropia:chocolate_milk_bucket"
+    },
+    "W": {
+      "tag": "forge:crops/wheat"
+    }
+  },
+  "result": {
+    "item": "isorropia:chocolate_cream"
+  }
+}

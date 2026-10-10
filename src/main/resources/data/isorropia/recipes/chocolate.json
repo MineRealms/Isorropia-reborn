@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    "CCC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "isorropia:chocolate_bar"
+    }
+  },
+  "result": {
+    "item": "isorropia:chocolate"
+  }
+}

@@ -1,0 +1,51 @@
+{
+	"curative_infusion_start": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:curative_infusion_start",
+	            "stream": false
+	        }
+	    ]
+	},
+
+	"curative_infusion_loop": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:curative_infusion_loop",
+	            "stream": false
+	        }
+	    ]
+	},
+
+	"curative_expunge_flux_start": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:curative_expunge_flux_start",
+	            "stream": false
+	        }
+	    ]
+	},
+
+	"curative_expunge_flux_loop": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:curative_expunge_flux_loop",
+	            "stream": false
+	        }
+	    ]
+	},
+
+	"curative_expunge_flux_end": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:curative_expunge_flux_end",
+	            "stream": false
+	        }
+	    ]
+	}
+}

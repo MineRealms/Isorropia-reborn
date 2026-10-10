@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "isorropia:chocolate_milk_bucket"
+    }
+  ],
+  "result": {
+    "item": "isorropia:chocolate_bar"
+  }
+}

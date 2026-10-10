@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "isorropia:block/jar_soul"
+    },
+    "facing=east": {
+      "model": "isorropia:block/jar_soul",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "isorropia:block/jar_soul",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "isorropia:block/jar_soul",
+      "y": 270
+    }
+  }
+}

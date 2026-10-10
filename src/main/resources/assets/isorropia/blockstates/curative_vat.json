@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "variant=placeholder": {
+      "model": "isorropia:block/curative_vat"
+    },
+    "variant=top": {
+      "model": "isorropia:block/curative_vat"
+    },
+    "variant=bottom": {
+      "model": "isorropia:block/curative_vat"
+    },
+    "variant=connector": {
+      "model": "isorropia:block/curative_vat"
+    }
+  }
+}

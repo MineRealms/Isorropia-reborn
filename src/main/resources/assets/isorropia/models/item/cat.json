@@ -1,0 +1,113 @@
+{
+  "parent": "isorropia:item/cat_pig",
+  "overrides": [
+    {
+      "predicate": {
+        "isorropia:cat": 0.0
+      },
+      "model": "isorropia:item/cat_pig"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.01
+      },
+      "model": "isorropia:item/cat_sheep"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.02
+      },
+      "model": "isorropia:item/cat_cow"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.03
+      },
+      "model": "isorropia:item/cat_ocelot"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.04
+      },
+      "model": "isorropia:item/cat_chicken"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.05
+      },
+      "model": "isorropia:item/cat_rabbit"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.06
+      },
+      "model": "isorropia:item/cat_wolf"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.07
+      },
+      "model": "isorropia:item/cat_spider"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.08
+      },
+      "model": "isorropia:item/cat_squid"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.09
+      },
+      "model": "isorropia:item/cat_love"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.1
+      },
+      "model": "isorropia:item/cat_selfshearing"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.11
+      },
+      "model": "isorropia:item/cat_enderheart"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.12
+      },
+      "model": "isorropia:item/cat_shockskin"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.13
+      },
+      "model": "isorropia:item/cat_awakened_blood"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.14
+      },
+      "model": "isorropia:item/cat_diamond_skin"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.15
+      },
+      "model": "isorropia:item/cat_quicksilver_limbs"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.16
+      },
+      "model": "isorropia:item/cat_portability"
+    },
+    {
+      "predicate": {
+        "isorropia:cat": 0.17
+      },
+      "model": "isorropia:item/cat_steve"
+    }
+  ]
+}
