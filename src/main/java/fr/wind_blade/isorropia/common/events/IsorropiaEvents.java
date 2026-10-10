@@ -101,17 +101,13 @@ public final class IsorropiaEvents {
             event.setCanceled(true);
             return;
         }
-        if (!data.hasInfusion(CreatureAbilities.SHOCK_SKIN) && !data.hasInfusion(CreatureAbilities.ENDER_HEART)) {
-            return;
-        }
-        if (event.getSource().getDirectEntity() instanceof LivingEntity) {
-            return;
-        }
+        // Shock skin answers any attacker; the ender heart only dodges what was thrown or shot at it.
         if (data.hasInfusion(CreatureAbilities.SHOCK_SKIN)
                 && event.getSource().getEntity() instanceof LivingEntity attacker && attacker != entity) {
             CreatureAbilities.shockBack(entity, attacker);
         }
-        if (data.hasInfusion(CreatureAbilities.ENDER_HEART)) {
+        Entity direct = event.getSource().getDirectEntity();
+        if (data.hasInfusion(CreatureAbilities.ENDER_HEART) && direct != null && direct != event.getSource().getEntity()) {
             CreatureAbilities.teleportFromRanged(entity);
             event.setCanceled(true);
         }

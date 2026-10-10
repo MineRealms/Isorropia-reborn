@@ -82,7 +82,6 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     private static final float FLUX_EXPUNGE_AT = 30.0F;
     private static final float FLUX_DESTROY_AT = 300.0F;
     private static final int EFFIGY_ESSENTIA = 30;
-    private static final int STORE_CAP = 32;
     private static final int SUCTION = 128;
 
     private int mode = MODE_IDLE;
@@ -161,8 +160,21 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         }
     }
 
+    /**
+     * The idle modes are a reading of the vat's contents rather than a state of their own, so they are
+     * recomputed instead of remembered: a creature in the vat always means curing, an effigy with nothing in
+     * the vat always means soaking, and only a running infusion keeps its own mode.
+     */
+    private void normalizeMode() {
+        if (mode == MODE_INFUSING) {
+            return;
+        }
+        mode = hasEffigy && contained == null ? MODE_EFFIGY : MODE_IDLE;
+    }
+
     private void tickMaster(ServerLevel level) {
         count++;
+        normalizeMode();
         if (mode != MODE_INFUSING && !expunge && contained == null && !hasEffigy) {
             return;
         }
@@ -211,6 +223,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     /** Heals the creature in the vat: one essentia of whichever cure applies, then its cooldown. */
     private void curativeUpdate(ServerLevel level) {
+        clearDemand();
         if (cooldown > 0) {
             cooldown--;
             return;
@@ -236,6 +249,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     /** The corpse effigy soaks up victus until it is a body a soul can be reborn into. */
     private void effigyUpdate(ServerLevel level) {
+        clearDemand();
         if (contained != null) {
             return;
         }
@@ -255,9 +269,12 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     // ---------------------------------------------------------------- infusion
 
-    /** Starts an infusion from the pedestals around the vat; the modified matrix calls this. */
+    /**
+     * Starts an infusion from the pedestals around the vat. The modified matrix calls this after switching
+     * the vat on, so a vat that is off never begins work it would then sit still through.
+     */
     public boolean startInfusion(Player player) {
-        if (level == null || mode == MODE_INFUSING) {
+        if (level == null || mode == MODE_INFUSING || !active) {
             return false;
         }
         List<ItemStack> items = pedestalItems();
@@ -365,26 +382,22 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return false;
     }
 
-    /** Pulls whatever essentia is still missing; the step passes once the whole demand has arrived. */
+    /** Pulls whatever essentia the infusion is still short of; the step passes when nothing is left. */
     private boolean essentiaStep(ServerLevel level) {
+        clearDemand();
         boolean ready = true;
         for (Map.Entry<AspectId, Integer> entry : needed.entrySet()) {
-            int missing = entry.getValue() - stored.getOrDefault(entry.getKey(), 0);
-            if (missing <= 0) {
+            if (entry.getValue() <= 0) {
                 continue;
             }
-            demand(entry.getKey(), missing);
+            demand(entry.getKey(), entry.getValue());
             pullEssentia(level, entry.getKey());
             ready = false;
         }
-        if (!ready) {
-            return false;
+        if (ready) {
+            needed.clear();
         }
-        for (AspectId aspect : needed.keySet()) {
-            stored.remove(aspect);
-        }
-        needed.clear();
-        return true;
+        return ready;
     }
 
     /** Consumes one pedestal item per cycle; passes once every ingredient has been taken. */
@@ -455,8 +468,14 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         celestialAuraNeeded = 0;
         celestialBody = CelestialBody.NONE;
         cooldown = 0;
-        active = false;
         sync();
+    }
+
+    /** Gives up on a running infusion, keeping the ingredients that were not consumed yet. */
+    public void abortInfusion() {
+        if (mode == MODE_INFUSING) {
+            finishInfusion(false);
+        }
     }
 
     // ---------------------------------------------------------------- instability
@@ -543,11 +562,29 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     // ---------------------------------------------------------------- essentia
 
+    /**
+     * Rebuilds what the vat is asking for. It is recomputed every cycle rather than accumulated: a demand
+     * that never shrinks would keep a tube feeding essentia the vat has already got.
+     */
     private void demand(AspectId aspect, int amount) {
-        demanded.merge(aspect, amount, Integer::sum);
+        if (demanded.getOrDefault(aspect, 0) < amount) {
+            demanded.put(aspect, amount);
+        }
     }
 
-    /** Takes essentia out of what the vat holds. */
+    /** Whole units of an aspect the vat would take right now: the infusion's shortfall, or a cure's point. */
+    private int demandFor(AspectId aspect) {
+        if (this.mode == MODE_INFUSING && needed.containsKey(aspect)) {
+            return needed.get(aspect);
+        }
+        return demanded.getOrDefault(aspect, 0);
+    }
+
+    private void clearDemand() {
+        demanded.clear();
+    }
+
+    /** Takes essentia out of what the vat holds for a cure or an effigy. */
     private boolean draw(AspectId aspect, int amount) {
         int have = stored.getOrDefault(aspect, 0);
         if (have < amount) {
@@ -571,7 +608,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
                 }
                 int taken = EssentiaApi.take(level, transport, aspect, 1, face.getOpposite(), EssentiaTransferMode.EXECUTE);
                 if (taken > 0) {
-                    accept(aspect, taken);
+                    accept(aspect, taken, EssentiaTransferMode.EXECUTE);
                     return;
                 }
             }
@@ -591,15 +628,23 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return result;
     }
 
-    /** Takes as much as the current demand still has room for; returns how much that was. */
-    private int accept(AspectId aspect, int amount) {
-        int cap = Math.min(demanded.getOrDefault(aspect, 0), STORE_CAP);
-        int have = stored.getOrDefault(aspect, 0);
-        int taken = Math.min(amount, Math.max(cap - have, 0));
-        if (taken > 0) {
-            stored.merge(aspect, taken, Integer::sum);
-            setChanged();
+    /**
+     * Takes essentia the vat is waiting for. An infusion drinks it straight out of the demand — a vat cannot
+     * hold a recipe's worth in its glass — while a cure or an effigy keeps a point in store until its turn.
+     * A simulated transfer reports what it would take and changes nothing.
+     */
+    private int accept(AspectId aspect, int amount, EssentiaTransferMode mode) {
+        int wanted = demandFor(aspect);
+        int taken = Math.min(amount, Math.max(wanted, 0));
+        if (taken <= 0 || !mode.executes()) {
+            return taken;
         }
+        if (this.mode == MODE_INFUSING && needed.containsKey(aspect)) {
+            needed.put(aspect, wanted - taken);
+        } else {
+            stored.merge(aspect, taken, Integer::sum);
+        }
+        setChanged();
         return taken;
     }
 
@@ -642,7 +687,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     @Override
     public int addEssentia(AspectId aspect, int amount, Direction face, EssentiaTransferMode mode) {
         TileVat master = master();
-        return master == null ? 0 : master.accept(aspect, amount);
+        return master == null ? 0 : master.accept(aspect, amount, mode);
     }
 
     @Nullable
@@ -747,6 +792,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             entity.save(containedNbt);
         }
         pedestals = null;
+        normalizeMode();
+        clearDemand();
         sync();
     }
 
@@ -859,9 +906,9 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         this.hasEffigy = hasEffigy;
         if (!hasEffigy) {
             effigyEssentia = 0;
-        } else if (mode == MODE_IDLE && contained == null) {
-            mode = MODE_EFFIGY;
         }
+        normalizeMode();
+        clearDemand();
         sync();
     }
 

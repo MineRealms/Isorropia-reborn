@@ -26,6 +26,8 @@ public final class IsorropiaNetwork {
     }
 
     public static void init() {
+        register(SyncLivingDataPacket.class, NetworkDirection.PLAY_TO_CLIENT,
+                SyncLivingDataPacket::encode, SyncLivingDataPacket::decode, SyncLivingDataPacket::handle);
     }
 
     public static <M> void register(Class<M> type, NetworkDirection direction, BiConsumer<M, FriendlyByteBuf> encoder,
