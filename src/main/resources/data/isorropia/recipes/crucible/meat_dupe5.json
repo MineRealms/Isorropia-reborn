@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:growth",
+  "catalyst": {
+    "item": "minecraft:chicken"
+  },
+  "result": {
+    "item": "minecraft:chicken",
+    "count": 2
+  },
+  "aspects": {
+    "victus": 10
+  }
+}

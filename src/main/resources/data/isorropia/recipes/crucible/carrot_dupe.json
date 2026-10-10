@@ -1,0 +1,16 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:cultivation",
+  "catalyst": {
+    "item": "minecraft:carrot"
+  },
+  "result": {
+    "item": "minecraft:carrot",
+    "count": 2
+  },
+  "aspects": {
+    "lux": 2,
+    "terra": 2,
+    "aqua": 2
+  }
+}

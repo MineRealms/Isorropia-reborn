@@ -1,0 +1,203 @@
+{
+  "forge:conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:mod_loaded",
+        "modid": "forbidden_magic"
+      }
+    }
+  ],
+  "edits": [
+    {
+      "kind": "item",
+      "id": "minecraft:ghast_tear",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:invidia": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:tnt",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:ira": 15
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:fire_charge",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:ira": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:creeper_head",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:ira": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:saddle",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:luxuria": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_sword",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 8
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_helmet",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 8
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_chestplate",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_leggings",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_boots",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:nether_star",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:superbia": 10,
+        "isorropia:infernus": 20
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:lead",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:luxuria": 5
+      }
+    },
+    {
+      "kind": "tag",
+      "id": "minecraft:beds",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:desidia": 10
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:ender_pearl",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:invidia": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:comparator",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:invidia": 10
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cake",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 10
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cookie",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 1
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:netherrack",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:infernus": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:nether_quartz_ore",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:infernus": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:nether_wart",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:infernus": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:wither_skeleton_skull",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:infernus": 10
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:cloneself",
+  "central": {
+    "item": "thaumcraft:zombie_brain"
+  },
+  "components": [
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "minecraft:rotten_flesh"
+    },
+    {
+      "item": "minecraft:bone"
+    }
+  ],
+  "instability": 3,
+  "aspects": {
+    "fabrico": 30,
+    "humanus": 30
+  },
+  "result": {
+    "item": "isorropia:corpse_effigy"
+  }
+}

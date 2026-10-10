@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:incubation",
+  "catalyst": {
+    "item": "minecraft:egg"
+  },
+  "result": {
+    "item": "isorropia:incubated_egg"
+  },
+  "aspects": {
+    "victus": 5,
+    "bestia": 5
+  }
+}

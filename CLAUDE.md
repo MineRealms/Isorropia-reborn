@@ -6,6 +6,7 @@ Isorropia（kedition）从 1.12.2/TC6 移植到 Forge 1.20.1/TC4R 的独立工�
 
 ```bash
 ./gradlew.bat build          # 编译 + JUnit；先校验 local-repo 里的 TC4R 哈希
+python tools/validate_tc_data.py   # TC 数据（研究/配方/要素/语言键）静态校验
 ```
 
 - `local-repo/` 的 TC4R jar/pom 不入库，缺失时从 `../Technomancy-1.20.1/local-repo` 复制（见 `local-repo/README.md`）。

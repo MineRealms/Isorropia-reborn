@@ -1,0 +1,129 @@
+{
+  "entries": [
+    {
+      "rule_id": "isorropia:entity_aspect/taint_pig",
+      "id": "isorropia:taint_pig",
+      "required": false,
+      "scan_identity": "isorropia:taint_pig",
+      "aspects": {
+        "bestia": 2,
+        "terra": 2,
+        "sano": 2,
+        "ordo": 2
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/gravekeeper",
+      "id": "isorropia:gravekeeper",
+      "required": false,
+      "scan_identity": "isorropia:gravekeeper",
+      "aspects": {
+        "bestia": 3,
+        "mortuus": 3,
+        "ordo": 3
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/sheeder",
+      "id": "isorropia:sheeder",
+      "required": false,
+      "scan_identity": "isorropia:sheeder",
+      "aspects": {
+        "bestia": 3,
+        "pannus": 4
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/chromatic_sheep",
+      "id": "isorropia:chromatic_sheep",
+      "required": false,
+      "scan_identity": "isorropia:chromatic_sheep",
+      "aspects": {
+        "bestia": 2,
+        "terra": 2,
+        "sensus": 2,
+        "permutatio": 2
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/scholar_chicken",
+      "id": "isorropia:scholar_chicken",
+      "required": false,
+      "scan_identity": "isorropia:scholar_chicken",
+      "aspects": {
+        "bestia": 2,
+        "volatus": 2,
+        "aer": 1,
+        "tenebrae": 2,
+        "cognitio": 2
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/ore_pig",
+      "id": "isorropia:ore_pig",
+      "required": false,
+      "scan_identity": "isorropia:ore_pig",
+      "aspects": {
+        "bestia": 2,
+        "terra": 2,
+        "metallum": 4
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/jelly_rabbit",
+      "id": "isorropia:jelly_rabbit",
+      "required": false,
+      "scan_identity": "isorropia:jelly_rabbit",
+      "aspects": {
+        "bestia": 2,
+        "limus": 3,
+        "victus": 1
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/chocolate_cow",
+      "id": "isorropia:chocolate_cow",
+      "required": false,
+      "scan_identity": "isorropia:chocolate_cow",
+      "aspects": {
+        "bestia": 3,
+        "terra": 3,
+        "sensus": 3
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/golden_chicken",
+      "id": "isorropia:golden_chicken",
+      "required": false,
+      "scan_identity": "isorropia:golden_chicken",
+      "aspects": {
+        "bestia": 2,
+        "volatus": 2,
+        "aer": 1,
+        "lucrum": 3
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/guardian_panther",
+      "id": "isorropia:guardian_panther",
+      "required": false,
+      "scan_identity": "isorropia:guardian_panther",
+      "aspects": {
+        "bestia": 4,
+        "telum": 4,
+        "perditio": 4
+      }
+    },
+    {
+      "rule_id": "isorropia:entity_aspect/nether_hound",
+      "id": "isorropia:nether_hound",
+      "required": false,
+      "scan_identity": "isorropia:nether_hound",
+      "aspects": {
+        "bestia": 3,
+        "terra": 3,
+        "ignis": 3
+      }
+    }
+  ]
+}

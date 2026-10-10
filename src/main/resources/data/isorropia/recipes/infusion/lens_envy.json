@@ -1,0 +1,45 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:envylens",
+  "central": {
+    "item": "isorropia:lens"
+  },
+  "components": [
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "type": "thaumcraft:components",
+      "items": "thaumcraft:crystal_essence",
+      "components": {
+        "thaumcraft:aspects": {
+          "isorropia:invidia": 1
+        }
+      },
+      "strict": true
+    },
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "type": "thaumcraft:components",
+      "items": "thaumcraft:crystal_essence",
+      "components": {
+        "thaumcraft:aspects": {
+          "isorropia:invidia": 1
+        }
+      },
+      "strict": true
+    }
+  ],
+  "instability": 6,
+  "aspects": {
+    "lucrum": 32,
+    "fames": 32,
+    "isorropia:luxuria": 32,
+    "isorropia:invidia": 64
+  },
+  "result": {
+    "item": "isorropia:lens_envy"
+  }
+}

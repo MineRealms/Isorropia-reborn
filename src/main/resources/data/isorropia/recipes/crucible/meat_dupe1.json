@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:growth",
+  "catalyst": {
+    "item": "minecraft:mutton"
+  },
+  "result": {
+    "item": "minecraft:mutton",
+    "count": 2
+  },
+  "aspects": {
+    "victus": 10
+  }
+}

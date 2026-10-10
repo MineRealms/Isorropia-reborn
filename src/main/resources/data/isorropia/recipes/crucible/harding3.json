@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:hardning",
+  "catalyst": {
+    "item": "minecraft:beef"
+  },
+  "result": {
+    "item": "minecraft:leather"
+  },
+  "aspects": {
+    "permutatio": 1,
+    "fabrico": 1
+  }
+}
