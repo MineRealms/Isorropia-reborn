@@ -1,0 +1,26 @@
+{
+  "kind": "specie",
+  "research": "isorropia:nether_hound",
+  "target": {
+    "entity": "minecraft:wolf"
+  },
+  "result": "isorropia:nether_hound",
+  "components": [
+    {
+      "item": "minecraft:lava_bucket"
+    },
+    {
+      "item": "minecraft:blaze_rod",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:fire_shard"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:ignis": 30,
+    "thaumcraft:telum": 30,
+    "thaumcraft:permutatio": 30
+  },
+  "instability": 2
+}

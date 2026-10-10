@@ -1,0 +1,22 @@
+{
+  "kind": "specie",
+  "research": "isorropia:guardian_panther",
+  "target": {
+    "entity": "minecraft:cat"
+  },
+  "result": "isorropia:guardian_panther",
+  "components": [
+    {
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:strong_strength\"}"
+    },
+    {
+      "item": "minecraft:saddle"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:bestia": 30,
+    "thaumcraft:telum": 30
+  },
+  "instability": 2
+}

@@ -1,0 +1,24 @@
+{
+  "infusion": "isorropia:spider_climb",
+  "research": "isorropia:spiderclimb",
+  "instability": 8,
+  "components": [
+    {
+      "item": "minecraft:cobweb",
+      "count": 4
+    },
+    {
+      "item": "thaumcraft:enchanted_fabric",
+      "count": 2
+    },
+    {
+      "item": "minecraft:ladder",
+      "count": 2
+    }
+  ],
+  "aspects": {
+    "thaumcraft:bestia": 50,
+    "thaumcraft:motus": 75,
+    "thaumcraft:permutatio": 50
+  }
+}

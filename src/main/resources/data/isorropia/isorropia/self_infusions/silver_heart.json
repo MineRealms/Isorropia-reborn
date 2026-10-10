@@ -1,0 +1,22 @@
+{
+  "infusion": "isorropia:silver_heart",
+  "research": "isorropia:silverheart",
+  "instability": 7,
+  "components": [
+    {
+      "item": "thaumcraft:silverwood_sapling"
+    },
+    {
+      "item": "thaumcraft:silverwood_log",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:shimmerleaf"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:ordo": 50,
+    "thaumcraft:victus": 50,
+    "thaumcraft:permutatio": 30
+  }
+}

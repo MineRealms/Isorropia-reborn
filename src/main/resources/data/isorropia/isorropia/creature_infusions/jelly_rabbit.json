@@ -1,0 +1,29 @@
+{
+  "kind": "specie",
+  "research": "isorropia:jellyrabbit",
+  "target": {
+    "entity": "minecraft:rabbit"
+  },
+  "result": "isorropia:jelly_rabbit",
+  "hook": "isorropia:jelly_rabbit",
+  "components": [
+    {
+      "item": "minecraft:slime_block"
+    },
+    {
+      "item": "thaumcraft:salis_mundus",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:crystal_essence"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:auram": 30,
+    "thaumcraft:permutatio": 30
+  },
+  "instability": 2,
+  "vis": {
+    "aqua": 50
+  }
+}

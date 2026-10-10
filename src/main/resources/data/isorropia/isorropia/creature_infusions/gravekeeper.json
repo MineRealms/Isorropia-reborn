@@ -1,0 +1,32 @@
+{
+  "kind": "specie",
+  "research": "isorropia:gravekeeperinfusion",
+  "target": {
+    "entity": "minecraft:cat"
+  },
+  "result": "isorropia:gravekeeper",
+  "components": [
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "minecraft:gold_block"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "thaumcraft:silverwood_log"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:lux": 100,
+    "thaumcraft:exanimis": 60,
+    "thaumcraft:ordo": 80
+  },
+  "instability": 6,
+  "celestial": {
+    "body": "sun",
+    "aura": 50
+  }
+}

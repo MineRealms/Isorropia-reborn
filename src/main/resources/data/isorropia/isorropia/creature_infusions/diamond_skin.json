@@ -1,0 +1,36 @@
+{
+  "kind": "organ",
+  "organ": "skin",
+  "research": "isorropia:creatureinfusions",
+  "target": {
+    "type": "any"
+  },
+  "components": [
+    {
+      "item": "minecraft:diamond",
+      "count": 2
+    },
+    {
+      "item": "minecraft:leather"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:bestia": 10,
+    "thaumcraft:tutamen": 30,
+    "thaumcraft:vitreus": 30
+  },
+  "modifiers": [
+    {
+      "attribute": "minecraft:generic.armor",
+      "uuid": "6bc2ebe8-2b1c-11eb-adc1-0242ac120002",
+      "name": "DIAMOND_SKIN",
+      "amount": 20.0
+    },
+    {
+      "attribute": "minecraft:generic.armor_toughness",
+      "uuid": "21afc412-2b1d-11eb-adc1-0242ac120002",
+      "name": "DIAMOND_SKIN_TOUGHNESS",
+      "amount": 8.0
+    }
+  ]
+}

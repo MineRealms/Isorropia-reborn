@@ -1,0 +1,21 @@
+{
+  "infusion": "isorropia:amphibious",
+  "research": "isorropia:amphibious",
+  "instability": 7,
+  "components": [
+    {
+      "item": "minecraft:cod",
+      "count": 2
+    },
+    {
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:long_water_breathing\"}"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:aqua": 100,
+    "thaumcraft:aer": 100,
+    "thaumcraft:victus": 50,
+    "thaumcraft:permutatio": 16
+  }
+}

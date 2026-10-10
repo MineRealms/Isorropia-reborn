@@ -1,0 +1,25 @@
+{
+  "kind": "specie",
+  "research": "isorropia:chromaticsheep",
+  "target": {
+    "entity": "minecraft:sheep"
+  },
+  "result": "isorropia:chromatic_sheep",
+  "components": [
+    {
+      "item": "minecraft:red_dye"
+    },
+    {
+      "item": "minecraft:green_dye"
+    },
+    {
+      "item": "minecraft:blue_dye"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:sensus": 60,
+    "thaumcraft:permutatio": 30,
+    "thaumcraft:tenebrae": 60
+  },
+  "instability": 2
+}

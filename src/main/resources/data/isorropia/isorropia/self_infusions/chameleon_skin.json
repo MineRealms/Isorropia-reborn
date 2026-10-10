@@ -1,0 +1,30 @@
+{
+  "infusion": "isorropia:chameleon_skin",
+  "research": "isorropia:chameleonskin",
+  "instability": 7,
+  "components": [
+    {
+      "item": "minecraft:spider_eye"
+    },
+    {
+      "item": "minecraft:red_dye"
+    },
+    {
+      "item": "minecraft:blue_dye"
+    },
+    {
+      "item": "minecraft:yellow_dye"
+    },
+    {
+      "item": "minecraft:black_dye"
+    },
+    {
+      "item": "minecraft:white_dye"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:sensus": 75,
+    "thaumcraft:permutatio": 50,
+    "thaumcraft:vacuos": 50
+  }
+}

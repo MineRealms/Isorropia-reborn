@@ -1,0 +1,24 @@
+{
+  "kind": "organ",
+  "organ": "blood",
+  "research": "isorropia:creatureinfusions",
+  "target": {
+    "type": "any"
+  },
+  "components": [
+    {
+      "item": "minecraft:glistering_melon_slice",
+      "count": 2
+    },
+    {
+      "item": "minecraft:golden_apple"
+    },
+    {
+      "item": "thaumcraft:silverwood_log"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:victus": 50,
+    "thaumcraft:cognitio": 50
+  }
+}

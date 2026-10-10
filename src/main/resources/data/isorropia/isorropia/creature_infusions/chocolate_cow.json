@@ -1,0 +1,23 @@
+{
+  "kind": "specie",
+  "research": "isorropia:chococow",
+  "target": {
+    "entity": "minecraft:cow"
+  },
+  "result": "isorropia:chocolate_cow",
+  "components": [
+    {
+      "item": "minecraft:brown_dye",
+      "count": 2
+    },
+    {
+      "item": "minecraft:sugar",
+      "count": 2
+    }
+  ],
+  "aspects": {
+    "thaumcraft:corpus": 30,
+    "thaumcraft:permutatio": 10
+  },
+  "instability": 2
+}

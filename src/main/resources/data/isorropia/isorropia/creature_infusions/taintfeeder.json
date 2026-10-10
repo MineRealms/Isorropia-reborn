@@ -1,0 +1,27 @@
+{
+  "kind": "specie",
+  "research": "isorropia:taintfeeder",
+  "target": {
+    "entity": "minecraft:pig"
+  },
+  "result": "isorropia:taint_pig",
+  "components": [
+    {
+      "item": "thaumcraft:bottled_taint"
+    },
+    {
+      "item": "thaumcraft:silverwood_log",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:void_jar"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:fames": 100,
+    "thaumcraft:herba": 50,
+    "thaumcraft:victus": 50,
+    "thaumcraft:vitium": 45
+  },
+  "instability": 4
+}

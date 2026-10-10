@@ -1,0 +1,32 @@
+{
+  "infusion": "isorropia:diamond_skin",
+  "research": "isorropia:selfinfusion",
+  "instability": 6,
+  "components": [
+    {
+      "item": "minecraft:leather_helmet"
+    },
+    {
+      "item": "minecraft:diamond",
+      "count": 2
+    },
+    {
+      "item": "minecraft:leather_chestplate"
+    },
+    {
+      "item": "minecraft:diamond_block",
+      "count": 2
+    },
+    {
+      "item": "minecraft:leather_leggings"
+    },
+    {
+      "item": "minecraft:leather_boots"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:tutamen": 30,
+    "thaumcraft:vitreus": 30,
+    "thaumcraft:humanus": 30
+  }
+}

@@ -344,6 +344,56 @@ def main():
             if isinstance(comp, dict) and comp.get('type') == 'thaumcraft:components':
                 check_aspects(comp.get('components', {}).get('thaumcraft:aspects'), where)
 
+    # Attributes are hardcoded in the vanilla registry, so this list is written out rather than read.
+    attributes = {'minecraft:' + name for name in (
+        'generic.max_health', 'generic.follow_range', 'generic.knockback_resistance', 'generic.movement_speed',
+        'generic.flying_speed', 'generic.attack_damage', 'generic.attack_knockback', 'generic.attack_speed',
+        'generic.armor', 'generic.armor_toughness', 'generic.luck')}         | {'forge:swim_speed', 'forge:entity_reach', 'forge:block_reach'}
+
+    # vat infusions: creature infusions and self infusions (data/isorropia/isorropia/*_infusions)
+    creature_hooks = {'isorropia:jelly_rabbit', 'isorropia:ore_pig'}
+    infusion_files = sorted(glob.glob(os.path.join(DATA, 'isorropia', 'creature_infusions', '*.json')))         + sorted(glob.glob(os.path.join(DATA, 'isorropia', 'self_infusions', '*.json')))
+    infusion_names = set()
+    for path in infusion_files:
+        rel = os.path.relpath(path, ROOT)
+        recipe = load_json(path)
+        # The two registries are separate namespaces, so only a repeat inside one is a clash.
+        name = os.path.dirname(path) + ':' + os.path.basename(path)[:-5]
+        if name in infusion_names:
+            err('%s: duplicate infusion id %s' % (rel, name))
+        infusion_names.add(name)
+        if 'research' in recipe and ns(recipe['research']) not in research_keys:
+            err('%s: unknown research %s' % (rel, recipe['research']))
+        for key in recipe.get('aspects', {}):
+            if ns(key) not in aspects:
+                err('%s: unknown aspect %s' % (rel, key))
+        for component in recipe.get('components', []):
+            if not isinstance(component, dict):
+                err('%s: component %r is not an object' % (rel, component))
+                continue
+            if component.get('count', 1) < 1:
+                err('%s: component count must be positive' % rel)
+            for key in ('item', 'tag'):
+                if key in component:
+                    check_item('#' + component[key] if key == 'tag' else component[key], rel)
+        if 'hook' in recipe and recipe['hook'] not in creature_hooks:
+            err('%s: unknown hook %s' % (rel, recipe['hook']))
+        for modifier in recipe.get('modifiers', []):
+            if modifier.get('attribute') not in attributes:
+                err('%s: unknown attribute %s' % (rel, modifier.get('attribute')))
+        kind = recipe.get('kind')
+        if kind is not None:
+            if kind == 'specie' and 'result' not in recipe:
+                err('%s: a specie infusion needs a result entity' % rel)
+            if kind == 'organ' and 'organ' not in recipe:
+                err('%s: an organ infusion needs an organ' % rel)
+            if kind == 'organ' and recipe.get('organ') not in {'heart', 'skin', 'blood', 'muscle', 'void'}:
+                err('%s: unknown organ %s' % (rel, recipe.get('organ')))
+            if kind == 'specie' and not any(e.get('id') == recipe.get('result') for e in []):
+                pass
+        if kind is None and 'infusion' not in recipe:
+            err('%s: a self infusion needs an infusion id' % rel)
+
     orphans = sorted(k for k in lang if k.startswith('isorropia.research_page.') and k not in used_lang)
     for key in orphans:
         warnings.append('unused lang key ' + key)

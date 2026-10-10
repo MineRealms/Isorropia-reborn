@@ -1,0 +1,22 @@
+{
+  "kind": "organ",
+  "organ": "heart",
+  "research": "isorropia:creatureinfusions",
+  "target": {
+    "type": "any"
+  },
+  "components": [
+    {
+      "item": "minecraft:egg",
+      "count": 2
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:corpus": 60,
+    "thaumcraft:motus": 60,
+    "thaumcraft:alienis": 60
+  }
+}

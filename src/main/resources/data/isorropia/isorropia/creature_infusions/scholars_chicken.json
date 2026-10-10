@@ -1,0 +1,22 @@
+{
+  "kind": "specie",
+  "research": "isorropia:scholarschicken",
+  "target": {
+    "entity": "minecraft:chicken"
+  },
+  "result": "isorropia:scholar_chicken",
+  "components": [
+    {
+      "item": "minecraft:black_dye"
+    },
+    {
+      "item": "minecraft:shears"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:sensus": 60,
+    "thaumcraft:permutatio": 30,
+    "thaumcraft:tenebrae": 60
+  },
+  "instability": 2
+}

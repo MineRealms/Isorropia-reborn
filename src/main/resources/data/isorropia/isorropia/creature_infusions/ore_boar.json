@@ -1,0 +1,33 @@
+{
+  "kind": "specie",
+  "research": "isorropia:oreboar",
+  "target": {
+    "entity": "minecraft:pig"
+  },
+  "result": "isorropia:ore_pig",
+  "hook": "isorropia:ore_pig",
+  "components": [
+    {
+      "item": "minecraft:furnace"
+    },
+    {
+      "tag": "forge:ores"
+    },
+    {
+      "item": "thaumcraft:fire_shard"
+    },
+    {
+      "item": "thaumcraft:earth_shard"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:fames": 125,
+    "thaumcraft:ignis": 250,
+    "thaumcraft:metallum": 250,
+    "thaumcraft:terra": 125
+  },
+  "instability": 4,
+  "vis": {
+    "terra": 50
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "organ",
+  "organ": "muscle",
+  "research": "isorropia:creatureinfusions",
+  "target": {
+    "type": "any"
+  },
+  "aspects": {},
+  "modifiers": [
+    {
+      "attribute": "minecraft:generic.movement_speed",
+      "uuid": "b3f15142-2b27-11eb-adc1-0242ac120002",
+      "name": "QUICKSILVER_SPEED",
+      "amount": 0.08
+    },
+    {
+      "attribute": "forge:swim_speed",
+      "uuid": "c1719976-2b27-11eb-adc1-0242ac120002",
+      "name": "QUICKSILVER_SWIM_SPEED",
+      "amount": 0.2
+    }
+  ]
+}

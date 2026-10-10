@@ -1,0 +1,26 @@
+{
+  "kind": "specie",
+  "research": "isorropia:goldchicken",
+  "target": {
+    "entity": "minecraft:chicken"
+  },
+  "result": "isorropia:golden_chicken",
+  "components": [
+    {
+      "item": "minecraft:golden_apple",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:crucible"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:fabrico": 45,
+    "thaumcraft:lucrum": 30,
+    "thaumcraft:metallum": 30
+  },
+  "instability": 2
+}

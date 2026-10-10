@@ -1,0 +1,25 @@
+{
+  "infusion": "isorropia:synth_skin",
+  "research": "isorropia:synthskin",
+  "instability": 6,
+  "components": [
+    {
+      "item": "minecraft:oak_leaves"
+    },
+    {
+      "item": "minecraft:oak_sapling"
+    },
+    {
+      "item": "minecraft:poppy"
+    },
+    {
+      "item": "minecraft:vine"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:herba": 100,
+    "thaumcraft:fames": 100,
+    "thaumcraft:lux": 100,
+    "thaumcraft:humanus": 16
+  }
+}

@@ -261,5 +261,13 @@
   "item.isorropia.chocolate_cow_spawn_egg": "Chocolate Cow Spawn Egg",
   "item.isorropia.golden_chicken_spawn_egg": "Golden Chicken Spawn Egg",
   "item.isorropia.guardian_panther_spawn_egg": "Guardian Panther Spawn Egg",
-  "item.isorropia.nether_hound_spawn_egg": "Nether Hound Spawn Egg"
+  "item.isorropia.nether_hound_spawn_egg": "Nether Hound Spawn Egg",
+  "isorropia.vat.activated": "The vat hums to life",
+  "isorropia.vat.nothing": "Nothing here can be infused",
+  "tooltip.isorropia.stability.stable": "Stable",
+  "tooltip.isorropia.stability.very_stable": "Very stable",
+  "tooltip.isorropia.stability.unstable": "Unstable",
+  "tooltip.isorropia.stability.very_unstable": "Very unstable",
+  "tooltip.isorropia.flux": "Flux: %s",
+  "tooltip.isorropia.celestial": "Celestial aura: %s / %s"
 }

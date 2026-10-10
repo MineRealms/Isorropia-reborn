@@ -8,6 +8,7 @@ import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
+import fr.wind_blade.isorropia.common.tiles.TilesIS;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +26,7 @@ public class Isorropia {
         BlocksIS.BLOCKS.register(modBus);
         ItemsIS.ITEMS.register(modBus);
         SoundsIS.SOUNDS.register(modBus);
+        TilesIS.TILES.register(modBus);
         EntitiesIS.ENTITIES.register(modBus);
         modBus.addListener(EntitiesIS::onAttributes);
         IsorropiaCreativeTabs.TABS.register(modBus);

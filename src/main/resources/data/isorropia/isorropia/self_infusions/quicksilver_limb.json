@@ -1,0 +1,24 @@
+{
+  "infusion": "isorropia:quicksilver_limb",
+  "research": "isorropia:selfinfusion",
+  "instability": 4,
+  "components": [
+    {
+      "item": "minecraft:potion",
+      "nbt": "{Potion:\"minecraft:strong_swiftness\"}"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot",
+      "count": 2
+    },
+    {
+      "item": "thaumcraft:quicksilver",
+      "count": 2
+    }
+  ],
+  "aspects": {
+    "thaumcraft:motus": 100,
+    "thaumcraft:machina": 100,
+    "thaumcraft:volatus": 100
+  }
+}

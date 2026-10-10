@@ -1,0 +1,25 @@
+{
+  "infusion": "isorropia:morphic_fingers",
+  "research": "isorropia:morphicfingers",
+  "instability": 6,
+  "components": [
+    {
+      "item": "thaumcraft:arcane_worktable"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    },
+    {
+      "item": "thaumcraft:salis_mundus"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:instrumentum": 50,
+    "thaumcraft:fabrico": 50,
+    "thaumcraft:humanus": 50,
+    "thaumcraft:permutatio": 30
+  }
+}

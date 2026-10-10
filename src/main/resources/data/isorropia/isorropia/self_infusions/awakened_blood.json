@@ -1,0 +1,21 @@
+{
+  "infusion": "isorropia:awakened_blood",
+  "research": "isorropia:selfinfusion",
+  "instability": 5,
+  "components": [
+    {
+      "item": "minecraft:golden_apple"
+    },
+    {
+      "item": "minecraft:glistering_melon_slice",
+      "count": 4
+    },
+    {
+      "item": "thaumcraft:zombie_brain"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:victus": 200,
+    "thaumcraft:cognitio": 50
+  }
+}

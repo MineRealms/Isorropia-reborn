@@ -1,0 +1,20 @@
+{
+  "kind": "curative",
+  "research": "isorropia:selfshearing",
+  "target": {
+    "type": "shearable"
+  },
+  "components": [
+    {
+      "item": "minecraft:shears"
+    },
+    {
+      "item": "minecraft:comparator"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:instrumentum": 60,
+    "thaumcraft:machina": 30
+  },
+  "instability": 2
+}

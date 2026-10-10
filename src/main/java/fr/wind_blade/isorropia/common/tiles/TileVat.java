@@ -1,0 +1,1032 @@
+package fr.wind_blade.isorropia.common.tiles;
+
+import dev.tc4port.thaumcraft.api.ThaumcraftApiHelper;
+import dev.tc4port.thaumcraft.api.aspect.AspectAmounts;
+import dev.tc4port.thaumcraft.api.aspect.AspectContainerView;
+import dev.tc4port.thaumcraft.api.aspect.AspectId;
+import dev.tc4port.thaumcraft.api.aspect.VisAction;
+import dev.tc4port.thaumcraft.api.aspect.VisChannel;
+import dev.tc4port.thaumcraft.api.essentia.EssentiaApi;
+import dev.tc4port.thaumcraft.api.essentia.EssentiaTransferMode;
+import dev.tc4port.thaumcraft.api.essentia.EssentiaTransport;
+import dev.tc4port.thaumcraft.api.machine.InfusionPedestal;
+import dev.tc4port.thaumcraft.api.node.VisNetworkApi;
+import dev.tc4port.thaumcraft.api.presentation.WorldEffectsApi;
+import fr.wind_blade.isorropia.common.IsorropiaAspects;
+import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
+import fr.wind_blade.isorropia.common.compat.ThaumBridge;
+import fr.wind_blade.isorropia.common.curative.CurativeEffects;
+import fr.wind_blade.isorropia.common.infusion.CelestialBody;
+import fr.wind_blade.isorropia.common.infusion.CreatureInfusionRecipe;
+import fr.wind_blade.isorropia.common.infusion.InfusionRecipes;
+import fr.wind_blade.isorropia.common.infusion.SelfInfusionRecipe;
+import fr.wind_blade.isorropia.common.vat.VatStructure;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+/**
+ * The curative vat. While idle it heals the creature soaking in it, one essentia at a time. Once a wand
+ * switches on the modified matrix above it, the items on the pedestals around the vat and the creature inside
+ * are matched against a {@link CreatureInfusionRecipe} (or a {@link SelfInfusionRecipe} in a reincarnation
+ * body) and the infusion runs one cycle per second, draining celestial aura, essentia, pedestal items and vis
+ * while instability builds up behind every step and occasionally throws something back.
+ *
+ * <p>Every vat block is this same block entity; only the block at the top centre (variant TOP) is the master
+ * and holds the state. The other vat blocks forward their essentia endpoints to it.
+ */
+public class TileVat extends BlockEntity implements EssentiaTransport, AspectContainerView {
+    public static final int MODE_IDLE = 0;
+    public static final int MODE_INFUSING = 2;
+    public static final int MODE_EFFIGY = 3;
+    public static final int MODE_SELF_READY = 4;
+
+    /** One infusion cycle. */
+    public static final int CYCLE_TICKS = 20;
+    private static final int PEDESTAL_RANGE = 12;
+    private static final int PEDESTAL_RANGE_Y = 10;
+    private static final float MAX_INSTABILITY = 25.0F;
+    private static final float FLUX_EXPUNGE_AT = 30.0F;
+    private static final float FLUX_DESTROY_AT = 300.0F;
+    private static final int EFFIGY_ESSENTIA = 30;
+    private static final int STORE_CAP = 32;
+    private static final int SUCTION = 128;
+
+    private int mode = MODE_IDLE;
+    private boolean active;
+    private float stability;
+    private float fluxStocked;
+    private boolean expunge;
+    private float celestialAura;
+    private int celestialAuraNeeded;
+    private CelestialBody celestialBody = CelestialBody.NONE;
+    private boolean hasEffigy;
+    private int effigyEssentia;
+    private int cooldown;
+    private int count;
+    private int cycleTicks = CYCLE_TICKS;
+    private float stabilityReplenish;
+
+    private final Map<AspectId, Integer> stored = new LinkedHashMap<>();
+    private final Map<AspectId, Integer> needed = new LinkedHashMap<>();
+    private final Map<AspectId, Integer> demanded = new LinkedHashMap<>();
+    private final Map<VisChannel, Integer> visNeeded = new LinkedHashMap<>();
+    private final Set<ResourceLocation> selfInfusions = new LinkedHashSet<>();
+
+    @Nullable
+    private ResourceLocation creatureRecipe;
+    @Nullable
+    private ResourceLocation selfRecipe;
+    @Nullable
+    private UUID infusionBy;
+    private final List<ItemStack> components = new ArrayList<>();
+    private final List<ItemStack> consumed = new ArrayList<>();
+    @Nullable
+    private List<BlockPos> pedestals;
+
+    @Nullable
+    private LivingEntity contained;
+    @Nullable
+    private UUID containedId;
+    @Nullable
+    private CompoundTag containedNbt;
+    private boolean breaking;
+
+    public TileVat(BlockPos pos, BlockState state) {
+        super(TilesIS.VAT.get(), pos, state);
+    }
+
+    /** True while the vat is taking itself apart, so the blocks it replaces do not start over. */
+    public boolean isBreaking() {
+        return breaking;
+    }
+
+    /** Starts venting the flux the vat has accumulated; the matrix asks for this when the player sneaks. */
+    public void ventFlux() {
+        if (!expunge && fluxStocked > 0.0F) {
+            expunge = true;
+            sync();
+        }
+    }
+
+    public boolean isMaster() {
+        return getBlockState().getValue(BlockCurativeVat.VARIANT) == BlockCurativeVat.Type.TOP;
+    }
+
+    /** The master of the vat this block belongs to; this block entity itself for the top centre. */
+    @Nullable
+    public TileVat master() {
+        if (isMaster()) {
+            return this;
+        }
+        return level == null ? null : VatStructure.findMaster(level, worldPosition);
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, TileVat vat) {
+        if (vat.isMaster() && level instanceof ServerLevel server) {
+            vat.tickMaster(server);
+        }
+    }
+
+    private void tickMaster(ServerLevel level) {
+        count++;
+        if (mode != MODE_INFUSING && !expunge && contained == null && !hasEffigy) {
+            return;
+        }
+        if (fluxStocked >= FLUX_DESTROY_AT) {
+            if (mode == MODE_INFUSING) {
+                finishInfusion(false);
+            }
+            destroyStructure();
+            return;
+        }
+        if (!expunge && fluxStocked >= FLUX_EXPUNGE_AT) {
+            if (mode == MODE_INFUSING) {
+                finishInfusion(false);
+            }
+            expunge = true;
+            sync();
+        }
+        if (expunge) {
+            if (count % cycleTicks == 0) {
+                fluxStocked = Math.max(0.0F, fluxStocked - 1.0F);
+                ThaumBridge.releaseFlux(level, worldPosition.above(), 1);
+                if (fluxStocked <= 0.0F) {
+                    expunge = false;
+                }
+                sync();
+            }
+            return;
+        }
+        resolveContained(level);
+        if (contained != null && !contained.isAlive()) {
+            destroyStructure();
+            return;
+        }
+        if (mode == MODE_IDLE) {
+            curativeUpdate(level);
+        } else if (mode == MODE_EFFIGY) {
+            effigyUpdate(level);
+        } else if (mode == MODE_INFUSING && active && count % cycleTicks == 0) {
+            if (count % (cycleTicks * 20) == 0) {
+                pedestals = null;
+                refreshStability(level);
+            }
+            infusionCycle(level);
+        }
+    }
+
+    /** Heals the creature in the vat: one essentia of whichever cure applies, then its cooldown. */
+    private void curativeUpdate(ServerLevel level) {
+        if (cooldown > 0) {
+            cooldown--;
+            return;
+        }
+        if (contained == null) {
+            return;
+        }
+        for (CurativeEffects.Effect effect : CurativeEffects.EFFECTS) {
+            if (!effect.canApply().test(contained)) {
+                continue;
+            }
+            if (draw(effect.aspect(), 1)) {
+                effect.apply().accept(contained);
+                cooldown = effect.cooldown();
+                WorldEffectsApi.blockSparkle(level, worldPosition, 2.0, 0xFFFFFF, 2);
+            } else {
+                demand(effect.aspect(), 1);
+                pullEssentia(level, effect.aspect());
+            }
+            return;
+        }
+    }
+
+    /** The corpse effigy soaks up victus until it is a body a soul can be reborn into. */
+    private void effigyUpdate(ServerLevel level) {
+        if (contained != null) {
+            return;
+        }
+        if (effigyEssentia >= EFFIGY_ESSENTIA) {
+            mode = MODE_SELF_READY;
+            sync();
+            return;
+        }
+        if (draw(IsorropiaAspects.VICTUS, 1)) {
+            effigyEssentia++;
+            sync();
+        } else {
+            demand(IsorropiaAspects.VICTUS, 1);
+            pullEssentia(level, IsorropiaAspects.VICTUS);
+        }
+    }
+
+    // ---------------------------------------------------------------- infusion
+
+    /** Starts an infusion from the pedestals around the vat; the modified matrix calls this. */
+    public boolean startInfusion(Player player) {
+        if (level == null || mode == MODE_INFUSING) {
+            return false;
+        }
+        List<ItemStack> items = pedestalItems();
+        if (items.isEmpty()) {
+            return false;
+        }
+        boolean self = mode == MODE_SELF_READY && contained == null;
+        Optional<CreatureInfusionRecipe> creature = self ? Optional.empty()
+                : InfusionRecipes.findCreature(player, contained, items);
+        Optional<SelfInfusionRecipe> own = self ? InfusionRecipes.findSelf(player, items) : Optional.empty();
+        if (creature.isEmpty() && own.isEmpty()) {
+            return false;
+        }
+        components.clear();
+        components.addAll(items);
+        consumed.clear();
+        needed.clear();
+        stored.clear();
+        visNeeded.clear();
+        infusionBy = player.getUUID();
+        stability = 0.0F;
+        celestialAura = 0.0F;
+        celestialAuraNeeded = 0;
+        celestialBody = CelestialBody.NONE;
+        if (creature.isPresent()) {
+            CreatureInfusionRecipe recipe = creature.get();
+            creatureRecipe = recipe.id();
+            selfRecipe = null;
+            needed.putAll(recipe.aspects());
+            visNeeded.putAll(recipe.vis());
+            celestialBody = recipe.celestialBody();
+            celestialAuraNeeded = recipe.celestialAura();
+        } else {
+            SelfInfusionRecipe recipe = own.get();
+            selfRecipe = recipe.id();
+            creatureRecipe = null;
+            needed.putAll(recipe.aspects());
+        }
+        mode = MODE_INFUSING;
+        count = 0;
+        pedestals = null;
+        refreshStability((ServerLevel) level);
+        level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        WorldEffectsApi.blockSparkle((ServerLevel) level, worldPosition, 3.0, 0x7F3FBF, 6);
+        sync();
+        return true;
+    }
+
+    private int currentInstability() {
+        if (creatureRecipe != null) {
+            return InfusionRecipes.creatureRecipe(creatureRecipe).map(CreatureInfusionRecipe::instability).orElse(10);
+        }
+        if (selfRecipe != null) {
+            return InfusionRecipes.selfRecipe(selfRecipe).map(SelfInfusionRecipe::instability).orElse(10);
+        }
+        return 0;
+    }
+
+    /**
+     * One cycle of the running infusion. Instability settles first and can throw an event that costs the cycle;
+     * otherwise the four steps run in order — aura, essentia, items, vis — and finishing them all completes it.
+     */
+    private void infusionCycle(ServerLevel level) {
+        if (creatureRecipe == null && selfRecipe == null) {
+            finishInfusion(false);
+            return;
+        }
+        stability -= level.random.nextFloat() * (currentInstability() / 6.0F);
+        stability = Math.min(stability + stabilityReplenish, MAX_INSTABILITY);
+        if (stability < 0.0F && level.random.nextInt(1500) < Math.abs(stability)) {
+            instabilityEvent(level);
+            stability = Math.min(stability + 5.0F + level.random.nextFloat() * 5.0F, MAX_INSTABILITY);
+            sync();
+            return;
+        }
+        if (selfRecipe == null && contained == null) {
+            finishInfusion(false);
+            return;
+        }
+        if (celestialStep(level) && essentiaStep(level) && ingredientStep(level) && visStep(level)) {
+            finishInfusion(true);
+        } else {
+            sync();
+        }
+    }
+
+    /**
+     * Gathered aura is spent as a whole: the vat collects one point per cycle until it has what the recipe
+     * asked for, then resumes the other steps.
+     */
+    private boolean celestialStep(ServerLevel level) {
+        if (celestialAuraNeeded <= 0) {
+            return true;
+        }
+        if (!celestialBody.canBeDrained(level, worldPosition.above())) {
+            return false;
+        }
+        celestialAura += 1.0F;
+        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 2.0, 0xFFF7A0, 3);
+        if (celestialAura >= celestialAuraNeeded) {
+            celestialAura = 0.0F;
+            celestialAuraNeeded = 0;
+            return true;
+        }
+        return false;
+    }
+
+    /** Pulls whatever essentia is still missing; the step passes once the whole demand has arrived. */
+    private boolean essentiaStep(ServerLevel level) {
+        boolean ready = true;
+        for (Map.Entry<AspectId, Integer> entry : needed.entrySet()) {
+            int missing = entry.getValue() - stored.getOrDefault(entry.getKey(), 0);
+            if (missing <= 0) {
+                continue;
+            }
+            demand(entry.getKey(), missing);
+            pullEssentia(level, entry.getKey());
+            ready = false;
+        }
+        if (!ready) {
+            return false;
+        }
+        for (AspectId aspect : needed.keySet()) {
+            stored.remove(aspect);
+        }
+        needed.clear();
+        return true;
+    }
+
+    /** Consumes one pedestal item per cycle; passes once every ingredient has been taken. */
+    private boolean ingredientStep(ServerLevel level) {
+        if (components.isEmpty()) {
+            return true;
+        }
+        ItemStack stack = components.remove(0);
+        consumed.add(stack);
+        for (BlockPos pos : pedestals(level)) {
+            if (level.getBlockEntity(pos) instanceof InfusionPedestal pedestal
+                    && !pedestal.item().isEmpty() && ItemStack.isSameItemSameTags(pedestal.item(), stack)) {
+                pedestal.clearContent();
+            }
+        }
+        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 2.0, 0xFFFFFF, 2);
+        return components.isEmpty();
+    }
+
+    /** Drains the whole-vis cost from the vis network, one channel per cycle. */
+    private boolean visStep(ServerLevel level) {
+        if (visNeeded.isEmpty()) {
+            return true;
+        }
+        VisChannel channel = visNeeded.keySet().iterator().next();
+        int whole = visNeeded.get(channel);
+        int got = VisNetworkApi.drain(level, worldPosition.above(), channel, whole * 100, VisAction.EXECUTE) / 100;
+        if (got <= 0) {
+            return false;
+        }
+        if (got >= whole) {
+            visNeeded.remove(channel);
+        } else {
+            visNeeded.put(channel, whole - got);
+        }
+        return visNeeded.isEmpty();
+    }
+
+    private void finishInfusion(boolean success) {
+        if (level instanceof ServerLevel server) {
+            if (success && creatureRecipe != null && contained != null) {
+                Player player = infusionBy == null ? null : server.getPlayerByUUID(infusionBy);
+                InfusionRecipes.creatureRecipe(creatureRecipe).ifPresent(recipe -> {
+                    LivingEntity result = InfusionRecipes.apply(recipe, contained, player, consumed);
+                    if (result != contained) {
+                        setContained(result);
+                    }
+                });
+                WorldEffectsApi.blockSparkle(server, worldPosition.above(), 4.0, 0xFFFFFF, 12);
+            } else if (success && selfRecipe != null) {
+                InfusionRecipes.selfRecipe(selfRecipe).ifPresent(recipe -> {
+                    selfInfusions.add(recipe.infusion());
+                    WorldEffectsApi.blockSparkle(server, worldPosition.above(), 4.0, 0xFFFFFF, 12);
+                });
+            }
+        }
+        mode = contained == null && hasEffigy ? MODE_SELF_READY : MODE_IDLE;
+        needed.clear();
+        stored.clear();
+        demanded.clear();
+        visNeeded.clear();
+        components.clear();
+        creatureRecipe = null;
+        selfRecipe = null;
+        infusionBy = null;
+        stability = 0.0F;
+        celestialAura = 0.0F;
+        celestialAuraNeeded = 0;
+        celestialBody = CelestialBody.NONE;
+        cooldown = 0;
+        active = false;
+        sync();
+    }
+
+    // ---------------------------------------------------------------- instability
+
+    private void instabilityEvent(ServerLevel level) {
+        fluxStocked += level.random.nextInt(10);
+        int roll = level.random.nextInt(26);
+        if (roll < 4) {
+            ejectPedestalItem(level, true);
+        } else if (roll < 7) {
+            warpHarm(level);
+        } else if (roll < 10) {
+            zap(level);
+        } else if (roll < 12) {
+            ejectPedestalItem(level, true);
+            harm(level);
+        } else if (roll < 15) {
+            ejectPedestalItem(level, roll != 13);
+            fluxStocked += 5 + level.random.nextInt(5);
+        } else if (roll < 18) {
+            harm(level);
+        } else if (roll < 20) {
+            ejectPedestalItem(level, true);
+            level.explode(null, worldPosition.getX() + 0.5, worldPosition.getY() - 1.5, worldPosition.getZ() + 0.5,
+                    1.0F, Level.ExplosionInteraction.NONE);
+        } else if (roll < 21) {
+            harm(level);
+            warpHarm(level);
+        } else if (roll < 22) {
+            level.explode(null, worldPosition.getX() + 0.5, worldPosition.getY() - 1.5, worldPosition.getZ() + 0.5,
+                    1.5F + level.random.nextFloat(), Level.ExplosionInteraction.NONE);
+        } else if (roll < 24) {
+            if (contained != null) {
+                contained.hurt(level.damageSources().magic(), level.random.nextInt(3));
+            }
+        } else {
+            zap(level);
+        }
+    }
+
+    /** Drops or destroys one of the items waiting on a pedestal. */
+    private void ejectPedestalItem(ServerLevel level, boolean drop) {
+        List<BlockPos> found = pedestals(level);
+        for (int attempt = 0; attempt < 20 && !found.isEmpty(); attempt++) {
+            BlockPos pos = found.get(level.random.nextInt(found.size()));
+            if (!(level.getBlockEntity(pos) instanceof InfusionPedestal pedestal) || pedestal.item().isEmpty()) {
+                continue;
+            }
+            ItemStack stack = pedestal.item();
+            if (drop) {
+                level.addFreshEntity(new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.1, pos.getZ() + 0.5, stack.copy()));
+            }
+            pedestal.clearContent();
+            return;
+        }
+    }
+
+    private void zap(ServerLevel level) {
+        for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(10.0))) {
+            living.hurt(level.damageSources().magic(), 4.0F + level.random.nextInt(4));
+        }
+        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 6.0, 0x9B00FF, 24);
+    }
+
+    /** Flux taint or vis exhaustion, the two curses a botched infusion hands out. */
+    private void harm(ServerLevel level) {
+        for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(10.0))) {
+            living.addEffect(new MobEffectInstance(ThaumBridge.fluxTaint(), 120));
+            if (level.random.nextBoolean()) {
+                living.addEffect(new MobEffectInstance(ThaumBridge.visExhaust(), 2400));
+            }
+        }
+    }
+
+    private void warpHarm(ServerLevel level) {
+        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, new AABB(worldPosition).inflate(10.0))) {
+            if (level.random.nextInt(4) == 0) {
+                ThaumcraftApiHelper.addStickyWarpToPlayer(player, 1);
+            } else {
+                ThaumcraftApiHelper.addWarpToPlayer(player, 2 + level.random.nextInt(4), true);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- essentia
+
+    private void demand(AspectId aspect, int amount) {
+        demanded.merge(aspect, amount, Integer::sum);
+    }
+
+    /** Takes essentia out of what the vat holds. */
+    private boolean draw(AspectId aspect, int amount) {
+        int have = stored.getOrDefault(aspect, 0);
+        if (have < amount) {
+            return false;
+        }
+        if (have == amount) {
+            stored.remove(aspect);
+        } else {
+            stored.put(aspect, have - amount);
+        }
+        return true;
+    }
+
+    /** Pulls one unit of an aspect out of a neighbouring essentia endpoint, if it will give it up. */
+    private void pullEssentia(ServerLevel level, AspectId aspect) {
+        for (BlockPos port : ports()) {
+            for (Direction face : Direction.values()) {
+                EssentiaTransport transport = ThaumcraftApiHelper.getConnectableTransport(level, port, face);
+                if (transport == null || !transport.isConnectable(face.getOpposite())) {
+                    continue;
+                }
+                int taken = EssentiaApi.take(level, transport, aspect, 1, face.getOpposite(), EssentiaTransferMode.EXECUTE);
+                if (taken > 0) {
+                    accept(aspect, taken);
+                    return;
+                }
+            }
+        }
+    }
+
+    /** The master plus its four ports: any block of a formed vat can be connected to a tube. */
+    private List<BlockPos> ports() {
+        List<BlockPos> result = new ArrayList<>(5);
+        result.add(worldPosition);
+        for (int dy = -1; dy > -VatStructure.HEIGHT; dy--) {
+            result.add(worldPosition.offset(1, dy, 0));
+            result.add(worldPosition.offset(-1, dy, 0));
+            result.add(worldPosition.offset(0, dy, 1));
+            result.add(worldPosition.offset(0, dy, -1));
+        }
+        return result;
+    }
+
+    /** Takes as much as the current demand still has room for; returns how much that was. */
+    private int accept(AspectId aspect, int amount) {
+        int cap = Math.min(demanded.getOrDefault(aspect, 0), STORE_CAP);
+        int have = stored.getOrDefault(aspect, 0);
+        int taken = Math.min(amount, Math.max(cap - have, 0));
+        if (taken > 0) {
+            stored.merge(aspect, taken, Integer::sum);
+            setChanged();
+        }
+        return taken;
+    }
+
+    @Override
+    public boolean isConnectable(Direction face) {
+        return true;
+    }
+
+    @Override
+    public boolean canInputFrom(Direction face) {
+        return true;
+    }
+
+    @Override
+    public boolean canOutputTo(Direction face) {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public AspectId suctionType(Direction face) {
+        TileVat master = master();
+        if (master == null) {
+            return null;
+        }
+        return master.demanded.entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
+    }
+
+    @Override
+    public int suctionAmount(Direction face) {
+        TileVat master = master();
+        return master != null && !master.demanded.isEmpty() ? SUCTION : 0;
+    }
+
+    @Override
+    public int takeEssentia(AspectId aspect, int amount, Direction face, EssentiaTransferMode mode) {
+        return 0;
+    }
+
+    @Override
+    public int addEssentia(AspectId aspect, int amount, Direction face, EssentiaTransferMode mode) {
+        TileVat master = master();
+        return master == null ? 0 : master.accept(aspect, amount);
+    }
+
+    @Nullable
+    @Override
+    public AspectId essentiaType(Direction face) {
+        return null;
+    }
+
+    @Override
+    public int essentiaAmount(Direction face) {
+        return 0;
+    }
+
+    @Override
+    public int minimumSuction() {
+        return 0;
+    }
+
+    @Override
+    public boolean renderExtendedTube() {
+        return true;
+    }
+
+    @Override
+    public AspectAmounts visibleAspects() {
+        TileVat master = master();
+        return new AspectAmounts(master == null ? Map.of() : Map.copyOf(master.stored));
+    }
+
+    // ---------------------------------------------------------------- pedestals
+
+    private List<BlockPos> pedestals(ServerLevel level) {
+        if (pedestals == null) {
+            List<BlockPos> found = new ArrayList<>();
+            for (BlockPos pos : BlockPos.betweenClosed(worldPosition.offset(-PEDESTAL_RANGE, -PEDESTAL_RANGE_Y, -PEDESTAL_RANGE),
+                    worldPosition.offset(PEDESTAL_RANGE, PEDESTAL_RANGE_Y, PEDESTAL_RANGE))) {
+                if (level.getBlockEntity(pos) instanceof InfusionPedestal) {
+                    found.add(pos.immutable());
+                }
+            }
+            pedestals = List.copyOf(found);
+        }
+        return pedestals;
+    }
+
+    private List<ItemStack> pedestalItems() {
+        if (!(level instanceof ServerLevel server)) {
+            return List.of();
+        }
+        List<ItemStack> items = new ArrayList<>();
+        for (BlockPos pos : pedestals(server)) {
+            if (server.getBlockEntity(pos) instanceof InfusionPedestal pedestal && !pedestal.item().isEmpty()) {
+                items.add(pedestal.item().copyWithCount(1));
+            }
+        }
+        return items;
+    }
+
+    public void invalidatePedestals() {
+        pedestals = null;
+    }
+
+    /** Stabilizers calm an infusion, but only in mirrored pairs — the same rule Thaumcraft's altar uses. */
+    private void refreshStability(ServerLevel level) {
+        stabilityReplenish = 0.0F;
+        int radius = 8;
+        for (BlockPos pos : BlockPos.betweenClosed(worldPosition.offset(-radius, -6, -radius), worldPosition.offset(radius, 4, radius))) {
+            if (!level.getBlockState(pos).is(ThaumBridge.STABILIZERS)) {
+                continue;
+            }
+            BlockPos mirror = new BlockPos(2 * worldPosition.getX() - pos.getX(), pos.getY(), 2 * worldPosition.getZ() - pos.getZ());
+            stabilityReplenish += level.getBlockState(mirror).is(ThaumBridge.STABILIZERS) ? 0.1F : -0.2F;
+        }
+    }
+
+    // ---------------------------------------------------------------- containment
+
+    private static void setNoAi(@Nullable LivingEntity entity, boolean noAi) {
+        if (entity instanceof Mob mob) {
+            mob.setNoAi(noAi);
+        }
+    }
+
+    /** Puts a creature in the vat: held without AI and immune until it leaves again. */
+    public void setContained(@Nullable LivingEntity entity) {
+        setNoAi(contained, false);
+        if (contained != null) {
+            contained.setInvulnerable(false);
+        }
+        contained = entity;
+        containedId = entity == null ? null : entity.getUUID();
+        containedNbt = null;
+        if (entity != null) {
+            setNoAi(entity, true);
+            entity.setInvulnerable(true);
+            entity.setDeltaMovement(0.0, 0.0, 0.0);
+            entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() - 1.6, worldPosition.getZ() + 0.5);
+            if (level != null && !entity.isAddedToWorld()) {
+                level.addFreshEntity(entity);
+            }
+            containedNbt = new CompoundTag();
+            entity.save(containedNbt);
+        }
+        pedestals = null;
+        sync();
+    }
+
+    @Nullable
+    public LivingEntity getContained() {
+        return contained;
+    }
+
+    /** Reattaches the creature after a chunk reload, rebuilding it from its saved form if it never came back. */
+    private void resolveContained(ServerLevel level) {
+        if (contained != null) {
+            return;
+        }
+        if (containedId != null && level.getEntity(containedId) instanceof LivingEntity living) {
+            contained = living;
+            return;
+        }
+        if (containedNbt != null) {
+            Entity restored = EntityType.create(containedNbt, level).orElse(null);
+            if (restored instanceof LivingEntity living) {
+                level.addFreshEntity(living);
+                contained = living;
+            }
+        }
+    }
+
+    /** Lets the creature out above the vat. */
+    public void releaseContained() {
+        if (contained == null) {
+            return;
+        }
+        LivingEntity entity = contained;
+        setContained(null);
+        setNoAi(entity, false);
+        entity.setInvulnerable(false);
+        entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 2.0, worldPosition.getZ() + 0.5);
+    }
+
+    /** Breaks the vat open: whatever is inside dies, the consumed ingredients drop, the blocks come apart. */
+    public void destroyStructure() {
+        destroyStructure(null);
+    }
+
+    public void destroyStructure(@Nullable BlockPos skip) {
+        if (level == null || breaking) {
+            return;
+        }
+        breaking = true;
+        if (contained != null) {
+            LivingEntity entity = contained;
+            setContained(null);
+            setNoAi(entity, false);
+            entity.hurt(level.damageSources().magic(), Float.MAX_VALUE);
+        }
+        if (level instanceof ServerLevel server) {
+            for (ItemStack stack : consumed) {
+                Block.popResource(server, worldPosition.above(), stack);
+            }
+        }
+        consumed.clear();
+        components.clear();
+        sync();
+        VatStructure.restore(level, worldPosition, skip);
+    }
+
+    // ---------------------------------------------------------------- accessors
+
+    public int getMode() {
+        return mode;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+        sync();
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public boolean isInfusing() {
+        return mode == MODE_INFUSING;
+    }
+
+    public boolean isExpunging() {
+        return expunge;
+    }
+
+    public float getStability() {
+        return stability;
+    }
+
+    public float getFluxStocked() {
+        return fluxStocked;
+    }
+
+    public int getCelestialAuraNeeded() {
+        return celestialAuraNeeded;
+    }
+
+    public float getCelestialAura() {
+        return celestialAura;
+    }
+
+    public boolean hasEffigy() {
+        return hasEffigy;
+    }
+
+    public void setHasEffigy(boolean hasEffigy) {
+        this.hasEffigy = hasEffigy;
+        if (!hasEffigy) {
+            effigyEssentia = 0;
+        } else if (mode == MODE_IDLE && contained == null) {
+            mode = MODE_EFFIGY;
+        }
+        sync();
+    }
+
+    public int getEffigyEssentia() {
+        return effigyEssentia;
+    }
+
+    public Set<ResourceLocation> getSelfInfusions() {
+        return Set.copyOf(selfInfusions);
+    }
+
+    /** Hands this body's abilities to the player reborn in it and empties the vat. */
+    public void claimSelfInfusions(Player player) {
+        fr.wind_blade.isorropia.common.capabilities.LivingData.get(player)
+                .ifPresent(data -> selfInfusions.forEach(data::addSelfInfusion));
+        selfInfusions.clear();
+        hasEffigy = false;
+        effigyEssentia = 0;
+        mode = MODE_IDLE;
+        sync();
+    }
+
+    // ---------------------------------------------------------------- persistence
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.putInt("Mode", mode);
+        tag.putBoolean("Active", active);
+        tag.putFloat("Stability", stability);
+        tag.putFloat("Flux", fluxStocked);
+        tag.putBoolean("Expunge", expunge);
+        tag.putFloat("Aura", celestialAura);
+        tag.putInt("AuraNeeded", celestialAuraNeeded);
+        tag.putString("Body", celestialBody.serializedName());
+        tag.putBoolean("Effigy", hasEffigy);
+        tag.putInt("EffigyEssentia", effigyEssentia);
+        tag.putInt("Cooldown", cooldown);
+        tag.put("Stored", writeAspects(stored));
+        tag.put("Needed", writeAspects(needed));
+        ListTag selfTag = new ListTag();
+        selfInfusions.forEach(id -> selfTag.add(StringTag.valueOf(id.toString())));
+        tag.put("SelfInfusions", selfTag);
+        if (creatureRecipe != null) {
+            tag.putString("CreatureRecipe", creatureRecipe.toString());
+        }
+        if (selfRecipe != null) {
+            tag.putString("SelfRecipe", selfRecipe.toString());
+        }
+        if (infusionBy != null) {
+            tag.putUUID("InfusionBy", infusionBy);
+        }
+        if (containedId != null) {
+            tag.putUUID("Contained", containedId);
+        }
+        if (containedNbt != null) {
+            tag.put("ContainedNbt", containedNbt);
+        }
+        ListTag consumedTag = new ListTag();
+        consumed.forEach(stack -> consumedTag.add(stack.save(new CompoundTag())));
+        tag.put("Consumed", consumedTag);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        mode = tag.getInt("Mode");
+        active = tag.getBoolean("Active");
+        stability = tag.getFloat("Stability");
+        fluxStocked = tag.getFloat("Flux");
+        expunge = tag.getBoolean("Expunge");
+        celestialAura = tag.getFloat("Aura");
+        celestialAuraNeeded = tag.getInt("AuraNeeded");
+        celestialBody = CelestialBody.byName(tag.getString("Body"));
+        hasEffigy = tag.getBoolean("Effigy");
+        effigyEssentia = tag.getInt("EffigyEssentia");
+        cooldown = tag.getInt("Cooldown");
+        readAspects(tag.getList("Stored", Tag.TAG_COMPOUND), stored);
+        readAspects(tag.getList("Needed", Tag.TAG_COMPOUND), needed);
+        selfInfusions.clear();
+        for (Tag element : tag.getList("SelfInfusions", Tag.TAG_STRING)) {
+            ResourceLocation id = ResourceLocation.tryParse(element.getAsString());
+            if (id != null) {
+                selfInfusions.add(id);
+            }
+        }
+        creatureRecipe = tag.contains("CreatureRecipe") ? ResourceLocation.tryParse(tag.getString("CreatureRecipe")) : null;
+        selfRecipe = tag.contains("SelfRecipe") ? ResourceLocation.tryParse(tag.getString("SelfRecipe")) : null;
+        infusionBy = tag.hasUUID("InfusionBy") ? tag.getUUID("InfusionBy") : null;
+        containedId = tag.hasUUID("Contained") ? tag.getUUID("Contained") : null;
+        containedNbt = tag.contains("ContainedNbt") ? tag.getCompound("ContainedNbt") : null;
+        consumed.clear();
+        for (Tag element : tag.getList("Consumed", Tag.TAG_COMPOUND)) {
+            ItemStack stack = ItemStack.of((CompoundTag) element);
+            if (!stack.isEmpty()) {
+                consumed.add(stack);
+            }
+        }
+    }
+
+    private static ListTag writeAspects(Map<AspectId, Integer> aspects) {
+        ListTag list = new ListTag();
+        aspects.forEach((aspect, amount) -> {
+            CompoundTag entry = new CompoundTag();
+            entry.putString("Id", aspect.toString());
+            entry.putInt("Amount", amount);
+            list.add(entry);
+        });
+        return list;
+    }
+
+    private static void readAspects(ListTag list, Map<AspectId, Integer> into) {
+        into.clear();
+        for (Tag element : list) {
+            CompoundTag entry = (CompoundTag) element;
+            try {
+                into.put(AspectId.parse(entry.getString("Id")), entry.getInt("Amount"));
+            } catch (IllegalArgumentException ignored) {
+                // An aspect that no longer exists: skip it rather than losing the whole vat.
+            }
+        }
+    }
+
+    /** The client only needs what the goggles and the matrix tooltip show. */
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("Mode", mode);
+        tag.putBoolean("Active", active);
+        tag.putFloat("Stability", stability);
+        tag.putFloat("Flux", fluxStocked);
+        tag.putFloat("Aura", celestialAura);
+        tag.putInt("AuraNeeded", celestialAuraNeeded);
+        tag.putBoolean("Expunge", expunge);
+        tag.putBoolean("Effigy", hasEffigy);
+        tag.putInt("EffigyEssentia", effigyEssentia);
+        return tag;
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+        CompoundTag tag = packet.getTag();
+        if (tag != null && !tag.isEmpty() && tag.contains("Mode")) {
+            super.onDataPacket(connection, packet);
+            mode = tag.getInt("Mode");
+            active = tag.getBoolean("Active");
+            stability = tag.getFloat("Stability");
+            fluxStocked = tag.getFloat("Flux");
+            celestialAura = tag.getFloat("Aura");
+            celestialAuraNeeded = tag.getInt("AuraNeeded");
+            expunge = tag.getBoolean("Expunge");
+            hasEffigy = tag.getBoolean("Effigy");
+            effigyEssentia = tag.getInt("EffigyEssentia");
+        }
+    }
+
+    private void sync() {
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Nullable
+    public ResourceLocation getCreatureRecipe() {
+        return creatureRecipe;
+    }
+}

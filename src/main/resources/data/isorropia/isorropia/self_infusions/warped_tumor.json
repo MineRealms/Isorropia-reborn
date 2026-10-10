@@ -1,0 +1,28 @@
+{
+  "infusion": "isorropia:warped_tumor",
+  "research": "isorropia:warpedtumor",
+  "instability": 12,
+  "components": [
+    {
+      "item": "thaumcraft:tainted_flesh"
+    },
+    {
+      "item": "thaumcraft:bath_salts",
+      "count": 2
+    },
+    {
+      "item": "minecraft:nether_star",
+      "count": 2
+    },
+    {
+      "item": "minecraft:obsidian"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:vitium": 100,
+    "thaumcraft:alienis": 75,
+    "thaumcraft:vinculum": 50,
+    "thaumcraft:corpus": 45,
+    "thaumcraft:permutatio": 30
+  }
+}

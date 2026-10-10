@@ -1,0 +1,25 @@
+{
+  "kind": "organ",
+  "organ": "skin",
+  "research": "isorropia:creatureinfusions",
+  "target": {
+    "type": "any"
+  },
+  "components": [
+    {
+      "item": "minecraft:quartz",
+      "count": 2
+    },
+    {
+      "item": "minecraft:redstone"
+    },
+    {
+      "item": "thaumcraft:air_shard"
+    }
+  ],
+  "aspects": {
+    "thaumcraft:potentia": 30,
+    "thaumcraft:telum": 30,
+    "thaumcraft:aer": 5
+  }
+}

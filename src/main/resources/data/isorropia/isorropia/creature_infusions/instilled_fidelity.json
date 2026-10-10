@@ -1,0 +1,18 @@
+{
+  "kind": "curative",
+  "research": "isorropia:instilledfidelity",
+  "target": {
+    "type": "tameable"
+  },
+  "components": [
+    {
+      "tag": "forge:crops",
+      "count": 3
+    }
+  ],
+  "aspects": {
+    "thaumcraft:bestia": 30,
+    "thaumcraft:cognitio": 30
+  },
+  "instability": 2
+}

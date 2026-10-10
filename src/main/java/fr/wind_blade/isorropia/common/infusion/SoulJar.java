@@ -1,0 +1,86 @@
+package fr.wind_blade.isorropia.common.infusion;
+
+import dev.tc4port.thaumcraft.api.ThaumcraftContent;
+import fr.wind_blade.isorropia.common.items.ItemsIS;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+import javax.annotation.Nullable;
+
+/**
+ * A creature kept inside a soul jar. The jar holds the whole entity as NBT, so it survives the world being
+ * unloaded; a warded jar is what a capture costs, exactly as upstream charged.
+ */
+public final class SoulJar {
+    /** Where the captured entity lives inside the stack's tag. */
+    public static final String ENTITY_TAG = "EntityData";
+
+    private SoulJar() {
+    }
+
+    /** Empties a jar of whatever it holds, if it holds a living creature at all. */
+    public static LivingEntity take(Player player, ItemStack jar) {
+        LivingEntity stored = peek(jar, player.level());
+        if (stored == null) {
+            return null;
+        }
+        jar.shrink(1);
+        player.getInventory().add(new ItemStack(ThaumcraftContent.item("warded_jar")));
+        return stored;
+    }
+
+    /** Puts the creature in a jar, if the player has one to spare and something to catch. */
+    public static boolean capture(Player player, LivingEntity target) {
+        if (player.level().isClientSide || !target.isAlive() || target instanceof Player) {
+            return false;
+        }
+        ItemStack jar = new ItemStack(ItemsIS.JAR_SOUL.get());
+        CompoundTag data = new CompoundTag();
+        target.save(data);
+        jar.getOrCreateTag().put(ENTITY_TAG, data);
+        jar.setHoverName(Component.translatable("item.isorropia.jar_soul.jarred",
+                target.getDisplayName()).withStyle(ChatFormatting.DARK_PURPLE));
+        int slot = findJarSlot(player);
+        if (slot < 0) {
+            player.displayClientMessage(Component.translatable("isorropia.containment.fail"), true);
+            return false;
+        }
+        player.getInventory().removeItem(slot, 1);
+        if (!player.getInventory().add(jar)) {
+            player.drop(jar, false);
+        }
+        target.discard();
+        return true;
+    }
+
+    /** The jar that would be spent, or -1 for a player carrying none. */
+    private static int findJarSlot(Player player) {
+        var warded = ThaumcraftContent.item("warded_jar");
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.is(ItemsIS.JAR_SOUL.get()) || stack.is(warded)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    /** The creature stored in a jar stack, or null for an empty jar or a broken one. */
+    @Nullable
+    public static LivingEntity peek(ItemStack jar, Level level) {
+        CompoundTag data = jar.getTag() == null ? null : jar.getTag().getCompound(ENTITY_TAG);
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
+        Entity stored = EntityType.create(data, level).orElse(null);
+        return stored instanceof LivingEntity living ? living : null;
+    }
+}

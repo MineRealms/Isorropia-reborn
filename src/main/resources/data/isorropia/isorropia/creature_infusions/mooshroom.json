@@ -1,0 +1,23 @@
+{
+  "kind": "specie",
+  "research": "isorropia:monsterexchange",
+  "target": {
+    "entity": "minecraft:cow"
+  },
+  "result": "minecraft:mooshroom",
+  "components": [
+    {
+      "item": "minecraft:brown_mushroom",
+      "count": 2
+    },
+    {
+      "item": "minecraft:red_mushroom",
+      "count": 2
+    }
+  ],
+  "aspects": {
+    "thaumcraft:bestia": 10,
+    "thaumcraft:herba": 30
+  },
+  "instability": 4
+}
