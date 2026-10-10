@@ -1,0 +1,8 @@
+{
+  "color": "#870404",
+  "components": [
+    "thaumcraft:telum",
+    "thaumcraft:ignis"
+  ],
+  "blend": "normal"
+}

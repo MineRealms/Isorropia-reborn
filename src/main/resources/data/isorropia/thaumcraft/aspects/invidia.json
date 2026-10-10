@@ -1,0 +1,8 @@
+{
+  "color": "#00BA00",
+  "components": [
+    "thaumcraft:sensus",
+    "thaumcraft:fames"
+  ],
+  "blend": "normal"
+}

@@ -1,0 +1,8 @@
+{
+  "color": "#6E6E6E",
+  "components": [
+    "thaumcraft:vinculum",
+    "thaumcraft:spiritus"
+  ],
+  "blend": "normal"
+}

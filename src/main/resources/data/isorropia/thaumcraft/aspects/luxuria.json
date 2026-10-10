@@ -1,0 +1,8 @@
+{
+  "color": "#FFC1CE",
+  "components": [
+    "thaumcraft:corpus",
+    "thaumcraft:fames"
+  ],
+  "blend": "normal"
+}

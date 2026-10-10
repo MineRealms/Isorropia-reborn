@@ -1,0 +1,8 @@
+{
+  "color": "#9639FF",
+  "components": [
+    "thaumcraft:volatus",
+    "thaumcraft:vacuos"
+  ],
+  "blend": "normal"
+}
