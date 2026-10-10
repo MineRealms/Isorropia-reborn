@@ -33,8 +33,14 @@ public enum CelestialBody {
         return name().toLowerCase(Locale.ROOT);
     }
 
+    /** Unknown or missing names read as NONE, so a malformed save never breaks a vat. */
     public static CelestialBody byName(String name) {
-        return valueOf(name.toUpperCase(Locale.ROOT));
+        for (CelestialBody body : values()) {
+            if (body.name().equalsIgnoreCase(name)) {
+                return body;
+            }
+        }
+        return NONE;
     }
 
     public boolean canBeDrained(Level level, BlockPos skyCheck) {

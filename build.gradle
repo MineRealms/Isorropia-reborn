@@ -25,9 +25,12 @@ minecraft {
         }
         client {
             workingDirectory project.file('run-client')
+            // The Rosetta bridge only listens once a world is joined, so automated client runs quick-play one.
             if (project.hasProperty('quickPlay')) {
                 args '--quickPlaySingleplayer', project.property('quickPlay')
             }
+            // Its own port, so a client and a dedicated server can be probed side by side.
+            property 'rosetta.remote.port', '48791'
         }
         server {
             workingDirectory project.file('run-server')

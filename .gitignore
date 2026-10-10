@@ -24,3 +24,6 @@ logs/
 local-repo/**/*.jar
 local-repo/**/*.pom
 reference/
+
+# client probe scratch files
+build/client_*.java

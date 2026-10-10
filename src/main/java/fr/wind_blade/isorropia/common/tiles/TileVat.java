@@ -1032,6 +1032,11 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         }
     }
 
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
     /** The client only needs what the goggles and the matrix tooltip show. */
     @Override
     public CompoundTag getUpdateTag() {
@@ -1048,21 +1053,33 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return tag;
     }
 
+    /**
+     * The chunk packet and block updates both carry the slim update tag, so the client must read it with its
+     * own reader: the full {@link #load} expects fields the update tag never contains.
+     */
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        readSync(tag);
+    }
+
     @Override
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
         CompoundTag tag = packet.getTag();
-        if (tag != null && !tag.isEmpty() && tag.contains("Mode")) {
-            super.onDataPacket(connection, packet);
-            mode = tag.getInt("Mode");
-            active = tag.getBoolean("Active");
-            stability = tag.getFloat("Stability");
-            fluxStocked = tag.getFloat("Flux");
-            celestialAura = tag.getFloat("Aura");
-            celestialAuraNeeded = tag.getInt("AuraNeeded");
-            expunge = tag.getBoolean("Expunge");
-            hasEffigy = tag.getBoolean("Effigy");
-            effigyEssentia = tag.getInt("EffigyEssentia");
+        if (tag != null) {
+            readSync(tag);
         }
+    }
+
+    private void readSync(CompoundTag tag) {
+        mode = tag.getInt("Mode");
+        active = tag.getBoolean("Active");
+        stability = tag.getFloat("Stability");
+        fluxStocked = tag.getFloat("Flux");
+        celestialAura = tag.getFloat("Aura");
+        celestialAuraNeeded = tag.getInt("AuraNeeded");
+        expunge = tag.getBoolean("Expunge");
+        hasEffigy = tag.getBoolean("Effigy");
+        effigyEssentia = tag.getInt("EffigyEssentia");
     }
 
     private void sync() {

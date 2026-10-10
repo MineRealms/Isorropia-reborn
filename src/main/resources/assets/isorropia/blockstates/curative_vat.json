@@ -11,6 +11,9 @@
     },
     "variant=connector": {
       "model": "isorropia:block/curative_vat"
+    },
+    "variant=glass": {
+      "model": "isorropia:block/curative_vat"
     }
   }
 }
