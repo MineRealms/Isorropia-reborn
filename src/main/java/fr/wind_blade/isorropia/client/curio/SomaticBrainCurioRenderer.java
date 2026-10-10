@@ -20,8 +20,8 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 /** Wears the brain on top of the head, at the size and height the original bauble used. */
 public class SomaticBrainCurioRenderer implements ICurioRenderer {
     private static final ResourceLocation TEXTURE = Isorropia.id("textures/entity/somatic_brain.png");
-    /** The original drew this bauble at 1.81 times the model. */
-    private static final float SCALE = 1.81F;
+    /** The original bauble's net scale: Baubles' defaultTransforms scaled 0.55, then the item scaled 1.81. */
+    private static final float SCALE = 0.9955F;
     /** The head's crown, half a block above its pivot: the brain rests here and grows upwards. */
     private static final float CROWN = -0.5F;
 

@@ -31,7 +31,7 @@
 | S2 | TC 数据：要素、物品/实体要素、研究树、坩埚/奥术/注魔配方 | 完成（`python tools/validate_tc_data.py` 静态校验通过；加载需实机确认） |
 | S3 | 14 个实体 + AI + 属性 + 渲染器/模型 | 完成（偏差见下） |
 | S4 | 治疗缸多方块 + 生物注魔/自我注魔 + 能力（capability）+ 网络包 | 完成（偏差见下） |
-| S5 | 透镜系统 + 躯体大脑（Curios）+ 按键 + HUD | 进行中：透镜与轮盘可用、躯体大脑已能戴（落点微调中）；要素读数/目标名牌/涟漪叠加未做 |
+| S5 | 透镜系统 + 躯体大脑（Curios）+ 按键 + HUD | 完成（透镜行为/轮盘/世界叠加/HUD 读数/躯体大脑落点均在 DEV 客户端实机验证，见下） |
 | S6 | 改造矩阵、灵魂罐、灵魂信标、收容焦点、变形手指 | |
 | S7 | 客户端特效与渲染收尾；集中实机验证 | |
 
@@ -96,7 +96,7 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 
 ### S5 进度明细
 
-已完成：
+已完成（均已在 DEV 客户端实机验证）：
 
 - **透镜系统**：`common/lenses/{Lens,AirLens,FireLens,OrdoLens,EnvyLens,Lenses,LensManager,EnvyStealing}.java`。
   透镜存在**护目镜自身的 NBT**（`isorropia:lenses:{left,right}`）里，与 1.12 一致——护目镜是挂载点，没有护目镜透镜无用。
@@ -104,15 +104,21 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
   嫉妒透镜把生物的掉落「看」出来（`EnvyStealing` 真滚一次掉落表）、基里安透镜纯客户端绘制。
   网络：`LensChangePacket`（装配/卸下，服务端校验护目镜与物品）。
 - **透镜轮盘**：`client/hud/LensWheel.java` + `client/LensKeys.java`（默认 **J**）。按住打开、鼠标指向选片、潜行则清空两槽；
-  环用 `fill` 画（上游用的是 TC 的 radial 贴图，不属于本模组）。**实机已验证**装配与效果，轮盘确认每帧在画（GUI 截图受限，见上）。
+  环用 `fill` 画（上游用的是 TC 的 radial 贴图，不属于本模组）。**实机已验证**装配与效果，`--gui` 截图确认轮盘像素。
 - **躯体大脑**：`ItemSomaticBrain`（Curios 头部）、`ModelSomaticBrain`、`SomaticBrainCurioRenderer`；
   本模组自带 `data/isorropia/curios/{slots/head.json,entities/player.json}` 声明头部槽位（TC4R 只声明了 ring/necklace/belt）。
-  落点仍在实机微调（1.12 的变换原点与现代 `head.translateAndRotate` 不同）。
-- **能力字段**：`LivingData` 增 `envy`/`hasLooted`（嫉妒透镜 HUD 的前置）并进同步包。
+  1.12 的变换原点与现代 `head.translateAndRotate` 不同，落点按实机第三视角截图定准（`SomaticBrainCurioRenderer` 里一处常量）。
+- **能力字段**：`LivingData` 增 `envy`/`hasLooted`（嫉妒透镜 HUD 的前置）并进同步包。嫉妒值记在**被看生物自己**的数据上、`syncTo` 给佩戴者。
+- **世界内叠加**：`client/fx/LensWorldFx.java` 在 `RenderLevelStageEvent.AFTER_LEVEL` 里画基里安涟漪/漩涡（活物/亡灵/异界三种配色与旋向）
+  与学者透镜的目标名牌；用 TC4R 的 `ThaumcraftClientRenderApi.beginAfterLevelWorldRender` 恢复世界矩阵与深度态。
+  世界通道**不依赖 HUD 可见性**，所以它同时负责把目标写进 `LensClientState`（按 F1 隐藏 HUD 时名牌仍在）。
+- **屏幕读数**：`client/hud/LensHud.java`（注册在 HOTBAR 之上）——学者透镜在准星处画目标名牌与要素行
+  （生物走 `AspectQueryApi.entity` 只画要素、方块走 `placedBlock`、方块上的掉落物走 `item`），
+  嫉妒透镜在右下角画 `invidia_hud.png` 进度条（绿色填充自下而上，按 `envy / maxHealth × 5.15` 折算）。
+  已知偏差：`AspectQueryApi.block(state)` 对原版放置方块返回空，必须用 `placedBlock(stack, state)`（见 VALIDATION）。
 
-未完成（S5 剩余 + 归入 S7 的收尾）：
+未完成：
 
-- 学者透镜的**世界内高亮**与**屏幕读数**（目标名牌、方块/掉落物的要素行）、嫉妒透镜的进度条 HUD、基里安透镜的涟漪/漩涡叠加。
 - 变形手指（`morphicFingers`）的便携奥术工作台界面——按计划属 S6。
 - 躯体大脑的「知识拦截」：1.12 只有头部饰品渲染，没有拦截逻辑，本移植同样不做。
 

@@ -90,7 +90,7 @@ var player = server.getPlayerList().getPlayer(mc.player.getUUID());
 mc.execute(() -> {
     mc.setScreen(null);
     mc.mouseHandler.releaseMouse();
-    mc.options.hideGui = true;
+    mc.options.hideGui = %(hideGui)s;
 });
 player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
 player.getAbilities().flying = true;

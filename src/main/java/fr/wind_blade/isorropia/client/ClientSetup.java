@@ -90,6 +90,10 @@ public final class ClientSetup {
                         fr.wind_blade.isorropia.client.hud.LensWheel.render(graphics, partialTick);
                     }
                 });
+        event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id(),
+                "lens_readouts",
+                (gui, graphics, partialTick, width, height) ->
+                        fr.wind_blade.isorropia.client.hud.LensHud.render(graphics, partialTick));
     }
 
     @SubscribeEvent

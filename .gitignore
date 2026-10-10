@@ -27,3 +27,6 @@ reference/
 
 # client probe scratch files
 build/client_*.java
+
+# Python caches
+__pycache__/

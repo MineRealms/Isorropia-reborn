@@ -63,9 +63,21 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 `shot` 分两步：先在**服务端线程**把玩家传送/转向并强制 `ChunkSource.move()`，等若干秒后**在渲染线程**重新
 设定朝向再 `Screenshot.grab`（同一帧内改姿态，避免鼠标漂移）。截图落在 `run-client/screenshots/`。
 
-**已知限制（重要）**：本环境下 `Screenshot.grab` **只截世界，不含 GUI 层**——暂停菜单、物品栏、以及所有
-`RegisterGuiOverlaysEvent` 的 HUD（透镜轮盘、要素读数）都不会出现在截图里。HUD 目前只能靠
-「探针读状态 + 人眼看客户端」验证：例如轮盘用 `LensWheel.isOpen()/hasDrawn()` 证明确实绘制过。
+**HUD 进不进截图，取决于抓帧时的 `options.hideGui`**：Forge 在 `hideGui`（F1）为真时跳过所有
+`RegisterGuiOverlaysEvent` 的绘制，而探针默认把它置真以免 HUD 挡住世界图，所以不加开关时截图**只有世界**。
+`shot ... --gui` 会在抓帧前把它置回假，物品栏与自建 HUD（透镜轮盘、要素读数、嫉妒进度条）都会进图；
+世界内渲染（`AFTER_LEVEL` 里的涟漪/名牌）两种模式都在。所以 HUD 像素也能截图验收，不必只靠人眼。
+
+| 客户端探针 | 检查 |
+|---|---|
+| 25_lens_wheel | 装片后轮盘确实每帧在画（`LensWheel.isOpen()/hasDrawn()`） |
+| 26_brain_equip | 躯体大脑装进 Curios 头部槽，第三视角截图看落点 |
+| 27_lens_air | 基里安透镜：身前几只生物，截图看涟漪/漩涡 |
+| 31_lens_entities | 列出会画涟漪的活物及距离（排查「为什么没涟漪」） |
+| 32_lens_ordo | 学者透镜：正前方一头牛，看名牌与要素读数 |
+| 33_lens_envy | 嫉妒透镜：给牛灌一半嫉妒，看右下进度条 |
+| 36_block_aspects2 | 对比 `block(state)` 与 `placedBlock(stack,state)` 的要素差（原版方块只有后者非空） |
+| 43_lens_drop_probe / 44_lens_ordo_drop2 | 学者透镜读准星下方块上的掉落物（名牌+要素走物品） |
 
 ### 5. 网格对照：`python tools/mesh_preview.py`
 
@@ -102,6 +114,9 @@ python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码�
 | 8 | 灵魂信标的光柱不出现 | 天空检测用了信标**自身**那一格（被自己挡住）；增长系数乘在了贴图缩放而不是长度上 | 检测 `pos.above()`；`height = 256 × scale` |
 | 9 | 受击反伤只对远程生效 | `getDirectEntity() instanceof LivingEntity` 的守卫同时也吃掉了近战 | 只对「远程」分支加守卫，反伤照所有攻击者 |
 | 10 | 躯体大脑无处可戴 | TC4R 只声明了 `ring`、`necklace`、`belt` 三个 curio 槽，没有 `head` | 本模组自带 `data/isorropia/curios/{slots/head.json,entities/player.json}` |
+| 11 | 嫉妒进度条永远空 | `EnvyLens` 把嫉妒累加到**玩家**的数据上，而 HUD 读的是**被看生物**的数据 | 计数改记在生物自己的 `LivingData` 上，再 `syncTo(player)` |
+| 12 | 学者读数对方块显示「无要素」 | `AspectQueryApi.block(state)` 对原版放置方块返回空（它只认 datapack 声明的 block 要素） | 改走 `placedBlock(new ItemStack(state.getBlock()), state)`（原版也是问方块的**物品**要素） |
+| 13 | 学者读数对地面显示「Air」 | 玩家悬空、准星 `hitType == MISS`，并非读数错误 | 探针先在脚下铺一块草方块再抓图；读数随即显示 "Grass Block" |
 
 ## 三、踩过的坑（写下来省下一个人一天）
 
