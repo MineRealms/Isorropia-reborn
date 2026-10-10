@@ -73,6 +73,20 @@ public final class SoulJar {
         return -1;
     }
 
+    /** Puts a stored creature back into the world at a position, and hands back what was freed. */
+    public static LivingEntity releaseAt(CompoundTag data, Level level, net.minecraft.core.BlockPos pos) {
+        if (level.isClientSide || data == null || data.isEmpty()) {
+            return null;
+        }
+        Entity stored = EntityType.create(data, level).orElse(null);
+        if (!(stored instanceof LivingEntity living)) {
+            return null;
+        }
+        living.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0.0F);
+        level.addFreshEntity(living);
+        return living;
+    }
+
     /** The creature stored in a jar stack, or null for an empty jar or a broken one. */
     @Nullable
     public static LivingEntity peek(ItemStack jar, Level level) {

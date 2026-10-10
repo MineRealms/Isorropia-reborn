@@ -1,17 +1,36 @@
 package fr.wind_blade.isorropia.common.blocks;
 
+import dev.tc4port.thaumcraft.api.wand.WandApi;
+import fr.wind_blade.isorropia.common.infusion.SoulJar;
+import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.tiles.TileJarSoul;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockJarSoul extends HorizontalDirectionalBlock {
+import javax.annotation.Nullable;
+
+/** A jar holding one creature. What is inside travels with the jar, in the block entity and on the item. */
+public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBlock {
     private static final VoxelShape SHAPE = Block.box(3, 0, 3, 13, 12, 13);
 
     public BlockJarSoul(Properties properties) {
@@ -32,5 +51,60 @@ public class BlockJarSoul extends HorizontalDirectionalBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new TileJarSoul(pos, state);
+    }
+
+    /** Whatever was in the jar on the item goes into the jar in the world. */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+            ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        CompoundTag data = stack.getTag() == null ? null : stack.getTag().getCompound(SoulJar.ENTITY_TAG);
+        if (data != null && !data.isEmpty() && level.getBlockEntity(pos) instanceof TileJarSoul jar) {
+            jar.setEntityData(data);
+        }
+    }
+
+    /**
+     * A wand on a full jar lets the creature out, which is how upstream emptied one. Breaking the jar drops it
+     * with the creature still inside, so a captured animal can be carried around.
+     */
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        if (hand != InteractionHand.MAIN_HAND || WandApi.view(player.getItemInHand(hand)).isEmpty()) {
+            return InteractionResult.PASS;
+        }
+        if (!(level.getBlockEntity(pos) instanceof TileJarSoul jar) || jar.getEntityData() == null) {
+            return InteractionResult.PASS;
+        }
+        if (level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        }
+        LivingEntity freed = SoulJar.releaseAt(jar.getEntityData(), level, pos.above());
+        if (freed != null) {
+            level.removeBlock(pos, false);
+        }
+        return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public void playerDestroy(Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity be,
+            ItemStack tool) {
+        if (be instanceof TileJarSoul jar && jar.getEntityData() != null) {
+            ItemStack dropped = new ItemStack(ItemsIS.JAR_SOUL.get());
+            dropped.getOrCreateTag().put(SoulJar.ENTITY_TAG, jar.getEntityData().copy());
+            dropped.setHoverName(Component.translatable("item.isorropia.jar_soul.jarred",
+                    Component.translatable(jar.getEntityData().getString("id"))).withStyle(ChatFormatting.DARK_PURPLE));
+            Block.popResource(level, pos, dropped);
+        } else {
+            Block.popResource(level, pos, new ItemStack(ItemsIS.JAR_SOUL.get()));
+        }
+        super.playerDestroy(level, player, pos, state, be, tool);
     }
 }

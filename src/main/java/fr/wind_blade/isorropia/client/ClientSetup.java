@@ -16,7 +16,9 @@ import fr.wind_blade.isorropia.client.renderer.entities.RenderOrePig;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderSheeder;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderTaintPig;
 import fr.wind_blade.isorropia.client.model.MatrixCubeModel;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderSoulBeacon;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
@@ -75,6 +77,8 @@ public final class ClientSetup {
     public static void onRegisterBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(TilesIS.VAT.get(), RenderVat::new);
         event.registerBlockEntityRenderer(TilesIS.MODIFIED_MATRIX.get(), RenderModifiedMatrix::new);
+        event.registerBlockEntityRenderer(TilesIS.JAR_SOUL.get(), RenderJarSoul::new);
+        event.registerBlockEntityRenderer(TilesIS.SOUL_BEACON.get(), RenderSoulBeacon::new);
     }
 
     @SubscribeEvent

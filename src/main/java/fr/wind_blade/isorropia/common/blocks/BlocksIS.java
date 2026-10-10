@@ -22,7 +22,7 @@ public final class BlocksIS {
                     .lightLevel(state -> 8).noOcclusion().noCollission().noLootTable().pushReaction(PushReaction.BLOCK)));
     public static final RegistryObject<BlockJarSoul> JAR_SOUL = BLOCKS.register("jar_soul",
             () -> new BlockJarSoul(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(0.3F)
-                    .sound(SoundType.GLASS).lightLevel(state -> 10).noOcclusion()));
+                    .sound(SoundType.GLASS).lightLevel(state -> 10).noOcclusion().noLootTable()));
     public static final RegistryObject<Block> CHOCOLATE = BLOCKS.register("chocolate",
             () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN).strength(2.0F, 10.0F)
                     .requiresCorrectToolForDrops()));
