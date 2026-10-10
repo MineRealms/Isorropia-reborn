@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import fr.wind_blade.isorropia.common.IsorropiaCreativeTabs;
 import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,6 +23,7 @@ public class Isorropia {
         ItemsIS.ITEMS.register(modBus);
         SoundsIS.SOUNDS.register(modBus);
         IsorropiaCreativeTabs.TABS.register(modBus);
+        IsorropiaNetwork.init();
     }
 
     public static ResourceLocation id(String path) {
