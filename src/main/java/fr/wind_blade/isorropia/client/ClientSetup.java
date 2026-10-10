@@ -51,6 +51,8 @@ public final class ClientSetup {
         event.registerLayerDefinition(ModelJellyRabbit.LAYER, ModelJellyRabbit::createBodyLayer);
         event.registerLayerDefinition(ModelJelly.LAYER, ModelJelly::createBodyLayer);
         event.registerLayerDefinition(MatrixCubeModel.LAYER, MatrixCubeModel::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSomaticBrain.LAYER,
+                fr.wind_blade.isorropia.client.model.ModelSomaticBrain::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -71,6 +73,12 @@ public final class ClientSetup {
         event.registerEntityRenderer(EntitiesIS.GUARDIAN_PANTHER.get(), RenderGuardianPanther::new);
         event.registerEntityRenderer(EntitiesIS.NETHER_HOUND.get(), RenderHellHound::new);
         event.registerEntityRenderer(EntitiesIS.EMBER.get(), RenderEmber::new);
+    }
+
+    @SubscribeEvent
+    public static void onClientSetupCurios(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> top.theillusivec4.curios.api.client.CuriosRendererRegistry.register(
+                ItemsIS.SOMATIC_BRAIN.get(), fr.wind_blade.isorropia.client.curio.SomaticBrainCurioRenderer::new));
     }
 
     @SubscribeEvent

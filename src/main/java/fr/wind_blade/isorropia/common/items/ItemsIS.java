@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.common.items;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
+import fr.wind_blade.isorropia.common.items.baubles.ItemSomaticBrain;
 import fr.wind_blade.isorropia.common.items.misc.ItemCat;
 import fr.wind_blade.isorropia.common.items.misc.ItemChocolateBucket;
 import fr.wind_blade.isorropia.common.items.misc.ItemIncubatedEgg;
@@ -35,8 +36,8 @@ public final class ItemsIS {
     public static final RegistryObject<ItemLens> ORDO_LENS = ITEMS.register("lens_ordo", ItemLens::new);
     public static final RegistryObject<ItemLens> FIRE_LENS = ITEMS.register("lens_fire", ItemLens::new);
     public static final RegistryObject<ItemLens> ENVY_LENS = ITEMS.register("lens_envy", ItemLens::new);
-    public static final RegistryObject<Item> SOMATIC_BRAIN = ITEMS.register("somatic_brain",
-            () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<ItemSomaticBrain> SOMATIC_BRAIN = ITEMS.register("somatic_brain",
+            () -> new ItemSomaticBrain(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<ItemIncubatedEgg> INCUBATED_EGG = ITEMS.register("incubated_egg",
             () -> new ItemIncubatedEgg(new Item.Properties().stacksTo(16)));
     public static final RegistryObject<Item> INK_EGG = simple("ink_egg");
