@@ -1,0 +1,107 @@
+package fr.wind_blade.isorropia.client.renderer.tiles;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.client.VatRenderTypes;
+import fr.wind_blade.isorropia.client.model.ObjMesh;
+import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
+import fr.wind_blade.isorropia.common.tiles.TileVat;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+
+import java.util.List;
+
+/**
+ * The curative vat: its own mesh plus the body it is preparing, both brought over from the original mods.
+ *
+ * <p>The vat is not drawn by its blocks at all. Upstream left every vat block with an empty model and drew the
+ * whole thing from {@code vat_redo.obj} — bottom slab, four pipes, glass wall, liquid, top slab and the four
+ * dials — in two passes, liquid first without depth writes and the rest over it. This renderer does the same
+ * from a single block entity, the TOP variant, which is the one holding the state; drawing it in one place also
+ * fixes the draw order between the liquid, the body inside and the glass, which two separate renderers left to
+ * the distance sort.
+ */
+public class RenderVat implements BlockEntityRenderer<TileVat> {
+    private static final ResourceLocation MODEL = Isorropia.id("models/block/vat_redo.obj");
+    private static final ResourceLocation SHELL_TEXTURE = Isorropia.id("textures/block/curative_vat.png");
+    private static final ResourceLocation WATER_TEXTURE = Isorropia.id("textures/block/water_still.png");
+    private static final ResourceLocation EFFIGY = Isorropia.id("textures/entity/corpseeffigy.png");
+    private static final ResourceLocation REVIVED = Isorropia.id("textures/entity/corpseeffigyrevived.png");
+    private static final List<String> WATER_GROUP = List.of("Water");
+    /** How many blocks the mesh sits below the master: the master is the top layer. */
+    private static final double LAYERS_BELOW = 3.0;
+    /** Both upstreams drew the corpse at this scale, which is a little larger than a player. */
+    private static final float CORPSE_SCALE = 0.1F;
+
+    private final HumanoidModel<?> corpse;
+
+    public RenderVat(BlockEntityRendererProvider.Context context) {
+        this.corpse = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.PLAYER));
+    }
+
+    @Override
+    public void render(TileVat vat, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int light,
+            int overlay) {
+        if (vat.getBlockState().getValue(BlockCurativeVat.VARIANT) != BlockCurativeVat.Type.TOP) {
+            return;
+        }
+        poseStack.pushPose();
+        // The body goes in first so the liquid blends over it, then the shell over both.
+        renderCorpse(vat, partialTick, poseStack, buffers, light, overlay);
+        poseStack.pushPose();
+        poseStack.translate(0.5, -LAYERS_BELOW, 0.5);
+        ObjMesh mesh = ObjMesh.get(MODEL);
+        // The mesh's winding is not reliable, so both passes run without backface culling, and the liquid
+        // leaves the depth buffer alone so the body being infused can be seen through it.
+        VertexConsumer water = buffers.getBuffer(VatRenderTypes.liquid(WATER_TEXTURE));
+        mesh.render("Water", poseStack, water, light, overlay, 1.0F, 1.0F, 1.0F, 0.85F);
+        VertexConsumer shell = buffers.getBuffer(VatRenderTypes.shell(SHELL_TEXTURE));
+        mesh.renderAllExcept(WATER_GROUP, poseStack, shell, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+        poseStack.popPose();
+        poseStack.popPose();
+    }
+
+    /**
+     * The corpse effigy while the vat charges it, and the body itself while a self infusion runs. It hangs head
+     * down inside the vat and bobs on the surface, which is how the vat has been drawn since 1.7.10.
+     */
+    private void renderCorpse(TileVat vat, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int light,
+            int overlay) {
+        ResourceLocation skin = null;
+        if (vat.getMode() == TileVat.MODE_EFFIGY) {
+            skin = EFFIGY;
+        } else if (vat.getMode() == TileVat.MODE_SELF_READY || vat.isSelfInfusing()) {
+            skin = REVIVED;
+        }
+        if (skin == null) {
+            return;
+        }
+        float ticks = Minecraft.getInstance().player == null ? 0.0F : Minecraft.getInstance().player.tickCount + partialTick;
+        float bob = 0.1F * Mth.cos(ticks * 0.0174F);
+        poseStack.pushPose();
+        poseStack.translate(0.5, -1.6 - bob, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+        poseStack.scale(CORPSE_SCALE, CORPSE_SCALE, CORPSE_SCALE);
+        VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(skin));
+        // The body hangs in a lit vat, so it is drawn full bright like upstream's renderer did.
+        corpse.renderToBuffer(poseStack, consumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, overlay,
+                1.0F, 1.0F, 1.0F, 1.0F);
+        poseStack.popPose();
+    }
+
+    /** The mesh reaches two blocks out and four down, so it must draw beyond the master's own block. */
+    @Override
+    public boolean shouldRenderOffScreen(TileVat vat) {
+        return true;
+    }
+}

@@ -154,6 +154,12 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return level == null ? null : VatStructure.findMaster(level, worldPosition);
     }
 
+    /** The vat's mesh is four blocks tall and two wide, so the renderer must not be clipped to this block. */
+    @Override
+    public net.minecraft.world.phys.AABB getRenderBoundingBox() {
+        return new net.minecraft.world.phys.AABB(worldPosition).inflate(2.0, 4.0, 2.0);
+    }
+
     public static void serverTick(Level level, BlockPos pos, BlockState state, TileVat vat) {
         if (vat.isMaster() && level instanceof ServerLevel server) {
             vat.tickMaster(server);
@@ -876,6 +882,11 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     public boolean isInfusing() {
         return mode == MODE_INFUSING;
+    }
+
+    /** True while a self infusion runs, which is the state that shows the revived body in the vat. */
+    public boolean isSelfInfusing() {
+        return mode == MODE_INFUSING && selfRecipe != null;
     }
 
     public boolean isExpunging() {

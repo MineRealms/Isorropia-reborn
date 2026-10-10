@@ -246,4 +246,374 @@ java -jar ~/.gradle/caches/modules-2/files-2.1/org.vineflower/vineflower/1.10.1/
 
 ---
 
-<!-- CONTINUE -->
+## B. TC4R 自身如何渲染（Isorropia 要“长得像”的对象）
+
+### B.1 RenderType / 混合状态目录
+
+**原版 transparency shard 的真实混合函数**（javap `RenderStateShard` 静态 lambda 核实）：
+
+| shard | 函数 | 对应 TC4 GL |
+|---|---|---|
+| `TRANSLUCENT_TRANSPARENCY` | `blendFuncSeparate(SRC_ALPHA, ONE_MINUS_SRC_ALPHA, ONE, ONE_MINUS_SRC_ALPHA)` | `glBlendFunc(770, 771)` |
+| `LIGHTNING_TRANSPARENCY` | `blendFunc(SRC_ALPHA, ONE)` | `glBlendFunc(770, 1)`（TC4 几乎所有发光特效） |
+| `ADDITIVE_TRANSPARENCY` | `blendFunc(ONE, ONE)` | `glBlendFunc(1, 1)` |
+| `GLINT_TRANSPARENCY` | `(SRC_COLOR, ONE, ZERO, ONE)` | — |
+| `CRUMBLING_TRANSPARENCY` | `(DST_COLOR, SRC_COLOR, ONE, ZERO)` | — |
+
+`CompositeState.builder()` 默认：`NO_TRANSPARENCY`、`LEQUAL_DEPTH_TEST`、`CULL`、`COLOR_DEPTH_WRITE`、`NO_LIGHTMAP`、`NO_OVERLAY`、`MAIN_TARGET`。
+
+**原版 shader 的 alpha 丢弃与光照**（MC:shaders/core 核实）：
+
+| shader | 丢弃条件 | 光照 |
+|---|---|---|
+| `rendertype_entity_translucent` / `_cutout` / `_cutout_no_cull` | **贴图** `alpha < 0.1`（乘顶点色之前） | 法线方向光 + lightmap |
+| `rendertype_entity_translucent_emissive` | 贴图 `alpha < 0.1` | 法线方向光，无 lightmap（全亮） |
+| `particle` | **贴图×顶点色** `alpha < 0.1` | lightmap |
+| `rendertype_eyes` | 不丢弃 | 无（`vertexColor = Color`），雾里整体淡出 |
+| `rendertype_entity_no_outline` | 不丢弃 | 方向光 × lightmap |
+| `rendertype_lightning` | 不丢弃（无贴图） | 无 |
+
+→ TC4 的 `glAlphaFunc(516, 0.003921569F)`（几乎不裁剪）只能用 eyes / no_outline / lightning shader 复现；TC4R 的“NoCutoff”系列就是 `RENDERTYPE_EYES_SHADER` + 自定 transparency（`D:client/WispRenderTypes.java:59-78`）。
+
+**TC4R 内部 RT（包私有，照抄状态即可）**——`D:client/TCClientRenderTypes.java`：
+
+| 名称（行） | 格式/模式 | shader | 贴图(blur,mip) | transparency | depth | write | cull | lightmap | 用途 |
+|---|---|---|---|---|---|---|---|---|---|
+| `infusionHalo` :46 | POSITION_COLOR / TRIANGLES，sorted | lightning | — | LIGHTNING | LEQUAL | COLOR | **CULL** | — | 注魔光芒 |
+| `specialItemHalo` / `eldritchOrbRays` :61/:75 | 同上 | lightning | — | LIGHTNING | LEQUAL | COLOR | 默认 CULL | — | 物品光芒 |
+| `additiveTranslucent(tex)` :115 | NEW_ENTITY / QUADS，crumbling | entity_translucent | (F,F) | LIGHTNING | 默认 | COLOR | NO_CULL | LIGHTMAP | 钻头光束等 |
+| `infusionMatrixGlow(tex)` :179 → `legacyUnlitTranslucentNoCutoff(…, additive=T, blur=F, mip=F, depthTest=T, cull=T)` | NEW_ENTITY / QUADS，sorted | **eyes** | (F,F) | LIGHTNING | LEQUAL | COLOR | CULL | — | 矩阵外层发光 |
+| `normal/additiveTranslucentEmissiveDepthTest[Blurred]` :256 | NEW_ENTITY | entity_translucent_emissive | (blur,F) | TRANSLUCENT / LIGHTNING | LEQUAL | COLOR | NO_CULL | — | 光束、传送门 |
+| `…EmissiveNoDepth[Billboard]` :276 | NEW_ENTITY | entity_translucent_emissive | (blur,F) | 同上 | **NO_DEPTH** | COLOR | NO_CULL | — | 护目镜要素浮标 |
+| `translucentDepthWrite(tex, additive, blur, sorted, crumbling)` :296 | NEW_ENTITY | entity_translucent | (blur,F) | 同上 | 默认 | 默认(深度写) | NO_CULL | LIGHTMAP | 实体半透明壳 |
+| `legacyNodeTranslucent(tex, additive, blur, depthTest)` :610 | NEW_ENTITY | entity_no_outline | (blur,F) | 同上 | LEQUAL/NO | COLOR | NO_CULL | LIGHTMAP | 节点层 |
+| `legacyLightmapped{Translucent,Billboard}NoCutoff` :348-381 | NEW_ENTITY | entity_no_outline | 参数 | 参数 | 参数 | COLOR | 参数 | LIGHTMAP | 受光照但不裁剪 |
+| `legacyEyes{ColorOnly,DepthWrite}` :404-429 | NEW_ENTITY | eyes | (F,F) | **ADDITIVE(1,1)** | LEQUAL | COLOR / COLOR_DEPTH | NO_CULL | — | 眼睛发光层 |
+| `thaumometerAspect(tex)` :232 | NEW_ENTITY | entity_translucent | (F,F) | LIGHTNING | NO_DEPTH | COLOR | NO_CULL | LIGHTMAP | 扫描仪要素 |
+
+### B.2 源质罐 `warded_jar`（方块模型 + BER 液体/标签 + BEWLR 物品）
+
+**方块外壳**：静态 JSON（`JAR assets/thaumcraft/models/block/warded_jar.json`）：`"render_type": "minecraft:translucent"`，`ambientocclusion:false`，两个元素 `[3,0,3]→[13,12,13]`（罐身）与 `[5,12,5]→[11,14,11]`（盖），贴图 `block/jar_side`、`jar_top`、`jar_bottom`（16²）。四个 facing 共用同一模型（blockstate 不旋转）。
+
+**液体**（`D:client/WardedJarRenderer.java:66-88`，TC4 对照 `TC4:client/renderers/tile/TileJarRenderer.java:101-134`，数值一致）：
+- 精灵 `thaumcraft:block/animatedglow`（方块图集；16×320 = 20 帧，`frametime 2`，帧序 0→19→1 往返）。
+- 盒子 `x,z ∈ [0.25, 0.75]`，`y ∈ [0.0625, 0.0625 + min(1, amount/capacity) * 0.625]`，6 面，UV 每面整张精灵 `(u0,v0)-(u1,v1)`。
+- 顶点色 = 要素色 RGB，alpha 255；light = `max(200, packedLight)`（TC4：`max(200, 方块亮度)`）；overlay NO_OVERLAY；法线按面。
+- RenderType = `RenderType.solid()`（方块图集，经 BER buffer）。
+- 无 ClientLevel 需求；BE 需同步 `aspect / amount / capacity / filter / FACING`。
+
+**标签**（`WardedJarRenderer.java:90-139`；TC4：`TileJarRenderer.java:50-84`）：
+1. `push`；`translate(0.5, 0.41, 0.5)`；按 facing 绕 `NORTH→ZN, SOUTH→ZP, WEST→XN, EAST→XP` 旋转 `rot` 度；`translate(−0.5, −0.41, −0.5)`。
+   `rot = (filter.serialized().hashCode() + blockX + legacyFacing) % 4 − 2`，`legacyFacing N=2 S=3 W=4 E=5`（TC4 用 `Config.crooked` 开关，TC4R 恒开）。
+2. 纸签：`RenderType.entityCutoutNoCull(thaumcraft:textures/models/label.png)`（16²），水平 `[0.25,0.75]`、竖直 `[0.16,0.66]`，贴在距该面 `0.187` 的平面（SOUTH/EAST 为 `1−0.187`），白色 alpha 255，light `15728880`。
+3. 要素图标：`RenderType.entityTranslucentEmissive(aspectTexture, false)`，水平 `[0.332,0.668]`、竖直 `[0.242,0.578]`，平面 `0.186`，U 翻转，颜色 `0x191919`、alpha 204（TC4 “单色标签”），light `15728880`。
+4. 每面 4 顶点顺序与法线见 `emitFacingQuad :157-203`。
+
+**物品**（`D:client/WardedJarItemRenderer.java:38-82`）：BEWLR；`ItemFoilRendering.withFoil` 处理附魔光；读 `TCItemState.ASPECTS`（恰 1 种要素才画液体）、`FilledJarEssentiaApi.capacity(stack,true)`、`TCItemState.JAR_FILTER`；facing 固定 `EAST`；先 `renderContents`（液体+标签）再 `blockRenderer.renderSingleBlock(state(FACING=EAST), …, ModelData.EMPTY, null)` 画玻璃壳。物品模型 `parent: builtin/entity`，display 与 B.11 的 `tc4_block_entity` 完全相同。
+
+**破坏粒子**：`JarClientExtensions.addDestroyEffects → true`（不出原版碎块，`D:client/JarClientExtensions.java:15-17`）。
+
+### B.3 脑罐 `brain_jar`（罐内悬浮物 + 盐水的参考实现）
+
+`D:client/BrainJarRenderer.java:34-85`（TC4：`TileJarRenderer.java:136-155`）：`translate(0.5, 0.01, 0.5)` → `rotX(180)` → `bob = sin(playerTicks/14)*0.03 + 0.03` → `translate(0, −0.8+bob, 0)` → `rotY(插值 rotation 弧度)` → `rotY(−90°)` → `scale(0.4)` → 脑模型 `RenderType.entityCutoutNoCull(thaumcraft:textures/models/brain2.png)`（256×128）。盐水用方块图集精灵 `thaumcraft:models/jarbrine`（64×32，见 C.1：`textures/models/` 被拼进方块图集），RT `NativeRenderTypes.getEntityRenderType(RenderType.translucent(), false)`。方块模型 `loader: thaumcraft:decorated_block, decoration: brain_jar`（TC4R 内部 loader，附属 mod 不可复用其 decoration 名）。
+
+### B.4 注魔矩阵 `runic_matrix` BER（转动立方 + 发光层 + 光芒）
+
+模型 `InfusionMatrixModel`（`D:client/InfusionMatrixModel.java:22-31`）：`LayerDefinition 64×64`；`base` = `texOffs(0,0).addBox(−8,−8,−8, 16,16,16)`；`overlay` = `texOffs(0,32)` 同尺寸；贴图 `thaumcraft:textures/models/infuser.png`（64²）。TC4 原版：`TC4:client/renderers/tile/TileRunicMatrixRenderer.java:82-171`（数值逐项一致）。
+
+变换（`InfusionMatrixRenderer.java:229-258`）：`ticks = cameraEntity.tickCount + partialTick`；
+1. `translate(0.5, 0.5, 0.5)`；`rotY((ticks % 360) * startUp)`；`rotX(35 * startUp)`；`rotZ(45 * startUp)`。
+2. `instability = min(6, 1 + instabilityValue * 0.66 * min(craftCount,50)/50)`。
+3. 对 `a,b,c ∈ {0,1}`：抖动（仅 active）`xW = sin((ticks + a*10) / (15 − instability/2)) * 0.01 * startUp * instability`，`yW` 用 `b*10` 与 `14 −…`，`zW` 用 `c*10` 与 `13 −…`；`push`；`translate(xW ± 0.25, yW ± 0.25, zW ± 0.25)`（0→−，1→+）；`a>0: rotX(90)`；`b>0: rotY(90)`；`c>0: rotZ(90)`；`scale(0.45)`；画 base；`pop`。
+
+层与状态：base `RenderType.entityCutout(infuser.png)`、正常 packedLight；glow（仅 active）`infusionMatrixGlow`（B.1：eyes + LIGHTNING + CULL + 不写深度），light `15728880`，颜色 ARGB = `(1, 0.8*a, 0.1*a, a)`，`a = (sin((ticks + a*2 + b*3 + c*4)/4) * 0.1 + 0.2) * startUp`（`createFrame :186-191`）——等价 TC4 `glColor4f(0.8, 0.1, 1.0, a)` + `(770,1)`（TC4R 把 alpha 预乘进 RGB）。
+
+光芒 `renderHalo(pose, buffers, craftCount)`（:260-309，TC4 `drawHalo :30-80`）：`rays = FAST?10:20`；`growth = min(craftCount,50)/50`（≤0 不画）；`new Random(245L)`；`translate(0.5,0.5,0.5)`；每条：`rotX(r*360) rotY(r*360) rotZ(r*360) rotX(r*360) rotY(r*360) rotZ(r*360 + craftCount/500*360)`（累乘，不 push/pop）；`len = (r*20+5)/20*growth`，`w = (r*2+1)/20*growth`；3 个三角形：中心 `(0,0,0)` 色 `(255,255,255,255)`，外点 `(±0.866w, len, −0.5w)`、`(0, len, w)` 色 `(204,0,255,0)`；RT `infusionHalo`。
+
+排程：BER 只把“相机相对 pose”排队（`WorldRenderTransforms.cameraRelativePose`），在 `AFTER_BLOCK_ENTITIES` 统一回放：base → `endBatch` → glow → `endBatch` → 破坏纹理（`ModelBakery.DESTROY_TYPES[stage]` + `SheetedDecalTextureGenerator`）→ halo（:61-170）。`shouldRenderOffScreen → true`；包围盒 `pos−1 … pos+1`（:318-331）。BE 需同步 `active, crafting, startUp, instability, craftCount`。
+
+物品：`InfusionMatrixItemRenderer`（BEWLR，静止 8 立方，`renderItem :94-99`），模型 parent `thaumcraft:item/tc4_block_entity`；方块模型 `cube_all` 贴 `block/blank`（不可见，仅粒子 `block/pedestal_top`）。
+
+### B.5 奥术基座 `arcane_pedestal` BER
+
+`D:client/ArcanePedestalRenderer.java:22-53`（TC4：`TilePedestalRenderer.java:18-44`）：`ticks = cameraEntity.tickCount + pt`；`bob = sin(ticks/16) * 0.05`；`legacyFullBlock = BlockItem && model.isGui3d()`，`scale = full ? 2 : 1`；用 `model.applyTransform(GROUND)` 取地面变换的 Y 平移 `gY`，`localCenterY = full ? 0 : 0.125`；`renderY = 1.15 + bob + scale * (0.1 + localCenterY − gY)`；`translate(0.5, renderY, 0.5)` → `rotY(ticks % 360)` → `scale(s)` → `itemRenderer.renderStatic(stack×1, GROUND, packedLight, overlay, …, level, 0)`。`shouldRenderOffScreen → true`，包围盒 `[pos, pos+(1,2,1)]`。方块模型：`[0,0,0]-[16,4,16]`、`[4,4,4]-[12,12,12]`、`[2,12,2]-[14,16,14]`（`block/pedestal_side/top`）。
+
+### B.6 坩埚液面 `crucible`
+
+`D:client/CrucibleRenderer.java:24-63`（TC4：`TileCrucibleRenderer.java:21-35`）：精灵 `minecraft:block/water_still`；单个朝上四边形 `x,z ∈ [0,1]`、`y = fluidHeight()`；`recolor = totalAspects/100`，`>0` 时 `0.5 + recolor/2`；底色 `0x4361FF`（TC4R 的“1.7.10 蓝水等价色”），`R×(1−recolor/3)`、`G×(1−recolor)`、`B×(1−recolor/2)`，alpha 255，`packedLight`，法线 +Y；RT `RenderType.translucent()`。TC4 原版：白色 × 1.7.10 自带蓝色的水图标、`(770,771)`。
+
+### B.7 精华管道
+
+几何由自定义模型 loader `thaumcraft:static_block`（`static_part: essentia_tube`）在区块网格里画（`StatefulStaticMeshes:200`），BER 只画阀门手轮（`D:client/EssentiaTubeRenderer.java:11-27`）。盒子尺寸（`D:client/EssentiaTubeMesh.java:62-130`）：臂截面 `[7/16, 9/16]`，有连接时延伸到 `0` 或 `1`（`extended` 时 `−0.375` / `1.375`）；核心 `[0.375,0.625]`（`pipe_2`），直通窄核心 `[0.40625,0.59375]`（`pipe_3`）；过滤管 `[0.34375,0.65625]`（`pipe_filter` + 要素色 `pipe_filter_core`）；缓冲 `[0.25,0.75]`；阀门贴图 `textures/models/valve.png`（128×64，`entityCutoutNoCull`）。附属 mod 无法复用该 loader，只可参考尺寸。
+
+### B.8 灵气节点 / 节点罐
+
+`D:client/AuraNodeRenderer.java`：贴图 `misc/nodes.png`（打包 1088²，帧网格 32×32，用 `EffectAtlases.NODES`）；RT `legacyNodeTranslucent(tex, additive, blur=true, depthTest)`（B.1）。`renderNode :96-152`：未揭示时只画核心 `emitLayer(strip 1, radius 0.5)` alpha `0.101960786`（=26/255）；揭示时 `alpha = (viewDist − dist)/viewDist`（viewDist 64，手持扫描仪 48）× 修饰器脉动；帧 `floorMod(nanoTime/40ms + x, 32)`；广告牌朝向 `poseStack.mulPose(entityRenderDispatcher.cameraOrientation())`；要素层 `scale = 0.2 + aspectPulse * amount/50`，`aspectPulse = sin(ticks/(15 − i%15))*0.25 + 0.5`（:425-428）；`emitLayer :450-473` 画 `±radius` 方形，UV `(frame/32, strip/32)` 转打包图集，顶点亮度 `LightTexture.pack(14,0)`。节点罐 `NodeJarRenderer`（:9-16）→ `renderContainedNode`（:578，核心半径 0.35、alpha 0.1，要素层 ×0.7）。
+
+### B.9 护目镜 HUD（世界内要素浮标）与容器要素浮层
+
+触发与数据（`D:client/GogglesClientEvents.java:51-83`，TC4：`TC4:client/lib/RenderEventHandler.java:154-174, 228-290`）：
+- 条件：`RevealingEquipment.hasGogglesOverlay(player)`（盔甲+饰品中任一物品 `instanceof GogglesOverlayGear` 返回 true，或数据驱动的装备能力）；准星方块的 BE `instanceof AspectContainerView` 且 `GogglesAspectView.resolve` 非空（先 `visibleAspects()` 按 `visibleAspectOrder()`；为空时显示 `visibleAspectFilters()`，数量 −1 不画数字）。
+- 音符盒/奥术耳：显示 `"Note: n"`（`renderNote :159-177`）。
+- `tagScale`：每次高亮 `+= 0.031 − tagScale/10`（上限 0.3），每帧 `decayScale` `−0.005`。
+- 位置：BE 中心（若该 BE 的渲染器被 `GogglesTrackedBlockEntityRenderer` 包装则取渲染中心）`+ (0, spaceAbove?0.4:0 + (WandRechargePedestal?0.6:0), 0)`；方向 = 上方是空气则 `UP`，否则命中面。
+- 在 `AFTER_LEVEL` 回放（`renderAspectRows :126-157`）：每行 5 个；`shiftX = (cur − rowSize/2 + 0.5) * s * 4 * s`；换行 `shiftY += s*1.05`；`translate(center + s*2*dir.step)` → `rotY(−camera.yRot)` → `translate(shiftX,0,0)` → `rotZ(180)` → `scale(s)`。
+- 图标（`renderAspect :179-202`）：未知要素用 `aspects/_unknown.png`；RT `normalTranslucentEmissiveNoDepthBillboard`（无深度测试）；`±0.5` 方块，要素色、alpha 191，`FULL_BRIGHT`。
+- 数字（`renderAmount :204-221`）：`translate(0, 0.24, −0.1)`、`scale(0.04)`；阴影字 `0xBF111111` 于 `(14−w, 1)`，白字 `−1` 于 `(13−w, 0)`；`Font.DisplayMode.SEE_THROUGH`，`FULL_BRIGHT`。
+
+**结论：Isorropia 的 BE 只要实现 `AspectContainerView`，护目镜浮标由 TC4R 自动绘制**；只有非 BE 目标（实体、自定义透镜视图）才需要自己画，可照抄上述数值（`GogglesClientEvents`/`TCClientRenderTypes` 包私有）。
+
+容器内物品要素（`D:client/ContainerAspectOverlay.java:15-33`）：仅当 `!TCClientConfig.aspectTooltipComponent()` 时，悬停槽位在 `(mouseX−5, mouseY−24)`、z+500 画 `ItemAspectTooltip.renderImage`；否则走 tooltip component。物品要素来自 TC4R 数据（`object_aspects`），附属 mod 不需要渲染代码。
+
+### B.10 粒子实现模式
+
+- 粒子类型：`TCParticles.*`（`SimpleParticleType`），提供器在 `TCClientEvents.registerParticleProviders`（`D:client/TCClientEvents.java:870-916`）全部 `event.registerSpriteSet(type, Provider::new)`，仅 `FROST_SHARD_DEBRIS` 用 `registerSpecial`。
+- 精灵 JSON：`assets/thaumcraft/particles/<name>.json` → `{"textures": ["thaumcraft:sparkle_00", …]}` → `textures/particle/<sprite>.png`。注意：多数 TC4R 粒子虽注册了 SpriteSet，**实际绘制用打包的 `misc/particles.png`**（层 `WORLD_LAST_LEGACY_ATLAS_*`），精灵只为满足原版加载。
+- 各粒子类所在层（`getRenderType()`）：Sparkle/WispMote/BoreSparkle/RunedStoneRune/InfusionRune/ScanRune/NodeJarFormation/ChampionGeneric/VisSparkle → `WORLD_LAST_LEGACY_ATLAS_ADDITIVE_LAYER_0`；EssentiaTrail/SmokeSpiral/TubeVent/TaintSwarm/EldritchWisp → `…_TRANSLUCENT_LAYER_1`；ChampionSpark/ShockSpark/EldritchLockSpark → `…_ADDITIVE_LAYER_2`；CrucibleBubble → `WORLD_LAST_ADDITIVE_LAYER_0`；WispBurst → `LEGACY_EFFECT_NODE_ADDITIVE`；InfusionBlock/HungryNode/BoreDig → `WORLD_LAST_BLOCK_TRANSLUCENT_LAYER_1`；InfusionItem → `WORLD_LAST_BLOCK_ADDITIVE_LAYER_2`；Taint 系 → `LEGACY_EFFECT_TRANSLUCENT`；PaletteWisp → `NitorParticlePass.QUEUE`（AFTER_BLOCK_ENTITIES 自管 pass）。
+
+### B.11 注册模式（TC4R 自身）
+
+- BER：`EntityRenderersEvent.RegisterRenderers`（`TCClientEvents.registerBlockEntityRenderers`），需要护目镜中心追踪的包 `GogglesTrackedBlockEntityRenderer.provider(...)`（包私有）。
+- 物品 BEWLR：在 `FMLClientSetupEvent` 里 `ClientExtensionTarget.register(item, NativeItemClientExtensions{ getCustomRenderer() })`（TC4R 内部手段，`TCClientEvents.java:448-454,1122-1129`）；附属 mod 用 Forge 标准 `Item#initializeClient`（D.7）。
+- 物品模型父级 `thaumcraft:item/tc4_block_entity`（`JAR assets/thaumcraft/models/item/tc4_block_entity.json`）：`parent builtin/entity`，`gui_light side`；display：`gui rot[30,225,0] trans[0,0,0] scale 0.625`；`ground rot 0 trans[0,3,0] scale 0.25`；`fixed scale 0.5`；`thirdperson_righthand rot[75,45,0] trans[0,2.5,0] scale 0.375`；`firstperson_righthand rot[0,45,0] scale 0.4`；`firstperson_lefthand rot[0,225,0] scale 0.4`。附属 mod 可直接 `"parent": "thaumcraft:item/tc4_block_entity"`。
+- GUI 浮层：`RegisterGuiOverlaysEvent`（`TCClientEvents.registerGuiLayers :671-680`：`warp_vignette`、`hover_harness`、`wand_dial`、`focus_radial`、`sanity_checker`、`aspect_gain`、`player_notifications`、`research_popup`）。
+- 世界阶段渲染：`MinecraftForge.EVENT_BUS` 上 `RenderLevelStageEvent` → `WorldRenderContext`（A.7）。
+
+---
+
+## C. TC4R 贴图/精灵清单（`JAR` 内 `assets/thaumcraft/`，python zipfile 列出并读 PNG 头）
+
+### C.1 图集事实
+
+- `JAR assets/minecraft/atlases/blocks.json` 给方块图集加了三个源：`directory source=models prefix=models/`、`single thaumcraft:misc/parchment`、`directory source=aspects prefix=aspects/`。`directory` 源跨**所有命名空间** → 任何 mod 的 `textures/models/**` 与 `textures/aspects/**` 都会被拼进方块图集（精灵名 `<ns>:models/<path>`、`<ns>:aspects/<name>`）。这就是工程决策 7（渲染器皮肤放 `textures/entity/`）的原因；反过来，`isorropia:aspects/*`（工程已有 8 张）天然可作方块图集精灵用。
+- 同一张 `textures/models/x.png` 既可作独立贴图（`RenderType.entityXxx(rl)`），也可作方块图集精灵 `thaumcraft:models/x`（如 `models/jarbrine`）。独立绑定时 `.mcmeta` 的 `blur` 生效；作图集精灵时不生效。
+- **TC4R 重新打包/改名的 TC4 贴图**：`misc/particles.png` 256²→**200×440**；`misc/particles2.png`→`misc/particles_secondary.png` 512²→**208×584**；`misc/nodes.png` 2048²→**1088×1088**；`beam1/2/3.png`→`beam_primary/secondary/tertiary.png`；`radial2.png`→`radial_secondary.png`；TC6 路径 `models/obj/hemis.obj` 在 TC4R 为 TC4 路径 `textures/models/hemis.obj`。凡按 TC4 像素/归一化坐标取 UV 的代码必须用 `particleAtlasUv/effectAtlasUv`。
+
+### C.2 相关贴图（尺寸 / mcmeta）
+
+| 路径（`thaumcraft:textures/…`） | 尺寸 | 备注 |
+|---|---|---|
+| `block/animatedglow.png` | 16×320 | 动画 frametime 2，帧 0→19→1；罐内液体精灵 `thaumcraft:block/animatedglow` |
+| `block/jar_side/jar_top/jar_bottom.png`、`jar_side_void/jar_top_void.png` | 16² | 罐方块模型 |
+| `block/brainbox.png`、`block/blank.png`、`block/empty.png` | 16² | |
+| `block/pedestal_top/pedestal_side.png` | 16² | 基座/矩阵粒子 |
+| `block/crucible1..6.png` | 16² | 坩埚 |
+| `block/pipe_1/2/3.png` 32²、`pipe_buffer/filter/filter_core/oneway/restrict/valve.png` | | 管道 |
+| `block/runeborder.png` 64²、`block/wardedglassrune.png` 16²、`block/es_i_1.png` 32×192（动画 frametime 2，帧序 0,2,4,3,2,1,3,5,4,3,2,1） | | 符文/精华贮存 |
+| `models/jar.png`、`models/jar_void.png`、`models/jarbrine.png` | 64×32 | TC4 `ModelJar` 皮肤 / 盐水 |
+| `models/label.png` | 16² | 罐标签（Isorropia 悬挂标签也用它） |
+| `models/brain2.png` | 256×128 | 罐中脑 |
+| `models/infuser.png` | 64² | 矩阵立方（上 32 行 base，下 32 行 overlay） |
+| `models/valve.png` | 128×64 | |
+| `models/hemis.obj` + `models/hemis0..15.png`（128²，1..15 带 blur） | | 守护半球/声波 |
+| `models/ripple1..15.png` | 128²，blur | 声波波纹（**无 ripple0**） |
+| `models/scanner.obj` + `scanner.png` 256²、`scanscreen.png` 128²(blur) | | |
+| `models/node_stabilizer.obj` + `node_stabilizer(_over).png` 32²、`node_converter(_over).png` 32² | | |
+| `models/crystal.png` 64×32、`crystalcapacitor.png` 128×64、`vcrystal.obj/png`、`vis_relay.obj/png` 32² | | |
+| `models/goggles.png`、`runic_goggles.png` | 128×64 | |
+| `models/golem_damage.png`、`golem_decoration.png` | | |
+| `misc/particles.png` | **200×440**（blur） | TC4 主粒子表（打包） |
+| `misc/particles_secondary.png` | **208×584**（blur） | TC4 `particles2`（打包） |
+| `misc/nodes.png` | **1088²**（blur） | 节点（打包） |
+| `misc/node_bubble.png` | 256² | |
+| `misc/wisp.png` 256²(blur)、`misc/wispy.png` 512×128(blur) | | |
+| `misc/beam.png` 32×64、`beam_primary.png` 32²、`beam_secondary.png` 64²、`beam_tertiary.png` 64×128、`beamh.png` 64² | | `BeamTexture` |
+| `misc/vortex.png` 256²(blur)、`misc/tunnel.png` 64² | | |
+| `misc/radial.png`、`misc/radial_secondary.png` | 256² | 焦点轮盘 |
+| `misc/script.png` 256×16(blur)、`misc/mark.png` 128²(blur)、`misc/home.png` 256²(blur) | | |
+| `misc/eldritch_portal.png`、`misc/cultist_portal.png` | 2048×128 | 16 帧横条 |
+| `misc/particlefield.png` 256²(blur)、`particlefield32.png` 32²、`p_large.png`/`p_small.png` 32² | | |
+| `misc/potions.png` 256²、`misc/vignette.png` 256²(blur) | | |
+| `item/lightningringv.png` 4096×256、`item/lightningring.png` 256×4096 | | 充能节点环（16 帧） |
+| `aspects/<name>.png` 32²（48 个 + `_unknown`）、`aspects/_back.png` 64² | | |
+| `particle/sparkle_00..03`、`essentia_trail`、`scan_rune_00..15`、`node_jar_formation_00..08`、`crucible_bubble_0..2`、`tube_vent_1..5`、`smoke_spiral_1..4`、`taint_swarm_00..07`、`shock_spark_{0,1,2}_00..07`（均 16²）；`wisp_mote` 32²；`wisp_burst_00..31` 64² | | 原版粒子图集精灵 |
+| `gui/hud.png` 256² | | |
+
+着色器资源：`shaders/post/{blurtc,desaturatetc,hunger,sunscorned}.json`、`shaders/program/tc4_bloom(_color).{json,fsh}`（后处理，经 `showScreenEffect` 使用）。
+
+### C.3 Isorropia 1.12 / Thaumic Horizons 中引用的 `thaumcraft` 命名空间贴图在 TC4R 的存在性
+
+（脚本扫描 `ResourceLocation("thaumcraft", …)`、`UtilsFX.bindTexture(…)`、`"thaumcraft:textures/…"`；IS = Isorropia_kedition `fr/wind_blade/isorropia/`，TH = ThaumicHorizons `com/kentington/thaumichorizons/`）
+
+| 引用路径 | TC4R | 引用处 |
+|---|---|---|
+| `textures/models/label.png` | 有 | IS:client/renderer/entities/RenderHangingLabel.java:16 |
+| `textures/models/jar.png` | 有 | TH:common/tiles/TileSoulJar.java:32 |
+| `textures/models/infuser.png` | 有 | TH:client/renderer/tile/TileVatMatrixRender.java:99 |
+| `textures/misc/particles.png` | 有（**已打包**） | IS:client/libs/RenderEventHandler.java:62 |
+| `textures/misc/nodes.png` | 有（**已打包**） | TH:client/renderer/tile/TileVortexRender.java:259 |
+| `textures/misc/vortex.png` | 有 | IS:common/lenses/AirLens.java:23；TH:TileVortexRender.java:260 |
+| `textures/misc/radial.png` | 有 | IS:client/libs/RenderEventHandler.java:259；TH:client/lib/RenderEventHandler.java:262 |
+| `textures/misc/radial2.png` | **无** → 用 `radial_secondary.png` | IS:RenderEventHandler.java:260；TH:RenderEventHandler.java:279 |
+| `textures/misc/eldritch_portal.png` | 有 | TH:client/fx/FXContainment.java:104 |
+| `textures/models/hemis.obj` | 有 | TH:client/fx/FXSonic.java:113 |
+| `models/obj/hemis.obj`（TC6 路径） | **无** → `textures/models/hemis.obj` | IS:client/fx/FXSonic.java:28 |
+| `textures/models/ripple<frame>.png` | 有 1..15（无 0） | IS:client/fx/FXSonic.java:71 |
+| `textures/models/crystal.png`、`golem_damage.png`、`golem_decoration.png`、`node_converter(_over).png`、`node_stabilizer.obj`、`scanner.obj` | 有 | TH 各 tile 渲染器 |
+| `textures/aspects/_unknown.png` | 有 | TH:client/gui/GuiBloodInfuser.java:427 |
+| `textures/gui/gui_researchbook_overlay.png`、`gui_researchback.png`、`gui_focuspouch.png` | 有 | IS:RenderEventHandler.java:60；TH |
+| `textures/misc/r_runicupg.png` | 有 | TH:common/ThaumicHorizons.java:2386 |
+| `textures/gui/paper.png` | **无**（TC6 独有） | IS:client/libs/RenderEventHandler.java:63 |
+| `textures/items/celestial/{sun,stars1,moon1..8}.png` | **无**（TC6 独有） | IS:common/celestial/CelestialBody.java:18-63 |
+| `textures/items/lightningringv.png`（TH 字符串经 `UtilsFX.bindTexture` → thaumcraft 命名空间；TH 自身资源无此图） | 改名为 `item/lightningringv.png`（4096×256） | TH:client/renderer/tile/TileEssentiaDynamoRender.java:98、TileEtherealShardRender.java:201、TileRecombinatorRender.java:83 |
+
+缺失项只能从 TC6 / Isorropia 资源复制到 `isorropia` 命名空间（版权与来源由各分析文档记录）。
+
+---
+
+## D. Forge 47（1.20.1，47.4.23）实现要点
+
+### D.1 `forge:obj` 模型
+
+`F47: net/minecraftforge/client/model/obj/ObjLoader.java:48-61` 读取的键（默认值）：`model`（必填，`ns:models/…/x.obj`）、`automatic_culling`(true)、`shade_quads`(true)、`flip_v`(false)、`emissive_ambient`(true)、`mtl_override`(null)。另外 Forge 通用模型键：`render_type`（如 `"minecraft:cutout"`/`"minecraft:translucent"`）、`textures`、`visibility`（`{"组名": false}`，`isComponentVisible`，`ObjModel.java:339,572`）、`transform`。
+
+```json
+{
+  "loader": "forge:obj",
+  "model": "isorropia:models/block/vat_redo.obj",
+  "flip_v": true,
+  "emissive_ambient": false,
+  "render_type": "minecraft:cutout",
+  "textures": { "particle": "isorropia:block/vat", "vat": "isorropia:block/vat" },
+  "visibility": { "glass": false }
+}
+```
+
+- `.mtl` 的 `map_Kd #vat` → 取 JSON `textures.vat`；`map_Kd ns:path` → 直接当方块图集精灵（`UnbakedGeometryHelper.resolveDirtyMaterial :77-95`）。**OBJ 贴图必须在方块图集**：放 `textures/block/`（或 `textures/item/`；`textures/models/`、`textures/aspects/` 也会被 TC4R 拼入，但与决策 7 冲突，避免）。
+- `flip_v: true` 时 `v = 1 − v`（`ObjModel.java:428`）。1.7.10 Forge `WavefrontObject` 读取时同样做了 `1 − v`（待核对），所以给 1.7.10 `IModelCustom` 用的 OBJ 一般要 `flip_v: true`。
+- `emissive_ambient: true` 时 mtl 的 `Ka` 被当作假光照 `(Ka.r+Ka.g+Ka.b)*15/3`（`ObjModel.java:386-391`）；不想发光就设 false。mtl 额外键 `forge_TintIndex`。
+- `o` / `g` 分组 → part 名，可用 `visibility` 做“一个 OBJ 多个 JSON 只显示某组”，替代 1.7.10 的 `renderPart("name")`。
+- TC4R 自己的 OBJ 渲染 helper（`NamedGroupObjMesh`）包私有，不可复用。
+
+### D.2 在 BER 里画 BakedModel（额外模型）
+
+```java
+// 模组总线
+@SubscribeEvent static void onAdditional(ModelEvent.RegisterAdditional e) {
+    e.register(new ResourceLocation("isorropia", "block/vat_obj"));   // 指 models/block/vat_obj.json，不带 models/ 与 .json
+}
+// BER.render
+BakedModel m = Minecraft.getInstance().getModelManager().getModel(VAT_OBJ);    // Forge 补丁方法（ModelManager.java.patch +getModel(ResourceLocation)）
+Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+    poseStack.last(), buffers.getBuffer(RenderType.cutout()), null, m,
+    1f, 1f, 1f, packedLight, packedOverlay, ModelData.EMPTY, RenderType.cutout());
+```
+签名（javap 核实）：`ModelBlockRenderer.renderModel(PoseStack.Pose, VertexConsumer, @Nullable BlockState, BakedModel, float r, float g, float b, int light, int overlay, ModelData, @Nullable RenderType)`；`BlockRenderDispatcher.renderSingleBlock(BlockState, PoseStack, MultiBufferSource, int, int, ModelData, RenderType)`。BER 的 buffer 支持区块 RT（solid/cutout/translucent）；半透明需正确排序时用 `RenderType.entityTranslucentCull(InventoryMenu.BLOCK_ATLAS)` 或 `Sheets.translucentCullBlockSheet()`。`ModelEvent.ModifyBakingResult/BakingCompleted` 可拿 `Map<ResourceLocation,BakedModel>` 包装模型。
+
+### D.3 BER 注册、可见范围、同步
+
+- 注册：模组总线 `EntityRenderersEvent.RegisterRenderers#registerBlockEntityRenderer(BlockEntityType<? extends T>, BlockEntityRendererProvider<T>)`（`F47:client/event/EntityRenderersEvent.java:126`）；模型层 `RegisterLayerDefinitions#registerLayerDefinition(ModelLayerLocation, Supplier<LayerDefinition>)`，BER 构造里 `ctx.bakeLayer(LAYER)`。工程现有入口：`src/main/java/fr/wind_blade/isorropia/client/ClientSetup.java:37-71`。
+- `BlockEntityRenderer` 默认方法：`shouldRenderOffScreen(T)`（超出方块时返回 true）、`getViewDistance()`（默认 64）、`shouldRender(T, Vec3 camera)`。
+- 视锥裁剪用 BE 的 `IForgeBlockEntity#getRenderBoundingBox()`（`F47:common/extensions/IForgeBlockEntity.java:105`，默认取碰撞箱；无限大用 `INFINITE_EXTENT_AABB` :96）。在 **BE 类**里覆写（返回 AABB 不涉客户端类，服务端安全）。TC4R 的 `NativeBlockEntityRenderer.getRenderBoundingBox(T)` 不会被 Forge 调用。
+- 同步：BE 覆写 `getUpdateTag()`（`saveWithoutMetadata()` 或精简 tag）与 `getUpdatePacket()`（`ClientboundBlockEntityDataPacket.create(this)`）；数据变化时 `setChanged()` + `level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS)`；Forge 默认 `onDataPacket` 调 `load(tag)`（`IForgeBlockEntity.java:53-58`）。动画用的时钟优先客户端本地（`cameraEntity.tickCount + partialTick`，TC4R 一贯做法），只同步状态量。客户端逐 tick 逻辑（如插值角度）放 `BlockEntityTicker` 的客户端分支。
+
+### D.4 Curios 5.14.1 `ICurioRenderer`
+
+javap（`curios-forge-5.14.1+1.20.1_mapped_official_1.20.1.jar`）：
+```java
+<T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack poseStack,
+    RenderLayerParent<T, M> renderLayerParent, MultiBufferSource buffers, int light,
+    float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch);
+// 静态辅助
+ICurioRenderer.translateIfSneaking(PoseStack, LivingEntity);  ICurioRenderer.rotateIfSneaking(PoseStack, LivingEntity);
+ICurioRenderer.followHeadRotations(LivingEntity, ModelPart...);  ICurioRenderer.followBodyRotations(LivingEntity, HumanoidModel<LivingEntity>...);
+ICurioRenderer.renderModel(Model, ResourceLocation, PoseStack, MultiBufferSource, int light, RenderType);
+// 注册
+CuriosRendererRegistry.register(Item, Supplier<ICurioRenderer>);
+```
+`register` 只把 Supplier 存入表；Curios 在 `EntityRenderersEvent.AddLayers`（`Curios$ClientProxy.addLayers`）调 `CuriosRendererRegistry.load()` 才实例化。所以在 `FMLClientSetupEvent` 里注册即可，Supplier 内可安全 `Minecraft.getInstance().getEntityModels().bakeLayer(...)`。头部饰品典型：`if (parent.getModel() instanceof HumanoidModel<?> h) h.head.translateAndRotate(poseStack);` 或 `followHeadRotations(entity, myHead)`。
+
+### D.5 自定义 RenderType（加色/半透明）与“混合被 shader 覆盖”坑
+
+- `RenderType.create(String, VertexFormat, Mode, int bufferSize, boolean affectsCrumbling, boolean sortOnUpload, CompositeState)` 在 Forge 47 是 public（7 参版）；`CompositeState.builder()` 与 `TextureStateShard(rl, blur, mipmap)`、`ShaderStateShard(Supplier<ShaderInstance>)`、`TransparencyStateShard(name, setup, clear)` 构造器均 public。原版 shard 常量是 `protected static` → 写一个 `extends RenderType` 的私有构造器工具类引用，或直接用 TC4R `NativeRenderStates` 的公开别名（A.9）。
+- **混合覆盖风险**：1.20.1 所有原版 core shader JSON 都带 `"blend": {"func":"add","srcrgb":"srcalpha","dstrgb":"1-srcalpha"}`（MC 核实），`ShaderInstance.apply()` 会调 `BlendMode.apply()`；后者用 `equals(lastApplied)` 缓存且 `lastApplied` 只在不透明/透明切换时更新（javap 核实），所以在某些绘制顺序下 shader 的普通混合会**覆盖** RenderType 的 `LIGHTNING/ADDITIVE` 混合，造成加色特效偶发变成普通 alpha 混合。TC4R 的对策：`ForgeShaderBlendMixin`（`D:nativeimpl/mixin/ForgeShaderBlendMixin.java`）在 `RenderTypeBlendPlatform.renderTypeOwnsBlend()` 为 true 时跳过 shader 混合，而 `NativeRenderTypes.create(...)` 的 `end()` 会置 true。**Isorropia 的自定义加色 RT 建议用 `NativeRenderTypes.create(...)` 创建**（或自己覆写 `end()` 包 `RenderTypeBlendPlatform.enter(true)/restore(prev)`）。
+- 推荐配方（照抄 TC4R）：TC4 `(770,1)` + 不写深度 + 全亮 + 不裁剪 → `RENDERTYPE_EYES_SHADER` + `LIGHTNING_TRANSPARENCY` + `COLOR_WRITE`（+ `NO_CULL` 或 `CULL`），格式 `NEW_ENTITY`/`QUADS`；TC4 `(770,771)` 半透明全亮 → `entity_translucent_emissive` + `TRANSLUCENT_TRANSPARENCY` + `COLOR_WRITE`（注意贴图 alpha<0.1 被丢弃）；纯顶点色光芒 → `eldritchOrbRays()`（公开）。
+
+```java
+static final Function<ResourceLocation, RenderType> GLOW = Util.memoize(tex -> NativeRenderTypes.create(
+    "isorropia_glow", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true,
+    RenderType.CompositeState.builder()
+        .setShaderState(NativeRenderStates.RENDERTYPE_EYES_SHADER)
+        .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+        .setTransparencyState(NativeRenderStates.LIGHTNING_TRANSPARENCY)
+        .setWriteMaskState(NativeRenderStates.COLOR_WRITE)
+        .setCullState(NativeRenderStates.NO_CULL)
+        .createCompositeState(false)));
+```
+- 原版现成 RT：`entityTranslucentEmissive(rl[,outline])`、`eyes(rl)`（ADDITIVE 1,1）、`energySwirl(rl,u,v)`、`lightning()`、`beaconBeam(rl, translucent)`、`dragonExplosionAlpha(rl)`、`itemEntityTranslucentCull(rl)`、`entityCutoutNoCull(rl)`。
+- 自定义 GLSL：模组总线 `RegisterShadersEvent#registerShader(new ShaderInstance(provider, rl, format), consumer)`（1.12 Isorropia 的 `shader/test.vert/test2.frag` 若需保留走此路）。
+
+### D.6 粒子
+
+```java
+// 公共注册（双端）
+DeferredRegister<ParticleType<?>> P = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, "isorropia");
+RegistryObject<SimpleParticleType> SONIC = P.register("sonic", () -> new SimpleParticleType(false)); // true=无视粒子数量上限
+// 客户端模组总线
+@SubscribeEvent static void onParticles(RegisterParticleProvidersEvent e) {
+    e.registerSpriteSet(SONIC.get(), SonicParticle.Provider::new);   // SpriteSet → Provider
+    // e.registerSpecial(type, provider)  无精灵；e.registerSprite(type, ParticleProvider.Sprite) 单精灵
+}
+// assets/isorropia/particles/sonic.json: {"textures": ["isorropia:sonic_0", "isorropia:sonic_1"]}
+//   → assets/isorropia/textures/particle/sonic_0.png（进原版粒子图集）
+```
+签名：`F47:client/event/RegisterParticleProvidersEvent.java:54/70/87`。Forge 47 的 `ParticleEngine` 改为按 key 集合遍历（`ParticleEngine.java.patch`：`for (type : this.particles.keySet())`，TreeMap 按 `ForgeHooksClient.makeParticleRenderTypeComparator` 排序，TC4R mixin 再按 A.7 rank 重排）→ 自定义 `ParticleRenderType`（实现 `begin(BufferBuilder, TextureManager)`/`end(Tesselator)`）会被渲染。要 TC4 观感：粒子 `getRenderType()` 直接返回 `ParticleSheets.LEGACY_EFFECT_ADDITIVE`（原版粒子图集 + `SRC_ALPHA,ONE` + 不写深度）或 `WORLD_LAST_LEGACY_ATLAS_ADDITIVE_LAYER_0`（绑打包 `particles.png`，UV 用 `particleAtlasUv` 换算）。`particle` shader 对“贴图×顶点色”alpha<0.1 丢弃（B.1）——TC4 低 alpha 粒子会整片消失，需抬高 alpha 或改用 eyes shader 的自管 pass。
+
+### D.7 物品自定义渲染
+
+- BEWLR：在 Item/BlockItem 子类覆写 `initializeClient(Consumer<IClientItemExtensions> c)`，`c.accept(new IClientItemExtensions(){ BlockEntityWithoutLevelRenderer r; public BlockEntityWithoutLevelRenderer getCustomRenderer(){ if (r==null) r = new MyBewlr(); return r; } })`（懒创建：构造期 `Minecraft` 的 BE 分发器/模型集尚未就绪）。BEWLR 构造 `super(mc.getBlockEntityRenderDispatcher(), mc.getEntityModels())`，覆写 `renderByItem(ItemStack, ItemDisplayContext, PoseStack, MultiBufferSource, int light, int overlay)`；坐标原点为 0..1 方块角（display 变换之后）。若在构造里 bake 模型层，需要在资源重载后重建（BEWLR 本身是 `ResourceManagerReloadListener`，可在 `RegisterClientReloadListenersEvent` 注册）。
+- 物品模型 JSON：`"parent": "builtin/entity"` 或 `"thaumcraft:item/tc4_block_entity"`（B.11 的 display）。
+- `IClientItemExtensions` 其他钩子：`getArmPose`、`applyForgeHandTransform`、`getHumanoidArmorModel`、`getGenericArmorModel`、`renderHelmetOverlay(stack, player, w, h, pt)`（头盔屏幕叠加，透镜/护目镜 HUD 可用）（`F47 IClientItemExtensions.java:60-161`）。
+- `ItemProperties.register(Item, ResourceLocation, ItemPropertyFunction)`（javap：1.20.1 签名；工程已在 `ClientSetup.java:39` 的 `enqueueWork` 里用）；模型 `overrides: [{"predicate": {"isorropia:x": 0.5}, "model": "..."}]`。
+
+### D.8 HUD 与世界阶段渲染
+
+- `RegisterGuiOverlaysEvent#registerAbove/registerBelow(ResourceLocation other, String id, IGuiOverlay)`、`registerAboveAll/BelowAll(String id, IGuiOverlay)`；`IGuiOverlay.render(ForgeGui gui, GuiGraphics g, float partialTick, int screenWidth, int screenHeight)`（`F47:client/gui/overlay/IGuiOverlay.java:19`）。锚点 `VanillaGuiOverlay.X.id()`。
+- `RenderLevelStageEvent`（Forge 总线）阶段：`AFTER_SKY, AFTER_SOLID_BLOCKS, AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS, AFTER_CUTOUT_BLOCKS, AFTER_ENTITIES, AFTER_BLOCK_ENTITIES, AFTER_TRANSLUCENT_BLOCKS, AFTER_TRIPWIRE_BLOCKS, AFTER_PARTICLES, AFTER_WEATHER, AFTER_LEVEL`（`F47 RenderLevelStageEvent.java:165-214`）；getter：`getPoseStack()`（含视图旋转）、`getProjectionMatrix()`、`getPartialTick()`、`getCamera()`、`getFrustum()`、`getRenderTick()`。常规写法：`pose.pushPose(); pose.translate(-cam.x,-cam.y,-cam.z); …; MultiBufferSource.BufferSource bs = mc.renderBuffers().bufferSource(); …; bs.endBatch(rt); pose.popPose();`。TC4 的 `RenderWorldLastEvent` ≈ `AFTER_LEVEL`（或要被半透明遮挡时用 `AFTER_TRANSLUCENT_BLOCKS`）。
+- 广告牌：`poseStack.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation())`（TC4R 节点做法）；TC4 `ActiveRenderInfo.rotationX/XZ…` 手工四边形可等价替换。
+
+### D.9 1.7.10 GL → 1.20.1 对照
+
+| TC4 / 1.7.10 | 1.20.1 等价 |
+|---|---|
+| `TileEntitySpecialRenderer.renderTileEntityAt(te, x, y, z, pt)` 中 `glTranslated(x, y, z)` | BER 的 `poseStack` 已在方块角，**去掉 (x,y,z)**，保留其后的偏移 |
+| `glTranslatef(a,b,c)` / `glRotatef(deg, x,y,z)` / `glScalef` | `pose.translate` / `pose.mulPose(Axis.XP/YP/ZP.rotationDegrees(deg))`（负轴用 `XN/YN/ZN`；任意轴 `new Quaternionf().rotationAxis(rad, x,y,z)`）/ `pose.scale`；顺序保持一致 |
+| `glPushMatrix/glPopMatrix` | `pushPose/popPose` |
+| `glColor4f(r,g,b,a)` | 顶点色，或 `ModelPart.render(pose, vc, light, overlay, r, g, b, a)` |
+| `glBlendFunc(770,1)` / `(770,771)` / `(1,1)` | `LIGHTNING_` / `TRANSLUCENT_` / `ADDITIVE_TRANSPARENCY`（B.1） |
+| `glDepthMask(false)` | `COLOR_WRITE`；`glDisable(GL_DEPTH_TEST)` → `NO_DEPTH_TEST` |
+| `glDisable(GL_CULL_FACE)` | `NO_CULL` |
+| `glDisable(GL_LIGHTING)` + `setLightmapTextureCoords(240,240)` | packedLight `LightTexture.FULL_BRIGHT`(15728880 = 0xF000F0)，配无方向光 shader（eyes）或 emissive shader |
+| `glAlphaFunc(516, 0.003921569F)` | 只能用不丢弃的 shader（eyes / entity_no_outline / lightning），见 B.1 |
+| `glShadeModel(GL_SMOOTH)` + 逐顶点色 | 默认即逐顶点插值 |
+| `Tessellator.startDrawing(6)`（三角扇） | `Mode.TRIANGLES` 手工拆成三角形（TC4R halo 做法） |
+| `UtilsFX.renderQuadCenteredFromTexture(tex, scale, r,g,b, bright, blend, alpha)` | 自建 `±0.5*scale` 四边形，RT 按 blend 选择，light = bright |
+| `ModelRenderer` + `render(0.0625F)` | `ModelPart`（`CubeListBuilder.create().texOffs(u,v).addBox(x,y,z,w,h,d[, CubeDeformation])`、`PartPose.offsetAndRotation`），`LayerDefinition.create(mesh, texW, texH)`；单位、Y 向下、UV 展开与 1.7.10 一致；`mirror` → `.mirror()` |
+| `IModelCustom.renderAll/renderPart` | `forge:obj` + `visibility`（D.1）+ D.2 |
+| `bindTexture(rl)` 后画 | 每个贴图一个 RT：`buffers.getBuffer(RenderType.xxx(rl))` |
+| `EntityFX` + `ParticleEngine.addEffect` | `Particle`/`TextureSheetParticle` + `particleEngine.add(p)` 或 `level.addParticle(type, …)` |
+
+---
+
+## E. 选用顺序与风险
+
+**选用顺序**（每个分析文档按此决策）：
+1. 有 TC4R 公开 API 等价物（A.1/A.3/A.4/A.8）→ 直接调用；服务端触发用 `ActionPresentationApi.presentAt` + 客户端 handler，或 `WorldEffectsApi.blockSparkle`。
+2. 容器要素显示 → BE 实现 `AspectContainerView`（B.9），不写渲染代码。
+3. 需要 TC4 观感的自绘 → RT 用 A.4 公开 RT / A.9 `NativeRenderTypes`+`NativeRenderStates` 照抄 B.1 状态；粒子层用 `ParticleSheets.*`；UV 涉及 TC4 粒子表一律 `particleAtlasUv/effectAtlasUv`。
+4. 纯 Forge 实现（D 节）。
+
+**风险 / 只能实机确认**
+
+| # | 内容 |
+|---|---|
+| 1 | A.9 所列类不是 API，TC4R 升级（>20732）可能改名/改可见性；锁定版本前提下可用，升级时 `gradlew build` 会暴露。 |
+| 2 | D.5 混合覆盖：用原版 `RenderType.create` 做的加色 RT 是否被 shader JSON 混合覆盖取决于绘制历史，只能实机多场景（物品栏打开/附魔光物品同屏/粒子多）确认；用 `NativeRenderTypes.create` 可规避。 |
+| 3 | alpha 裁剪：`entity_translucent(_emissive)`/`entity_cutout` 丢弃贴图 alpha<0.1，`particle` 丢弃最终 alpha<0.1。TC4 低 alpha 辉光的柔边会被削掉；需实机比对，必要时改 eyes shader。 |
+| 4 | 雾：eyes / emissive shader 用 `linear_fog_fade`（远处整体变淡），TC4R 的 `WORLD_LAST_*` 粒子层把雾起点设为 MAX（不受雾）；与 1.7.10 观感差异需实机看。 |
+| 5 | `WorldRenderContext` 没有公开订阅入口；在 Forge `RenderLevelStageEvent` 里自行渲染时，pose/modelView 组合（`event.getPoseStack()` vs `WorldRenderTransforms.modelViewMatrix()`）需实机验证位置不漂移；`beginAfterLevelWorldRender` 只接受 AFTER_LEVEL。 |
+| 6 | `BeamSettings.width` 对应 TC4 `FXBeam` 的 `field_70130_N`；TC4 构造里先赋 1.0F 后又 `setSize(0.02F,0.02F)`（TC4:client/fx/beams/FXBeam.java:61-65），实际有效宽度存疑，需实机对比选值。 |
+| 7 | `animatedglow`/`es_i_1` 等动画精灵在 BER 里经方块图集取 UV，帧动画随图集 tick；BEWLR（GUI）中是否同步动画需实机确认。 |
+| 8 | `ThaumcraftClientEffectsApi` 校验失败只打一次 WARN 并静默；开发期请看日志 `Ignoring invalid client effect request`，否则“特效没出来”难排查。 |
+| 9 | 1.7.10 OBJ 的 V 翻转（D.1）未从 1.7.10 Forge 源码直接核对；首个 OBJ 落地时实机确认 `flip_v`。 |
+| 10 | Curios 饰品渲染还受玩家“显示饰品”开关与槽位 `render` 设置影响；需实机确认可见。 |

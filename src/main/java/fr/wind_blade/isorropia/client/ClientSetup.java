@@ -15,10 +15,12 @@ import fr.wind_blade.isorropia.client.renderer.entities.RenderJellyRabbit;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderOrePig;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderSheeder;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderTaintPig;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.items.misc.ItemCat;
 import fr.wind_blade.isorropia.common.items.misc.ItemJelly;
+import fr.wind_blade.isorropia.common.tiles.TilesIS;
 import net.minecraft.client.renderer.entity.SheepRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -64,6 +66,11 @@ public final class ClientSetup {
         event.registerEntityRenderer(EntitiesIS.GUARDIAN_PANTHER.get(), RenderGuardianPanther::new);
         event.registerEntityRenderer(EntitiesIS.NETHER_HOUND.get(), RenderHellHound::new);
         event.registerEntityRenderer(EntitiesIS.EMBER.get(), RenderEmber::new);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(TilesIS.VAT.get(), RenderVat::new);
     }
 
     @SubscribeEvent

@@ -110,6 +110,9 @@ var done = new java.util.concurrent.CompletableFuture<String>();
 mc.execute(() -> {
     try {
         mc.setScreen(null);
+        // Place the camera itself for the frame: whatever the server thinks, the picture is taken here.
+        mc.player.setPos(%(x)s, %(y)s, %(z)s);
+        mc.player.xo = %(x)s; mc.player.yo = %(y)s; mc.player.zo = %(z)s;
         mc.player.setYRot(%(yaw)sF);
         mc.player.setXRot(%(pitch)sF);
         mc.player.yRotO = %(yaw)sF;
