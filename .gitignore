@@ -1,0 +1,26 @@
+# Gradle / IDE
+.gradle/
+build/
+out/
+bin/
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+eclipse/
+
+# Run directories
+run/
+run-client/
+run-server/
+run-gametest/
+run-data/
+logs/
+
+# Local TC4R artifacts are user-supplied and not redistributed; the manifest is tracked.
+local-repo/**/*.jar
+local-repo/**/*.pom
+reference/
