@@ -97,6 +97,10 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     private int cooldown;
     private int count;
     private int cycleTicks = CYCLE_TICKS;
+    /** Rises while the vat works and falls when it stops; the matrix turns and shakes with it. */
+    private float startUp;
+    /** How far into an infusion the vat is, capped, used for the rendering of instability. */
+    private int craftCount;
     private float stabilityReplenish;
 
     private final Map<AspectId, Integer> stored = new LinkedHashMap<>();
@@ -181,6 +185,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     private void tickMaster(ServerLevel level) {
         count++;
         normalizeMode();
+        updateStartUp();
+        updateCraftCount();
         if (mode != MODE_INFUSING && !expunge && contained == null && !hasEffigy) {
             return;
         }
@@ -225,6 +231,21 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             }
             infusionCycle(level);
         }
+    }
+
+    /** The vat winds up to full over a few seconds and unwinds the same way, as upstream's updateStartUp. */
+    private void updateStartUp() {
+        float step = Math.max(startUp / 10.0F, 0.001F);
+        if (active && (mode == MODE_INFUSING || !expunge)) {
+            startUp = Math.min(1.0F, startUp + step);
+        } else {
+            startUp = Math.max(0.0F, startUp - step);
+        }
+    }
+
+    /** Climbing one a tick while infusing and dropping two while idle is what drives the matrix's glow. */
+    private void updateCraftCount() {
+        craftCount = mode == MODE_INFUSING ? Math.min(50, craftCount + 1) : Math.max(0, craftCount - 2);
     }
 
     /** Heals the creature in the vat: one essentia of whichever cure applies, then its cooldown. */
@@ -897,6 +918,19 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return stability;
     }
 
+    /** How unstable the vat has become, as a positive number; the matrix shakes harder the higher it is. */
+    public float getRawStability() {
+        return Math.max(0.0F, -stability);
+    }
+
+    public float getStartUp() {
+        return startUp;
+    }
+
+    public int getCraftCount() {
+        return craftCount;
+    }
+
     public float getFluxStocked() {
         return fluxStocked;
     }
@@ -958,6 +992,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         tag.putBoolean("Effigy", hasEffigy);
         tag.putInt("EffigyEssentia", effigyEssentia);
         tag.putInt("Cooldown", cooldown);
+        tag.putFloat("StartUp", startUp);
+        tag.putInt("CraftCount", craftCount);
         tag.put("Stored", writeAspects(stored));
         tag.put("Needed", writeAspects(needed));
         ListTag selfTag = new ListTag();
@@ -997,6 +1033,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         hasEffigy = tag.getBoolean("Effigy");
         effigyEssentia = tag.getInt("EffigyEssentia");
         cooldown = tag.getInt("Cooldown");
+        startUp = tag.getFloat("StartUp");
+        craftCount = tag.getInt("CraftCount");
         readAspects(tag.getList("Stored", Tag.TAG_COMPOUND), stored);
         readAspects(tag.getList("Needed", Tag.TAG_COMPOUND), needed);
         selfInfusions.clear();
@@ -1061,6 +1099,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         tag.putBoolean("Expunge", expunge);
         tag.putBoolean("Effigy", hasEffigy);
         tag.putInt("EffigyEssentia", effigyEssentia);
+        tag.putFloat("StartUp", startUp);
+        tag.putInt("CraftCount", craftCount);
         return tag;
     }
 
@@ -1091,6 +1131,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         expunge = tag.getBoolean("Expunge");
         hasEffigy = tag.getBoolean("Effigy");
         effigyEssentia = tag.getInt("EffigyEssentia");
+        startUp = tag.getFloat("StartUp");
+        craftCount = tag.getInt("CraftCount");
     }
 
     private void sync() {

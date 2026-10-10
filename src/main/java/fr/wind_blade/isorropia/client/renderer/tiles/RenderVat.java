@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import fr.wind_blade.isorropia.Isorropia;
-import fr.wind_blade.isorropia.client.VatRenderTypes;
+import fr.wind_blade.isorropia.client.ClientRenderTypes;
 import fr.wind_blade.isorropia.client.model.ObjMesh;
 import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
 import fr.wind_blade.isorropia.common.tiles.TileVat;
@@ -62,9 +62,9 @@ public class RenderVat implements BlockEntityRenderer<TileVat> {
         ObjMesh mesh = ObjMesh.get(MODEL);
         // The mesh's winding is not reliable, so both passes run without backface culling, and the liquid
         // leaves the depth buffer alone so the body being infused can be seen through it.
-        VertexConsumer water = buffers.getBuffer(VatRenderTypes.liquid(WATER_TEXTURE));
+        VertexConsumer water = buffers.getBuffer(ClientRenderTypes.liquid(WATER_TEXTURE));
         mesh.render("Water", poseStack, water, light, overlay, 1.0F, 1.0F, 1.0F, 0.85F);
-        VertexConsumer shell = buffers.getBuffer(VatRenderTypes.shell(SHELL_TEXTURE));
+        VertexConsumer shell = buffers.getBuffer(ClientRenderTypes.shell(SHELL_TEXTURE));
         mesh.renderAllExcept(WATER_GROUP, poseStack, shell, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
         poseStack.popPose();

@@ -12,18 +12,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The two states the vat's mesh needs. Upstream drew its liquid with depth writes off and everything else with
- * them on, which is what lets the vat's body be seen through the liquid; no stock render type does that, and the
- * entity types cull back faces, which the mesh's winding cannot survive.
+ * The render states this mod's models need and the stock types cannot give: a liquid that leaves the depth
+ * buffer alone so the body inside the vat stays visible, a shell that writes depth, and an additive glow for the
+ * matrix. The entity render types cull back faces, which the vat mesh's winding cannot survive.
  *
- * <p>They are built from the render shims Thaumcraft itself uses to reach the vanilla state shards, so the vat
- * keeps Thaumcraft's lighting, fog and blending behaviour.
+ * <p>They are built from the render shims Thaumcraft itself uses to reach the vanilla state shards, so they keep
+ * Thaumcraft's lighting, fog and blending behaviour.
  */
-public final class VatRenderTypes {
+public final class ClientRenderTypes {
     private static final Map<ResourceLocation, RenderType> LIQUID = new HashMap<>();
     private static final Map<ResourceLocation, RenderType> SHELL = new HashMap<>();
+    private static final Map<ResourceLocation, RenderType> GLOW = new HashMap<>();
 
-    private VatRenderTypes() {
+    private ClientRenderTypes() {
     }
 
     /** Blended, and leaves the depth buffer alone so whatever is behind it stays visible. */
@@ -36,6 +37,27 @@ public final class VatRenderTypes {
     public static RenderType shell(ResourceLocation texture) {
         return SHELL.computeIfAbsent(texture, tex -> create("isorropia_vat_shell", tex,
                 NativeRenderStates.COLOR_DEPTH_WRITE));
+    }
+
+    /**
+     * Additive and colour-only, for the glow the matrix shows over its own body: additive so it brightens what
+     * it lies on rather than hiding it, and without depth writes so the two passes can share the same surface.
+     */
+    public static RenderType additiveGlow(ResourceLocation texture) {
+        return GLOW.computeIfAbsent(texture, tex -> NativeRenderTypes.create("isorropia_matrix_glow",
+                DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true,
+                RenderType.CompositeState.builder()
+                        // The unlit identity Thaumcraft uses for its own matrix glow: it keeps the vertex
+                        // colour and skips the modern alpha cutoff, which a glow pass must not have.
+                        .setShaderState(NativeRenderStates.RENDERTYPE_EYES_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                        .setTransparencyState(NativeRenderStates.LIGHTNING_TRANSPARENCY)
+                        .setDepthTestState(NativeRenderStates.LEQUAL_DEPTH_TEST)
+                        .setWriteMaskState(NativeRenderStates.COLOR_WRITE)
+                        .setCullState(NativeRenderStates.CULL)
+                        .setLightmapState(NativeRenderStates.LIGHTMAP)
+                        .setOverlayState(NativeRenderStates.OVERLAY)
+                        .createCompositeState(false)));
     }
 
     private static RenderType create(String name, ResourceLocation texture,
