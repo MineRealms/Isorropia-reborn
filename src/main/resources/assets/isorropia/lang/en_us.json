@@ -246,5 +246,20 @@
   "tc.research_text.isorropia:envylens": "What is theirs is mine",
   "isorropia.research_page.hanginglabel.1": "The labels on my jars are nice and all, but sometimes my sorting could do with a little more pizzazz!<BR>That ol' razzle dazzle could be achieved easily with some labels that stick to anything.<BR>And now I have the Adherent Label, that I can put on anything I see fit!",
   "tc.research_name.isorropia:hanginglabel": "Adherent Label",
-  "tc.research_text.isorropia:hanginglabel": "Labels that stick"
+  "tc.research_text.isorropia:hanginglabel": "Labels that stick",
+  "item.isorropia.jelly": "Jelly",
+  "entity.isorropia.incubated_egg": "Incubated Egg",
+  "entity.isorropia.hanging_label": "Adherent Label",
+  "entity.isorropia.ember": "Ember",
+  "item.isorropia.taint_pig_spawn_egg": "Taint Pig Spawn Egg",
+  "item.isorropia.gravekeeper_spawn_egg": "Gravekeeper Spawn Egg",
+  "item.isorropia.sheeder_spawn_egg": "Sheeder Spawn Egg",
+  "item.isorropia.chromatic_sheep_spawn_egg": "Chromatic Sheep Spawn Egg",
+  "item.isorropia.scholar_chicken_spawn_egg": "Scholar Chicken Spawn Egg",
+  "item.isorropia.ore_pig_spawn_egg": "Ore Pig Spawn Egg",
+  "item.isorropia.jelly_rabbit_spawn_egg": "Jelly Rabbit Spawn Egg",
+  "item.isorropia.chocolate_cow_spawn_egg": "Chocolate Cow Spawn Egg",
+  "item.isorropia.golden_chicken_spawn_egg": "Golden Chicken Spawn Egg",
+  "item.isorropia.guardian_panther_spawn_egg": "Guardian Panther Spawn Egg",
+  "item.isorropia.nether_hound_spawn_egg": "Nether Hound Spawn Egg"
 }
