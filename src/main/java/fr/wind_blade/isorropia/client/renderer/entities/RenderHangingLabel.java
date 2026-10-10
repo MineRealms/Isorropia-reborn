@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -21,6 +22,11 @@ public class RenderHangingLabel extends EntityRenderer<EntityHangingLabel> {
     private static final ResourceLocation LABEL = ResourceLocation.fromNamespaceAndPath("thaumcraft", "textures/models/label.png");
     private static final float LABEL_HALF = 0.25F;
     private static final float ICON_HALF = 8.0F * 0.021F;
+    /** The tag behind the aspect sprite, as Thaumcraft draws it. */
+    private static final ResourceLocation TAG_BACKGROUND =
+            ResourceLocation.fromNamespaceAndPath("thaumcraft", "textures/aspects/_back.png");
+    private static final int TAG_COLOUR = 0x1A1A1A;
+    private static final float TAG_ALPHA = 0.8F;
 
     public RenderHangingLabel(EntityRendererProvider.Context context) {
         super(context);
@@ -28,14 +34,31 @@ public class RenderHangingLabel extends EntityRenderer<EntityHangingLabel> {
 
     @Override
     public void render(EntityHangingLabel entity, float yaw, float partialTick, PoseStack poseStack, MultiBufferSource buffers, int light) {
+        // The chain the 1.12 renderer used: flip upright, turn with the entity, face outwards, off the wall.
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entity.getYRot()));
-        quad(poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(LABEL)), -0.03F, LABEL_HALF, 0xFFFFFF, 1.0F, light);
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot())));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.translate(0.0F, 0.0F, 0.03F);
+        VertexConsumer label = buffers.getBuffer(RenderType.entityTranslucent(LABEL));
+        quad(poseStack, label, 0.0F, LABEL_HALF, 0xFFFFFF, 1.0F, light);
+        // A label has two sides, and upstream drew both.
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        quad(poseStack, label, 0.0F, LABEL_HALF, 0xFFFFFF, 1.0F, light);
+        poseStack.popPose();
+
         AspectId aspect = entity.getAspect();
         AspectDefinition definition = aspect == null ? null : AspectApi.get(aspect);
         if (definition != null) {
-            quad(poseStack, buffers.getBuffer(RenderType.entityTranslucent(definition.texture())), -0.031F, ICON_HALF,
-                    definition.color(), 1.0F, light);
+            // The aspect tag: a dark tile with the aspect's own sprite over it.
+            poseStack.pushPose();
+            poseStack.translate(0.0F, 0.0F, -0.001F);
+            quad(poseStack, buffers.getBuffer(RenderType.entityTranslucent(TAG_BACKGROUND)), 0.0F, ICON_HALF,
+                    TAG_COLOUR, TAG_ALPHA, light);
+            quad(poseStack, buffers.getBuffer(RenderType.entityTranslucent(definition.texture())), -0.001F,
+                    ICON_HALF, 0xFFFFFF, 1.0F, light);
+            poseStack.popPose();
         }
         poseStack.popPose();
         super.render(entity, yaw, partialTick, poseStack, buffers, light);

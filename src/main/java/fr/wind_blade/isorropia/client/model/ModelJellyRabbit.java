@@ -43,9 +43,9 @@ public class ModelJellyRabbit extends EntityModel<EntityJellyRabbit> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6, 5, 10),
+        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6, 5, 10).mirror(),
                 PartPose.offsetAndRotation(0.0F, 19.0F, 8.0F, -0.34906584F, 0.0F, 0.0F));
-        root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5, 4, 5),
+        root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5, 4, 5).mirror(),
                 PartPose.offset(0.0F, 16.0F, -1.0F));
         root.addOrReplaceChild("right_eye", CubeListBuilder.create().texOffs(58, 26).addBox(-1.9F, -3.1F, -5.5F, 1, 1, 1),
                 PartPose.offset(0.0F, 16.0F, -1.0F));

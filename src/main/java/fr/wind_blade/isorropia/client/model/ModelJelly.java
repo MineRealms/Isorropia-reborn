@@ -56,29 +56,29 @@ public class ModelJelly extends EntityModel<EntityJellyRabbit> {
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        root.addOrReplaceChild("left_foot", CubeListBuilder.create().texOffs(26, 24).addBox(-1.0F, 5.5F, -3.7F, 2, 1, 7),
+        root.addOrReplaceChild("left_foot", CubeListBuilder.create().texOffs(26, 24).addBox(-1.0F, 5.5F, -3.7F, 2, 1, 7).mirror(),
                 PartPose.offset(3.0F, 33.5F, 3.7F));
-        root.addOrReplaceChild("right_foot", CubeListBuilder.create().texOffs(8, 24).addBox(-1.0F, 5.5F, -3.7F, 2, 1, 7),
+        root.addOrReplaceChild("right_foot", CubeListBuilder.create().texOffs(8, 24).addBox(-1.0F, 5.5F, -3.7F, 2, 1, 7).mirror(),
                 PartPose.offset(-3.0F, 33.5F, 3.7F));
-        root.addOrReplaceChild("left_thigh", CubeListBuilder.create().texOffs(30, 15).addBox(-1.0F, 0.0F, 0.0F, 2, 4, 5),
+        root.addOrReplaceChild("left_thigh", CubeListBuilder.create().texOffs(30, 15).addBox(-1.0F, 0.0F, 0.0F, 2, 4, 5).mirror(),
                 PartPose.offsetAndRotation(3.0F, 33.5F, 3.7F, -0.34906584F, 0.0F, 0.0F));
-        root.addOrReplaceChild("right_thigh", CubeListBuilder.create().texOffs(16, 15).addBox(-1.0F, 0.0F, 0.0F, 2, 4, 5),
+        root.addOrReplaceChild("right_thigh", CubeListBuilder.create().texOffs(16, 15).addBox(-1.0F, 0.0F, 0.0F, 2, 4, 5).mirror(),
                 PartPose.offsetAndRotation(-3.0F, 33.5F, 3.7F, -0.34906584F, 0.0F, 0.0F));
-        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6, 5, 10),
+        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -2.0F, -10.0F, 6, 5, 10).mirror(),
                 PartPose.offsetAndRotation(0.0F, 35.0F, 8.0F, -0.34906584F, 0.0F, 0.0F));
-        root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(8, 15).addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2),
+        root.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(8, 15).addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2).mirror(),
                 PartPose.offsetAndRotation(3.0F, 33.0F, -1.0F, -0.17453292F, 0.0F, 0.0F));
-        root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(0, 15).addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2),
+        root.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(0, 15).addBox(-1.0F, 0.0F, -1.0F, 2, 7, 2).mirror(),
                 PartPose.offsetAndRotation(-3.0F, 33.0F, -1.0F, -0.17453292F, 0.0F, 0.0F));
-        root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5, 4, 5),
+        root.addOrReplaceChild("head", CubeListBuilder.create().texOffs(32, 0).addBox(-2.5F, -4.0F, -5.0F, 5, 4, 5).mirror(),
                 PartPose.offset(0.0F, 32.0F, -1.0F));
-        root.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(52, 0).addBox(-2.5F, -9.0F, -1.0F, 2, 5, 1),
+        root.addOrReplaceChild("right_ear", CubeListBuilder.create().texOffs(52, 0).addBox(-2.5F, -9.0F, -1.0F, 2, 5, 1).mirror(),
                 PartPose.offsetAndRotation(0.0F, 32.0F, -1.0F, 0.0F, -0.2617994F, 0.0F));
-        root.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(58, 0).addBox(0.5F, -9.0F, -1.0F, 2, 5, 1),
+        root.addOrReplaceChild("left_ear", CubeListBuilder.create().texOffs(58, 0).addBox(0.5F, -9.0F, -1.0F, 2, 5, 1).mirror(),
                 PartPose.offsetAndRotation(0.0F, 32.0F, -1.0F, 0.0F, 0.2617994F, 0.0F));
-        root.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(52, 6).addBox(-1.5F, -1.5F, 0.0F, 3, 3, 2),
+        root.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(52, 6).addBox(-1.5F, -1.5F, 0.0F, 3, 3, 2).mirror(),
                 PartPose.offsetAndRotation(0.0F, 36.0F, 7.0F, -0.3490659F, 0.0F, 0.0F));
-        root.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(32, 9).addBox(-0.5F, -2.5F, -5.5F, 1, 1, 1),
+        root.addOrReplaceChild("nose", CubeListBuilder.create().texOffs(32, 9).addBox(-0.5F, -2.5F, -5.5F, 1, 1, 1).mirror(),
                 PartPose.offset(0.0F, 32.0F, -1.0F));
         return LayerDefinition.create(mesh, 64, 32);
     }

@@ -17,7 +17,7 @@ public class RenderGuardianPanther extends MobRenderer<EntityGuardianPanther, Ca
             Isorropia.id("textures/entity/guardian3.png")};
 
     public RenderGuardianPanther(EntityRendererProvider.Context context) {
-        super(context, new CatModel<>(context.bakeLayer(ModelLayers.CAT)), 0.8F);
+        super(context, new CatModel<>(context.bakeLayer(ModelLayers.CAT)), 0.4F);
     }
 
     @Override

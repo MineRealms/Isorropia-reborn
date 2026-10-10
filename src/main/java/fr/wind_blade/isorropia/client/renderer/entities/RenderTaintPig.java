@@ -48,9 +48,6 @@ public class RenderTaintPig extends MobRenderer<EntityTaintPig, PigModel<EntityT
         @Override
         public void render(PoseStack poseStack, MultiBufferSource buffers, int light, EntityTaintPig entity, float limbSwing,
                 float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
-            if (entity.isInvisible()) {
-                return;
-            }
             float pulse = (float) Math.sin(Math.toRadians(entity.tickCount % 45) * 8.0D);
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTick);

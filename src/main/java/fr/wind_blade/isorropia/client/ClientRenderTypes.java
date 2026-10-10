@@ -23,6 +23,7 @@ public final class ClientRenderTypes {
     private static final Map<ResourceLocation, RenderType> LIQUID = new HashMap<>();
     private static final Map<ResourceLocation, RenderType> SHELL = new HashMap<>();
     private static final Map<ResourceLocation, RenderType> GLOW = new HashMap<>();
+    private static final Map<ResourceLocation, RenderType> SPRITE = new HashMap<>();
 
     private ClientRenderTypes() {
     }
@@ -55,6 +56,25 @@ public final class ClientRenderTypes {
                         .setDepthTestState(NativeRenderStates.LEQUAL_DEPTH_TEST)
                         .setWriteMaskState(NativeRenderStates.COLOR_WRITE)
                         .setCullState(NativeRenderStates.CULL)
+                        .setLightmapState(NativeRenderStates.LIGHTMAP)
+                        .setOverlayState(NativeRenderStates.OVERLAY)
+                        .createCompositeState(false)));
+    }
+
+    /**
+     * An additive sprite sheet quad that faces the camera. It must not cull, because which way the camera basis
+     * turns the quad is not controlled by the caller, and the stock eyes type it replaces does cull.
+     */
+    public static RenderType additiveSprite(ResourceLocation texture) {
+        return SPRITE.computeIfAbsent(texture, tex -> NativeRenderTypes.create("isorropia_sprite",
+                DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 1536, false, true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(NativeRenderStates.RENDERTYPE_EYES_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(tex, false, false))
+                        .setTransparencyState(NativeRenderStates.LIGHTNING_TRANSPARENCY)
+                        .setDepthTestState(NativeRenderStates.LEQUAL_DEPTH_TEST)
+                        .setWriteMaskState(NativeRenderStates.COLOR_WRITE)
+                        .setCullState(NativeRenderStates.NO_CULL)
                         .setLightmapState(NativeRenderStates.LIGHTMAP)
                         .setOverlayState(NativeRenderStates.OVERLAY)
                         .createCompositeState(false)));

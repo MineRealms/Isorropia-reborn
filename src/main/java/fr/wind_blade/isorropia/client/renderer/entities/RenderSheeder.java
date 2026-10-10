@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.resources.ResourceLocation;
 
 /** Spider model with spider eyes and, until shorn, a slightly inflated wool overlay. */
@@ -22,7 +21,6 @@ public class RenderSheeder extends MobRenderer<EntitySheeder, SpiderModel<Entity
 
     public RenderSheeder(EntityRendererProvider.Context context) {
         super(context, new SpiderModel<>(context.bakeLayer(ModelLayers.SPIDER)), 0.8F);
-        this.addLayer(new SpiderEyesLayer<>(this));
         this.addLayer(new Wool(this));
     }
 
@@ -48,8 +46,6 @@ public class RenderSheeder extends MobRenderer<EntitySheeder, SpiderModel<Entity
                 return;
             }
             poseStack.pushPose();
-            poseStack.translate(0.0D, -0.01D, -0.01D);
-            poseStack.scale(1.01F, 1.01F, 1.02F);
             this.getParentModel().renderToBuffer(poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(WOOL)), light,
                     LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();

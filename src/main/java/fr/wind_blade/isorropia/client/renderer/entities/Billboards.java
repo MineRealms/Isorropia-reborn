@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import fr.wind_blade.isorropia.client.ClientRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -33,16 +33,11 @@ public final class Billboards {
         int r = rgb >> 16 & 255;
         int g = rgb >> 8 & 255;
         int b = rgb & 255;
-        VertexConsumer consumer = buffers.getBuffer(RenderType.eyes(sheet));
+        VertexConsumer consumer = buffers.getBuffer(ClientRenderTypes.additiveSprite(sheet));
         vertex(consumer, matrix, normal, -halfSize, -halfSize, u0, v1, r, g, b);
         vertex(consumer, matrix, normal, halfSize, -halfSize, u1, v1, r, g, b);
         vertex(consumer, matrix, normal, halfSize, halfSize, u1, v0, r, g, b);
         vertex(consumer, matrix, normal, -halfSize, halfSize, u0, v0, r, g, b);
-        // eyes() culls back faces; the reversed winding keeps the sprite visible whichever way the camera basis turns it
-        vertex(consumer, matrix, normal, -halfSize, halfSize, u0, v0, r, g, b);
-        vertex(consumer, matrix, normal, halfSize, halfSize, u1, v0, r, g, b);
-        vertex(consumer, matrix, normal, halfSize, -halfSize, u1, v1, r, g, b);
-        vertex(consumer, matrix, normal, -halfSize, -halfSize, u0, v1, r, g, b);
         poseStack.popPose();
     }
 
