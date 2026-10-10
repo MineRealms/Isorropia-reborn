@@ -13,6 +13,7 @@ import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
 import fr.wind_blade.isorropia.common.infusion.CreatureAbilities;
 import fr.wind_blade.isorropia.common.infusion.SelfInfusions;
+import fr.wind_blade.isorropia.common.lenses.LensManager;
 import fr.wind_blade.isorropia.common.vat.VatStructure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -75,9 +76,11 @@ public final class IsorropiaEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer player) {
-            LivingData.get(player).ifPresent(data -> SelfInfusions.tick(player, data));
+        if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) {
+            return;
         }
+        LivingData.get(player).ifPresent(data -> SelfInfusions.tick(player, data));
+        LensManager.tick(player);
     }
 
     @SubscribeEvent

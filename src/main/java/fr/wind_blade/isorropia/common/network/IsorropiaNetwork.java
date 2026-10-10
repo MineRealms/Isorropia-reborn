@@ -30,6 +30,8 @@ public final class IsorropiaNetwork {
                 SyncLivingDataPacket::encode, SyncLivingDataPacket::decode, SyncLivingDataPacket::handle);
         register(ClientFxPacket.class, NetworkDirection.PLAY_TO_CLIENT,
                 ClientFxPacket::encode, ClientFxPacket::decode, ClientFxPacket::handle);
+        register(LensChangePacket.class, NetworkDirection.PLAY_TO_SERVER,
+                LensChangePacket::encode, LensChangePacket::decode, LensChangePacket::handle);
     }
 
     public static <M> void register(Class<M> type, NetworkDirection direction, BiConsumer<M, FriendlyByteBuf> encoder,

@@ -8,11 +8,13 @@ import fr.wind_blade.isorropia.common.items.misc.ItemChocolateBucket;
 import fr.wind_blade.isorropia.common.items.misc.ItemIncubatedEgg;
 import fr.wind_blade.isorropia.common.items.misc.ItemJelly;
 import fr.wind_blade.isorropia.common.items.misc.ItemLens;
+import fr.wind_blade.isorropia.common.lenses.Lenses;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeSpawnEggItem;
@@ -20,6 +22,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public final class ItemsIS {
@@ -65,6 +68,23 @@ public final class ItemsIS {
     public static final RegistryObject<ForgeSpawnEggItem> NETHER_HOUND_SPAWN_EGG = spawnEgg("nether_hound", EntitiesIS.NETHER_HOUND, 0xFF0C00);
 
     private ItemsIS() {
+    }
+
+    /** The item a lens is made of, so one can be handed back or shown in a menu. */
+    public static java.util.Optional<ItemStack> forLens(net.minecraft.resources.ResourceLocation lens) {
+        if (Lenses.AIR.id().equals(lens)) {
+            return Optional.of(new ItemStack(AIR_LENS.get()));
+        }
+        if (Lenses.FIRE.id().equals(lens)) {
+            return Optional.of(new ItemStack(FIRE_LENS.get()));
+        }
+        if (Lenses.ORDO.id().equals(lens)) {
+            return Optional.of(new ItemStack(ORDO_LENS.get()));
+        }
+        if (Lenses.ENVY.id().equals(lens)) {
+            return Optional.of(new ItemStack(ENVY_LENS.get()));
+        }
+        return Optional.empty();
     }
 
     private static RegistryObject<Item> simple(String name) {

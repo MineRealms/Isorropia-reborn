@@ -44,6 +44,8 @@ public class LivingData {
     private int tumorWarpPermanent;
     private int tumorWarpSticky;
     private int tumorWarpTemporary;
+    private int envy;
+    private boolean hasLooted;
     private boolean climbDisabled;
     private boolean invisibilityDisabled;
     @Nullable
@@ -129,6 +131,28 @@ public class LivingData {
         tumorWarpTemporary += temporary;
     }
 
+    /** How much the trickster's lens has talked out of whatever the player was looking at. */
+    public int getEnvy() {
+        return envy;
+    }
+
+    public void addEnvy(int amount) {
+        envy += amount;
+    }
+
+    public void clearEnvy() {
+        envy = 0;
+    }
+
+    /** True once the lens has already taken a creature's drop, so it does not take it twice. */
+    public boolean hasLooted() {
+        return hasLooted;
+    }
+
+    public void setHasLooted(boolean hasLooted) {
+        this.hasLooted = hasLooted;
+    }
+
     public boolean isClimbDisabled() {
         return climbDisabled;
     }
@@ -182,6 +206,8 @@ public class LivingData {
         tag.putInt("TumorWarpPermanent", tumorWarpPermanent);
         tag.putInt("TumorWarpSticky", tumorWarpSticky);
         tag.putInt("TumorWarpTemporary", tumorWarpTemporary);
+        tag.putInt("Envy", envy);
+        tag.putBoolean("HasLooted", hasLooted);
         tag.putBoolean("ClimbDisabled", climbDisabled);
         tag.putBoolean("InvisibilityDisabled", invisibilityDisabled);
         if (owner != null) {
@@ -217,6 +243,8 @@ public class LivingData {
         tumorWarpPermanent = tag.getInt("TumorWarpPermanent");
         tumorWarpSticky = tag.getInt("TumorWarpSticky");
         tumorWarpTemporary = tag.getInt("TumorWarpTemporary");
+        envy = tag.getInt("Envy");
+        hasLooted = tag.getBoolean("HasLooted");
         climbDisabled = tag.getBoolean("ClimbDisabled");
         invisibilityDisabled = tag.getBoolean("InvisibilityDisabled");
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;

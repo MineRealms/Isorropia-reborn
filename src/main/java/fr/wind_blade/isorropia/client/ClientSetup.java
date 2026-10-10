@@ -74,6 +74,17 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
+    public static void onRegisterOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
+        event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id(),
+                "lens_wheel",
+                (gui, graphics, partialTick, width, height) -> {
+                    if (fr.wind_blade.isorropia.client.hud.LensWheel.isOpen()) {
+                        fr.wind_blade.isorropia.client.hud.LensWheel.render(graphics, partialTick);
+                    }
+                });
+    }
+
+    @SubscribeEvent
     public static void onRegisterBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(TilesIS.VAT.get(), RenderVat::new);
         event.registerBlockEntityRenderer(TilesIS.MODIFIED_MATRIX.get(), RenderModifiedMatrix::new);

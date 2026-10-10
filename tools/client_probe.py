@@ -118,7 +118,7 @@ mc.execute(() -> {
         mc.player.yRotO = %(yaw)sF;
         mc.player.xRotO = %(pitch)sF;
         mc.player.setYHeadRot(%(yaw)sF);
-        mc.options.hideGui = true;
+        mc.options.hideGui = %(hideGui)s;
         net.minecraft.client.Screenshot.grab(mc.gameDirectory, "%(name)s.png", mc.getMainRenderTarget(),
                 message -> done.complete(message.getString()));
     } catch (Throwable t) {
@@ -130,8 +130,9 @@ return message + " at " + mc.player.position() + " yaw=" + mc.player.getYRot() +
 """
 
 
-def shot(name, x, y, z, yaw, pitch, settle="3"):
-    values = dict(name=name, x=x, y=y, z=z, yaw=yaw, pitch=pitch)
+def shot(name, x, y, z, yaw, pitch, settle="3", gui=False):
+    # Interface shots need the HUD left alone, world shots want it out of the way.
+    values = dict(name=name, x=x, y=y, z=z, yaw=yaw, pitch=pitch, hideGui="false" if gui else "true")
     print(exec_body(PLACE % values, "place"))
     time.sleep(float(settle))
     # Rotation is applied again on the render thread right before the grab, so mouse drift cannot move it.
@@ -153,7 +154,9 @@ def main():
     if command == "exec":
         print(exec_file(Path(sys.argv[2]).resolve()))
     elif command == "shot":
-        shot(*sys.argv[2:])
+        arguments = sys.argv[2:]
+        gui = "--gui" in arguments
+        shot(*[a for a in arguments if a != "--gui"], gui=gui)
     elif command == "stop":
         print(exec_body(STOP, "stop"))
     else:
