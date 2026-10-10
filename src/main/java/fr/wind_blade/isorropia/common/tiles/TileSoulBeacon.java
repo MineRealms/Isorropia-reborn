@@ -1,5 +1,6 @@
 package fr.wind_blade.isorropia.common.tiles;
 
+import fr.wind_blade.isorropia.common.network.ClientFxPacket;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -10,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * The soul beacon a wizard ties their reincarnation to. Its whole visible behaviour is the beam it throws into
@@ -42,6 +44,8 @@ public class TileSoulBeacon extends BlockEntity {
         player.displayClientMessage(Component.translatable("isorropia.setBeacon").withStyle(ChatFormatting.GRAY,
                 ChatFormatting.ITALIC), false);
         level.playSound(null, worldPosition, SoundsIS.CURATIVE_INFUSION_START.get(), SoundSource.BLOCKS, 1.0F, 1.4F);
+        ClientFxPacket.arc(server, player.position().add(0.0, player.getEyeHeight(), 0.0),
+                Vec3.atCenterOf(worldPosition).add(0.0, 0.75, 0.0));
         return true;
     }
 

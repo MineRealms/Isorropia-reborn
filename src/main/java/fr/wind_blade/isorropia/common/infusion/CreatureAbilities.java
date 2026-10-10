@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.common.infusion;
 import dev.tc4port.thaumcraft.api.presentation.WorldEffectsApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
+import fr.wind_blade.isorropia.common.network.ClientFxPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -81,12 +82,14 @@ public final class CreatureAbilities {
         level.playSound(null, entity.blockPosition(), SoundEvents.SHEEP_SHEAR, SoundSource.NEUTRAL, 1.0F, 1.0F);
     }
 
-    /** A shock skin answers a blow with lightning, and a spark of Thaumcraft's own. */
+    /** A shock skin answers a blow with lightning, drawn from the creature to whoever struck it. */
     public static void shockBack(LivingEntity entity, LivingEntity attacker) {
         if (!(entity.level() instanceof ServerLevel level)) {
             return;
         }
         attacker.hurt(level.damageSources().lightningBolt(), 4.0F);
+        ClientFxPacket.arc(level, entity.position().add(0.0, entity.getBbHeight() / 2.0, 0.0),
+                attacker.position().add(0.0, attacker.getBbHeight() / 2.0, 0.0));
         WorldEffectsApi.blockSparkle(level, entity.blockPosition(), 2.0, 0x7FE1FF, 6);
     }
 

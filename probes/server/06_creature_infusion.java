@@ -44,6 +44,14 @@ vat.setContained(pig);
 sb.append(" pig=").append(pig.getId());
 
 var fake = net.minecraftforge.common.util.FakePlayerFactory.getMinecraft(level);
+// A fake player's research lives only for the session, so the gate is opened again here.
+var context = new dev.tc4port.thaumcraft.api.research.ResearchCompletionContext(
+        net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("isorropia", "probe"),
+        dev.tc4port.thaumcraft.api.research.ResearchCompletionReason.ADMIN_COMMAND);
+for (String key : new String[]{"isorropia:creatureinfusions", "isorropia:curativevat", "isorropia:selfinfusion"}) {
+    dev.tc4port.thaumcraft.api.research.ResearchApi.complete(fake,
+            dev.tc4port.thaumcraft.api.research.ResearchKey.parse(key), context);
+}
 vat.setActive(true); // the matrix does this before it starts an infusion
 boolean started = vat.startInfusion(fake);
 sb.append("\nstarted=").append(started).append(" mode=").append(vat.getMode()).append(" recipe=").append(vat.getCreatureRecipe());

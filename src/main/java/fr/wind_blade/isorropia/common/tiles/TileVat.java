@@ -15,6 +15,8 @@ import dev.tc4port.thaumcraft.api.presentation.WorldEffectsApi;
 import fr.wind_blade.isorropia.common.IsorropiaAspects;
 import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
 import fr.wind_blade.isorropia.common.compat.ThaumBridge;
+import fr.wind_blade.isorropia.common.network.ClientFxPacket;
+import fr.wind_blade.isorropia.common.sounds.SoundsIS;
 import fr.wind_blade.isorropia.common.curative.CurativeEffects;
 import fr.wind_blade.isorropia.common.infusion.CelestialBody;
 import fr.wind_blade.isorropia.common.infusion.CreatureInfusionRecipe;
@@ -32,7 +34,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
@@ -44,9 +45,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -202,14 +205,20 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
                 finishInfusion(false);
             }
             expunge = true;
+            level.playSound(null, worldPosition.above(), SoundsIS.CURATIVE_EXPUNGE_FLUX_START.get(),
+                    SoundSource.BLOCKS, 0.6F, 1.0F);
             sync();
         }
         if (expunge) {
             if (count % cycleTicks == 0) {
                 fluxStocked = Math.max(0.0F, fluxStocked - 1.0F);
                 ThaumBridge.releaseFlux(level, worldPosition.above(), 1);
+                level.playSound(null, worldPosition.above(), SoundsIS.CURATIVE_EXPUNGE_FLUX_LOOP.get(),
+                        SoundSource.BLOCKS, 0.5F, 1.0F);
                 if (fluxStocked <= 0.0F) {
                     expunge = false;
+                    level.playSound(null, worldPosition.above(), SoundsIS.CURATIVE_EXPUNGE_FLUX_END.get(),
+                            SoundSource.BLOCKS, 0.6F, 1.0F);
                 }
                 sync();
             }
@@ -344,7 +353,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         count = 0;
         pedestals = null;
         refreshStability((ServerLevel) level);
-        level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        level.playSound(null, worldPosition, SoundsIS.CURATIVE_INFUSION_START.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
         WorldEffectsApi.blockSparkle((ServerLevel) level, worldPosition, 3.0, 0x7F3FBF, 6);
         sync();
         return true;
@@ -380,6 +389,10 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         if (selfRecipe == null && contained == null) {
             finishInfusion(false);
             return;
+        }
+        ClientFxPacket.rune(level, Vec3.atCenterOf(worldPosition).add(0.0, -2.5, 0.0), 25);
+        if (count % 65 == 0) {
+            level.playSound(null, worldPosition, SoundsIS.CURATIVE_INFUSION_LOOP.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
         }
         if (celestialStep(level) && essentiaStep(level) && ingredientStep(level) && visStep(level)) {
             finishInfusion(true);
@@ -437,7 +450,14 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         for (BlockPos pos : pedestals(level)) {
             if (level.getBlockEntity(pos) instanceof InfusionPedestal pedestal
                     && !pedestal.item().isEmpty() && ItemStack.isSameItemSameTags(pedestal.item(), stack)) {
+                // The ingredient leaves the pedestal for the vat, which is what the client draws flying.
+                ClientFxPacket.ingredientFlight(level, Vec3.atCenterOf(pos).add(0.0, 0.5, 0.0),
+                        Vec3.atCenterOf(worldPosition).add(0.0, -0.5, 0.0));
+                // The pedestal throws off the same debris as a broken block, as the original's packet did.
+                level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos,
+                        Block.getId(level.getBlockState(pos)));
                 pedestal.clearContent();
+                break;
             }
         }
         WorldEffectsApi.blockSparkle(level, worldPosition.above(), 2.0, 0xFFFFFF, 2);
@@ -563,6 +583,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     private void zap(ServerLevel level) {
         for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, new AABB(worldPosition).inflate(10.0))) {
             living.hurt(level.damageSources().magic(), 4.0F + level.random.nextInt(4));
+            // A bolt runs from the vat up and out to whatever it caught.
+            ClientFxPacket.arc(level, Vec3.atCenterOf(worldPosition).add(0.0, 1.0, 0.0), living.position());
         }
         WorldEffectsApi.blockSparkle(level, worldPosition.above(), 6.0, 0x9B00FF, 24);
     }
@@ -882,6 +904,9 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         }
         consumed.clear();
         components.clear();
+        if (level instanceof ServerLevel server) {
+            ClientFxPacket.fluxBurst(server, Vec3.atCenterOf(worldPosition));
+        }
         sync();
         VatStructure.restore(level, worldPosition, skip);
     }
