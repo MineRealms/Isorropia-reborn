@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:creatureinfusions",
+  "central": {
+    "item": "thaumcraft:runic_matrix"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:salis_mundus"
+    },
+    {
+      "item": "thaumcraft:resonator"
+    },
+    {
+      "item": "thaumcraft:salis_mundus"
+    },
+    {
+      "item": "thaumcraft:resonator"
+    }
+  ],
+  "instability": 8,
+  "aspects": {
+    "victus": 100,
+    "fabrico": 100,
+    "praecantatio": 100,
+    "bestia": 100
+  },
+  "result": {
+    "item": "isorropia:modified_matrix"
+  }
+}

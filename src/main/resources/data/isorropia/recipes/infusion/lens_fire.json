@@ -1,0 +1,30 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:firelens",
+  "central": {
+    "item": "isorropia:lens"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "thaumcraft:fire_shard"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "thaumcraft:fire_shard"
+    }
+  ],
+  "instability": 1,
+  "aspects": {
+    "lux": 40,
+    "potentia": 20,
+    "sensus": 30
+  },
+  "result": {
+    "item": "isorropia:lens_fire"
+  }
+}

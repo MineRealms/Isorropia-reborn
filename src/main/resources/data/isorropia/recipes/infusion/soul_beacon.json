@@ -1,0 +1,37 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:cloneself",
+  "central": {
+    "item": "thaumcraft:primordial_pearl"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:void_jar"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    },
+    {
+      "item": "minecraft:ender_eye"
+    },
+    {
+      "item": "minecraft:beacon"
+    },
+    {
+      "item": "minecraft:ender_eye"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    }
+  ],
+  "instability": 8,
+  "aspects": {
+    "motus": 100,
+    "mortuus": 100,
+    "spiritus": 50,
+    "vinculum": 100
+  },
+  "result": {
+    "item": "isorropia:soul_beacon"
+  }
+}

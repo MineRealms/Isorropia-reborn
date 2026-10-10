@@ -1,0 +1,285 @@
+{
+  "direct": {
+    "isorropia:lens": {
+      "vitreus": 3,
+      "sensus": 3,
+      "praecantatio": 2
+    },
+    "isorropia:lens_air": {
+      "vitreus": 3,
+      "sensus": 4,
+      "aer": 4,
+      "auram": 2
+    },
+    "isorropia:lens_fire": {
+      "vitreus": 3,
+      "sensus": 4,
+      "ignis": 4,
+      "lux": 4
+    },
+    "isorropia:lens_ordo": {
+      "vitreus": 3,
+      "sensus": 4,
+      "ordo": 4,
+      "cognitio": 4
+    },
+    "isorropia:lens_envy": {
+      "vitreus": 3,
+      "sensus": 4,
+      "isorropia:invidia": 4,
+      "lucrum": 2
+    },
+    "isorropia:somatic_brain": {
+      "cognitio": 8,
+      "exanimis": 4,
+      "isorropia:invidia": 2,
+      "lucrum": 2
+    },
+    "isorropia:incubated_egg": {
+      "limus": 2,
+      "victus": 2,
+      "bestia": 2
+    },
+    "isorropia:ink_egg": {
+      "limus": 2,
+      "tenebrae": 2
+    },
+    "isorropia:gold_egg": {
+      "limus": 2,
+      "lucrum": 1
+    },
+    "isorropia:flesh": {
+      "corpus": 4
+    },
+    "isorropia:jelly": {
+      "limus": 2,
+      "fames": 1,
+      "victus": 1
+    },
+    "isorropia:chocolate_bar": {
+      "fames": 2,
+      "victus": 1
+    },
+    "isorropia:chocolate_cream": {
+      "fames": 3,
+      "victus": 1,
+      "isorropia:gula": 9
+    },
+    "isorropia:chocolate_milk_bucket": {
+      "metallum": 8,
+      "vacuos": 1,
+      "fames": 2,
+      "victus": 2
+    },
+    "isorropia:chocolate": {
+      "fames": 6,
+      "victus": 3
+    },
+    "isorropia:corpse_effigy": {
+      "humanus": 4,
+      "exanimis": 4,
+      "corpus": 4,
+      "mortuus": 2
+    },
+    "isorropia:modified_matrix": {
+      "praecantatio": 8,
+      "victus": 4,
+      "bestia": 4,
+      "fabrico": 4
+    },
+    "isorropia:jar_soul": {
+      "vitreus": 4,
+      "spiritus": 4,
+      "vinculum": 4
+    },
+    "isorropia:soul_beacon": {
+      "spiritus": 8,
+      "iter": 8,
+      "mortuus": 4,
+      "vinculum": 4,
+      "alienis": 4
+    }
+  },
+  "edits": [
+    {
+      "kind": "item",
+      "id": "minecraft:baked_potato",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:beetroot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 1
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:beetroot_soup",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:bread",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:carrot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_beef",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_chicken",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_cod",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_mutton",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_porkchop",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_rabbit",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_salmon",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:enchanted_golden_apple",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_apple",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_carrot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 7
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:mushroom_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:rabbit_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:spider_eye",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:suspicious_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:gula": 4
+      }
+    },
+    {
+      "kind": "tag",
+      "id": "minecraft:beds",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "isorropia:desidia": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:somaticbrain",
+  "central": {
+    "item": "thaumcraft:brain_jar"
+  },
+  "components": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "thaumcraft:zombie_brain"
+    },
+    {
+      "item": "minecraft:hopper"
+    },
+    {
+      "item": "thaumcraft:zombie_brain"
+    }
+  ],
+  "instability": 4,
+  "aspects": {
+    "cognitio": 150,
+    "lucrum": 100,
+    "isorropia:invidia": 20
+  },
+  "result": {
+    "item": "isorropia:somatic_brain"
+  }
+}

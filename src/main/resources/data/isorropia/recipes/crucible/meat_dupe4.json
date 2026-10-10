@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:growth",
+  "catalyst": {
+    "item": "minecraft:porkchop"
+  },
+  "result": {
+    "item": "minecraft:porkchop",
+    "count": 2
+  },
+  "aspects": {
+    "victus": 10
+  }
+}

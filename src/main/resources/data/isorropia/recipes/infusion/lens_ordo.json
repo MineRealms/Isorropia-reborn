@@ -1,0 +1,30 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:ordolens",
+  "central": {
+    "item": "isorropia:lens"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:inkwell"
+    },
+    {
+      "item": "thaumcraft:order_shard"
+    },
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "thaumcraft:order_shard"
+    }
+  ],
+  "instability": 1,
+  "aspects": {
+    "cognitio": 32,
+    "praecantatio": 32,
+    "sensus": 20
+  },
+  "result": {
+    "item": "isorropia:lens_ordo"
+  }
+}

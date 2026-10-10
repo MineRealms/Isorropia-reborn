@@ -1,0 +1,2427 @@
+{
+  "categories": [
+    {
+      "key": "isorropia:isorropia",
+      "icon": "isorropia:textures/misc/logo.png",
+      "background": "isorropia:textures/research/background.png",
+      "sort_order": 1100
+    }
+  ],
+  "entries": [
+    {
+      "key": "isorropia:cultivation",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "herba": 5,
+        "messis": 5,
+        "lux": 5
+      },
+      "display_column": 0,
+      "display_row": 0,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "minecraft:wheat"
+        }
+      },
+      "flags": [],
+      "parents": [
+        "CRUCIBLE"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cultivation.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/wheat_growth"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/potato_dupe"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/carrot_dupe"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/beet_dupe"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/melon_growth"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/pumpkin_growth"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:incubation",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "victus": 2,
+        "ignis": 2
+      },
+      "display_column": 2,
+      "display_row": 0,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:incubated_egg"
+        }
+      },
+      "flags": [
+        "SECONDARY"
+      ],
+      "parents": [
+        "isorropia:cultivation"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.incubation.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/egg_incubation"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:growth",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "corpus": 6,
+        "victus": 4,
+        "bestia": 4,
+        "fabrico": 4
+      },
+      "display_column": 4,
+      "display_row": -1,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "minecraft:beef"
+        }
+      },
+      "flags": [],
+      "parents": [
+        "isorropia:incubation"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.growth.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/meat_dupe1"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/meat_dupe2"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/meat_dupe3"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/meat_dupe4"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/meat_dupe5"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:hardning",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "corpus": 4,
+        "pannus": 6,
+        "fabrico": 4
+      },
+      "display_column": 4,
+      "display_row": 1,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "minecraft:leather"
+        }
+      },
+      "flags": [
+        "SECONDARY"
+      ],
+      "parents": [
+        "isorropia:incubation"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.hardning.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/harding1"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/harding2"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/harding3"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/harding4"
+          ]
+        },
+        {
+          "type": "CRUCIBLE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:crucible/harding5"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:curativevat",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "victus": 4,
+        "sano": 4,
+        "machina": 3,
+        "vitium": 2
+      },
+      "display_column": 6,
+      "display_row": 0,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_curativevat.png"
+      },
+      "flags": [
+        "HIDDEN",
+        "SPECIAL"
+      ],
+      "parents": [
+        "isorropia:growth",
+        "isorropia:hardning",
+        "INFUSION"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "Thaumcraft.TaintedPig",
+        "Thaumcraft.TaintedSheep",
+        "Thaumcraft.TaintedCow",
+        "Thaumcraft.TaintedChicken",
+        "Thaumcraft.TaintedVillager",
+        "Thaumcraft.TaintedCreeper",
+        "Thaumcraft.TaintSpider",
+        "Thaumcraft.Taintacle",
+        "Thaumcraft.TaintacleTiny",
+        "Thaumcraft.TaintSwarm",
+        "Thaumcraft.TaintSpore",
+        "Thaumcraft.TaintSwarmer"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.6",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.7",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.8",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.curativevat.9",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:somaticbrain",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "cognitio": 6,
+        "humanus": 4,
+        "lucrum": 3,
+        "exanimis": 3
+      },
+      "display_column": 6,
+      "display_row": 3,
+      "complexity": 3,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:somatic_brain"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:curativevat",
+        "JARBRAIN"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 3,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.somaticbrain.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.somaticbrain.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.somaticbrain.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/somatic_brain"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:creatureinfusions",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "praecantatio": 5,
+        "victus": 5,
+        "fabrico": 5,
+        "bestia": 5
+      },
+      "display_column": 8,
+      "display_row": 0,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_awakened_blood.png"
+      },
+      "flags": [
+        "HIDDEN",
+        "SPECIAL",
+        "ROUND"
+      ],
+      "parents": [
+        "isorropia:curativevat",
+        "INFUSION"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "Pig",
+        "Cow",
+        "Sheep",
+        "Chicken",
+        "Wolf",
+        "Ozelot",
+        "EntityHorse",
+        "MushroomCow",
+        "minecraft:rabbit",
+        "minecraft:cat",
+        "minecraft:donkey",
+        "minecraft:fox",
+        "minecraft:goat",
+        "minecraft:llama",
+        "minecraft:parrot"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.6",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.7",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.8",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.9",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.10",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.11",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.12",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.13",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.14",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.15",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.16",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.17",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.creatureinfusions.18",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/modified_matrix"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:containment",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "vinculum": 6,
+        "vacuos": 6,
+        "iter": 2
+      },
+      "display_column": 9,
+      "display_row": -2,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/containment.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:creatureinfusions"
+      ],
+      "hidden_parents": [
+        "FOCUSPORTABLEHOLE"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.containment.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.containment.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.containment.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:specieinfusions",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "permutatio": 4,
+        "victus": 3
+      },
+      "display_column": 7,
+      "display_row": -3,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_cow.png"
+      },
+      "flags": [
+        "CONCEALED",
+        "SPECIAL"
+      ],
+      "parents": [
+        "isorropia:creatureinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.specieinfusions.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.specieinfusions.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:oreboar",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "metallum": 4,
+        "terra": 3
+      },
+      "display_column": 6,
+      "display_row": -6,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_pig.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.oreboar.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.oreboar.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.oreboar.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.oreboar.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:taintfeeder",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "vitium": 4,
+        "fames": 4,
+        "sano": 2
+      },
+      "display_column": 6,
+      "display_row": -8,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_pig.png"
+      },
+      "flags": [
+        "HIDDEN"
+      ],
+      "parents": [
+        "isorropia:oreboar"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [
+        {
+          "block": "thaumcraft:fibrous_taint"
+        },
+        {
+          "block": "thaumcraft:crusted_taint"
+        },
+        {
+          "block": "thaumcraft:tainted_soil"
+        }
+      ],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.taintfeeder.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.taintfeeder.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.taintfeeder.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:scholarschicken",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "cognitio": 4,
+        "tenebrae": 3
+      },
+      "display_column": 5,
+      "display_row": -5,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_chicken.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.scholarschicken.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.scholarschicken.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.scholarschicken.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:goldchicken",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "lucrum": 4,
+        "metallum": 3
+      },
+      "display_column": 5,
+      "display_row": -7,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:cat",
+          "nbt": "{Cat:\"chicken\"}"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:scholarschicken"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.goldchicken.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.goldchicken.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:chromaticsheep",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "sensus": 4,
+        "permutatio": 3
+      },
+      "display_column": 4,
+      "display_row": -4,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_sheep.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.chromaticsheep.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.chromaticsheep.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:nether_hound",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "ignis": 4,
+        "telum": 3
+      },
+      "display_column": 7,
+      "display_row": -5,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:cat",
+          "nbt": "{Cat:\"wolf\"}"
+        }
+      },
+      "flags": [
+        "HIDDEN"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [
+        "ignis"
+      ],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.nether_hound.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:chococow",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "fames": 3,
+        "sensus": 3
+      },
+      "display_column": 8,
+      "display_row": -6,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:cat",
+          "nbt": "{Cat:\"cow\"}"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.chococow.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:monsterexchange",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "herba": 4,
+        "permutatio": 2
+      },
+      "display_column": 8,
+      "display_row": -8,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:cat",
+          "nbt": "{Cat:\"cow\"}"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:chococow"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.monsterexchange.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:jellyrabbit",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "limus": 4,
+        "motus": 2
+      },
+      "display_column": 9,
+      "display_row": -5,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_rabbit.png"
+      },
+      "flags": [
+        "HIDDEN"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "minecraft:rabbit",
+        "Slime"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.jellyrabbit.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.jellyrabbit.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.jellyrabbit.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.jellyrabbit.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.jellyrabbit.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:gravekeeperinfusion",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "exanimis": 3,
+        "ordo": 3,
+        "lux": 2
+      },
+      "display_column": 10,
+      "display_row": -4,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_ocelot.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:specieinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.gravekeeperinfusion.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.gravekeeperinfusion.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.gravekeeperinfusion.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:guardian_panther",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "telum": 4,
+        "tutamen": 3
+      },
+      "display_column": 10,
+      "display_row": -6,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_ocelot.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:gravekeeperinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.guardian_panther.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.guardian_panther.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:similitudoinfusions",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "humanus": 3,
+        "permutatio": 3,
+        "cognitio": 2
+      },
+      "display_column": 8,
+      "display_row": 2,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_wolf.png"
+      },
+      "flags": [
+        "HIDDEN",
+        "SPECIAL"
+      ],
+      "parents": [
+        "isorropia:creatureinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "Chicken",
+        "Cow",
+        "Pig",
+        "PigZombie",
+        "Enderman",
+        "VillagerGolem",
+        "Villager"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.similitudoinfusions.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.similitudoinfusions.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.similitudoinfusions.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.similitudoinfusions.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.similitudoinfusions.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:instilledfidelity",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "cognitio": 4,
+        "ordo": 2
+      },
+      "display_column": 9,
+      "display_row": 1,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_instilledloyalty.png"
+      },
+      "flags": [
+        "HIDDEN"
+      ],
+      "parents": [
+        "isorropia:similitudoinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "Wolf",
+        "Ozelot",
+        "minecraft:cat",
+        "minecraft:parrot",
+        "EntityHorse"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.instilledfidelity.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.instilledfidelity.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:selfshearing",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 3,
+        "instrumentum": 4,
+        "pannus": 3
+      },
+      "display_column": 10,
+      "display_row": 2,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/research/cat_selfshearing.png"
+      },
+      "flags": [
+        "HIDDEN"
+      ],
+      "parents": [
+        "isorropia:similitudoinfusions"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [
+        "Sheep"
+      ],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfshearing.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfshearing.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:cloneself",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "spiritus": 4,
+        "vinculum": 4,
+        "humanus": 4,
+        "sano": 4
+      },
+      "display_column": 7,
+      "display_row": 4,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/clone.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:curativevat",
+        "PRIMPEARL"
+      ],
+      "hidden_parents": [
+        "ELDRITCHMINOR"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 8,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.cloneself.6",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/corpse_effigy"
+          ]
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/soul_beacon"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:selfinfusion",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "humanus": 5,
+        "praecantatio": 4,
+        "permutatio": 4,
+        "victus": 3
+      },
+      "display_column": 12,
+      "display_row": 2,
+      "complexity": 3,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/humaninfusion.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:creatureinfusions",
+        "isorropia:cloneself"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.5",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.6",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.7",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.selfinfusion.8",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:chameleonskin",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 4,
+        "permutatio": 4,
+        "vacuos": 2
+      },
+      "display_column": 15,
+      "display_row": -1,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/chameleonskin.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.chameleonskin.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:silverheart",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "ordo": 4,
+        "victus": 4,
+        "sano": 2
+      },
+      "display_column": 15,
+      "display_row": 0,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/silverwoodheart.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.silverheart.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.silverheart.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:synthskin",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "herba": 4,
+        "lux": 4,
+        "fames": 2
+      },
+      "display_column": 15,
+      "display_row": 1,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/synthskin.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.synthskin.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:amphibious",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "aqua": 4,
+        "aer": 4,
+        "victus": 2
+      },
+      "display_column": 15,
+      "display_row": 2,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "minecraft:cod"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.amphibious.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:morphicfingers",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "instrumentum": 4,
+        "fabrico": 4,
+        "humanus": 2
+      },
+      "display_column": 15,
+      "display_row": 3,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/morphicfingers.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.morphicfingers.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:spiderclimb",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "bestia": 4,
+        "motus": 4,
+        "permutatio": 2
+      },
+      "display_column": 15,
+      "display_row": 4,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/spiderclimb.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.spiderclimb.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:warpedtumor",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "vitium": 4,
+        "alienis": 4,
+        "corpus": 3
+      },
+      "display_column": 15,
+      "display_row": 5,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/warpedtumor.png"
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:selfinfusion"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.warpedtumor.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:arcanelenses",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 4,
+        "vitreus": 3,
+        "praecantatio": 2
+      },
+      "display_column": 0,
+      "display_row": -3,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:lens"
+        }
+      },
+      "flags": [
+        "CONCEALED",
+        "ROUND",
+        "SPECIAL"
+      ],
+      "parents": [
+        "GOGGLES"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.arcanelenses.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.arcanelenses.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "ARCANE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:arcane/base_lens"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:firelens",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 3,
+        "lux": 3,
+        "potentia": 2
+      },
+      "display_column": -2,
+      "display_row": -4,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:lens_fire"
+        }
+      },
+      "flags": [
+        "HIDDEN",
+        "ROUND"
+      ],
+      "parents": [
+        "isorropia:arcanelenses"
+      ],
+      "hidden_parents": [
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [
+        "lux"
+      ],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.firelens.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.firelens.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.firelens.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/lens_fire"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:ordolens",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 4,
+        "cognitio": 4,
+        "praecantatio": 2
+      },
+      "display_column": 2,
+      "display_row": -4,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:lens_ordo"
+        }
+      },
+      "flags": [
+        "CONCEALED",
+        "ROUND"
+      ],
+      "parents": [
+        "isorropia:arcanelenses"
+      ],
+      "hidden_parents": [
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.ordolens.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.ordolens.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/lens_ordo"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:airlens",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 4,
+        "auram": 2,
+        "victus": 2,
+        "exanimis": 2
+      },
+      "display_column": -1,
+      "display_row": -6,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:lens_air"
+        }
+      },
+      "flags": [
+        "CONCEALED",
+        "ROUND"
+      ],
+      "parents": [
+        "isorropia:arcanelenses"
+      ],
+      "hidden_parents": [
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.airlens.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.airlens.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.airlens.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/lens_air"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:envylens",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "sensus": 4,
+        "isorropia:invidia": 4,
+        "lucrum": 2
+      },
+      "display_column": 1,
+      "display_row": -6,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:lens_envy"
+        }
+      },
+      "flags": [
+        "CONCEALED",
+        "ROUND"
+      ],
+      "parents": [
+        "isorropia:arcanelenses"
+      ],
+      "hidden_parents": [
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 2,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.envylens.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.envylens.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/lens_envy"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "isorropia:hanginglabel",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "ordo": 3,
+        "vacuos": 2,
+        "pannus": 2
+      },
+      "display_column": 0,
+      "display_row": 3,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "thaumcraft:jar_label"
+        }
+      },
+      "flags": [
+        "CONCEALED",
+        "ROUND",
+        "SECONDARY"
+      ],
+      "parents": [
+        "JARLABEL"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.hanginglabel.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    }
+  ]
+}

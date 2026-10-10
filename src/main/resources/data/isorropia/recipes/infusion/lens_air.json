@@ -1,0 +1,29 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:airlens",
+  "central": {
+    "item": "isorropia:lens"
+  },
+  "components": [
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:air_shard"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:air_shard"
+    }
+  ],
+  "instability": 1,
+  "aspects": {
+    "auram": 15,
+    "sensus": 20
+  },
+  "result": {
+    "item": "isorropia:lens_air"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:arcane_shaped",
+  "research": "isorropia:arcanelenses",
+  "pattern": [
+    "GSG",
+    "SPS",
+    "GSG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "S": {
+      "item": "thaumcraft:salis_mundus"
+    },
+    "P": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "item": "isorropia:lens"
+  },
+  "vis": {
+    "aer": 5,
+    "terra": 5,
+    "aqua": 5,
+    "ignis": 5,
+    "ordo": 5,
+    "perditio": 5
+  }
+}

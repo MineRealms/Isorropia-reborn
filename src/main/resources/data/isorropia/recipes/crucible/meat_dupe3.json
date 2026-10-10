@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:growth",
+  "catalyst": {
+    "item": "minecraft:beef"
+  },
+  "result": {
+    "item": "minecraft:beef",
+    "count": 2
+  },
+  "aspects": {
+    "victus": 10
+  }
+}
