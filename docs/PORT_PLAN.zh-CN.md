@@ -27,7 +27,7 @@
 | 阶段 | 内容 | 状态 |
 |---|---|---|
 | S0 | MDK 骨架、TC4R/Curios 依赖、git | 完成 |
-| S1 | 方块/物品/音效/创造栏注册，资源迁移（贴图改路径、lang→json、blockstate/模型重写），原版配方、战利品表 | |
+| S1 | 方块/物品/音效/创造栏注册，资源迁移（贴图改路径、lang→json、blockstate/模型重写），原版配方、战利品表 | 完成（复杂物品先占位，随所属阶段替换） |
 | S2 | TC 数据：要素、物品/实体要素、研究树、坩埚/奥术/注魔配方 | |
 | S3 | 14 个实体 + AI + 属性 + 渲染器/模型 | |
 | S4 | 治疗缸多方块 + 生物注魔/自我注魔 + 能力（capability）+ 网络包 | |
@@ -36,3 +36,7 @@
 | S7 | 客户端特效与渲染收尾；集中实机验证 | |
 
 每个阶段：实现 → `gradlew build` → 修复 → 提交。实机测试（runServer/runClient/探针）集中在批次末尾一次做。
+
+## 并行开发方式
+
+S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Isorropia-wt/s3-entities`），完成后合入 master。共享的基础设施（`IsorropiaAspects`、`IsorropiaNetwork`）先在 master 落地，避免各分支各写一份。
