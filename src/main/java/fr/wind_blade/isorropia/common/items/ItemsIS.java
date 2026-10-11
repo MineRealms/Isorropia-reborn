@@ -36,6 +36,8 @@ public final class ItemsIS {
     public static final RegistryObject<ItemLens> ORDO_LENS = ITEMS.register("lens_ordo", ItemLens::new);
     public static final RegistryObject<ItemLens> FIRE_LENS = ITEMS.register("lens_fire", ItemLens::new);
     public static final RegistryObject<ItemLens> ENVY_LENS = ITEMS.register("lens_envy", ItemLens::new);
+    public static final RegistryObject<ItemFocusContainment> FOCUS_CONTAINMENT = ITEMS.register("focus_containment",
+            () -> new ItemFocusContainment(new Item.Properties()));
     public static final RegistryObject<ItemSomaticBrain> SOMATIC_BRAIN = ITEMS.register("somatic_brain",
             () -> new ItemSomaticBrain(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<ItemIncubatedEgg> INCUBATED_EGG = ITEMS.register("incubated_egg",

@@ -49,11 +49,13 @@ public final class SoulJar {
         jar.setHoverName(Component.translatable("item.isorropia.jar_soul.jarred",
                 target.getDisplayName()).withStyle(ChatFormatting.DARK_PURPLE));
         int slot = findJarSlot(player);
-        if (slot < 0) {
+        if (slot < 0 && !player.getAbilities().instabuild) {
             player.displayClientMessage(Component.translatable("isorropia.containment.fail"), true);
             return false;
         }
-        player.getInventory().removeItem(slot, 1);
+        if (slot >= 0 && !player.getAbilities().instabuild) {
+            player.getInventory().removeItem(slot, 1);
+        }
         if (!player.getInventory().add(jar)) {
             player.drop(jar, false);
         }
@@ -61,16 +63,28 @@ public final class SoulJar {
         return true;
     }
 
-    /** The jar that would be spent, or -1 for a player carrying none. */
+    /** Whether the player carries a jar a creature could be put in. */
+    public static boolean hasEmptyJar(Player player) {
+        return player.getAbilities().instabuild || findJarSlot(player) >= 0;
+    }
+
+    /**
+     * The jar that would be spent, or -1 for a player carrying none. A soul jar only counts while it is empty:
+     * spending a full one would destroy the creature already in it.
+     */
     private static int findJarSlot(Player player) {
         var warded = ThaumcraftContent.item("warded_jar");
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.is(ItemsIS.JAR_SOUL.get()) || stack.is(warded)) {
+            if (stack.is(warded) || stack.is(ItemsIS.JAR_SOUL.get()) && !holdsCreature(stack)) {
                 return slot;
             }
         }
         return -1;
+    }
+
+    private static boolean holdsCreature(ItemStack jar) {
+        return jar.getTag() != null && jar.getTag().contains(ENTITY_TAG);
     }
 
     /** Puts a stored creature back into the world at a position, and hands back what was freed. */

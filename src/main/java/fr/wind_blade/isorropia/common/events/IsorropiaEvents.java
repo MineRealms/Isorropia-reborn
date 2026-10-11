@@ -11,6 +11,7 @@ import dev.tc4port.thaumcraft.api.research.ResearchKey;
 import dev.tc4port.thaumcraft.api.wand.WandApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
+import fr.wind_blade.isorropia.common.focus.ContainmentFocus;
 import fr.wind_blade.isorropia.common.infusion.CreatureAbilities;
 import fr.wind_blade.isorropia.common.infusion.SelfInfusions;
 import fr.wind_blade.isorropia.common.infusion.SoulBeacon;
@@ -73,6 +74,12 @@ public final class IsorropiaEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             LivingData.get(player).ifPresent(data -> data.syncTo(player));
         }
+    }
+
+    /** A player who leaves stops holding anything in the containment beam. */
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        ContainmentFocus.forget(event.getEntity().getUUID());
     }
 
     @SubscribeEvent

@@ -275,5 +275,7 @@
   "tooltip.isorropia.stability.unstable": "Unstable",
   "tooltip.isorropia.stability.very_unstable": "Very unstable",
   "tooltip.isorropia.flux": "Flux: %s",
-  "tooltip.isorropia.celestial": "Celestial aura: %s / %s"
+  "tooltip.isorropia.celestial": "Celestial aura: %s / %s",
+  "item.isorropia.focus_containment": "Wand Focus: Containment",
+  "isorropia.containment.jar": "You need an empty Warded Jar to hold a creature"
 }

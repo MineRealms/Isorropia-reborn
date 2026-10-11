@@ -1,0 +1,65 @@
+{
+  "focus_profiles": [
+    {
+      "focus": "isorropia:focus_containment",
+      "color": 29631,
+      "per_tick": true,
+      "client_presentation": {
+        "depth_texture": "isorropia:textures/item/focus_containment_depth.png",
+        "depth_frame_count": 16
+      },
+      "base_cost": {
+        "aer": 10,
+        "perditio": 10
+      },
+      "ranks": [
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ]
+      ],
+      "parameters": {
+        "first_hold": {
+          "base": 2,
+          "per_level": {
+            "thaumcraft:potency": 0.5
+          },
+          "min": 0,
+          "max": 1000
+        },
+        "hold_rate": {
+          "base": 2,
+          "per_level": {
+            "thaumcraft:potency": 0.3333
+          },
+          "min": 0,
+          "max": 1000
+        },
+        "vis_discount": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:frugal": 0.1
+          },
+          "min": 0,
+          "max": 1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:containment",
+  "central": {
+    "item": "thaumcraft:focus_portable_hole"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "minecraft:cobweb"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "minecraft:iron_bars"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "minecraft:cobweb"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "minecraft:iron_bars"
+    }
+  ],
+  "instability": 6,
+  "aspects": {
+    "vacuos": 32,
+    "vinculum": 32,
+    "iter": 8
+  },
+  "result": {
+    "item": "isorropia:focus_containment"
+  }
+}

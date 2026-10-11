@@ -82,6 +82,9 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 | 45_fingers_open / 46_fingers_recipe / 53_fingers_take | 变形手指：长出手指并直接开界面、在格子里摆基础透镜配方、潜行取出成品并核对扣费 |
 | 47_beacon_setup → 48_beacon_kill → 51_vat_exit | 灵魂信标：成型治疗缸、放好待命身体并绑定，然后致死一击；应当活着、解绑、只剩新身体的能力、被缸收着；再右键出缸，客户端与服务端坐标都在缸顶上方 |
 | 49_keys → 50_fingers_key_check | 走真实按键路径：J 按住开轮盘/松开关轮盘，M 打开便携工作台；并检查两个键各只注册一次 |
+| 52_containment_hold → 53_containment_check | 收容焦点：生存模式、满充能法杖装上焦点、一个空守卫罐、残血猪；按住右键（真实按键路径），之后检查猪进了灵魂罐、守卫罐被消耗、无罐后自动停手、vis 被扣 |
+| 54_containment_visual | 同上但猪满血，用来截光束（`shot` 会切创造模式，创造模式不耗罐） |
+| 55_containment_rules → 53 | 凋灵免疫、铁傀儡可收；无空罐时光束立刻停、不扣 vis、猪还在 |
 
 **探针体跑在服务端线程上**（`Thread.currentThread()` 是 `Server thread`）。所以凡是要服务端回话的操作——
 客户端发包、服务端开界面、关界面——在探针返回之前都不会发生：探针里等多久都看不到结果。做法是拆成两个探针，
@@ -153,4 +156,7 @@ python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码�
   `*.registry/*.common/*.nativeimpl` 的地方，升级 TC4R 时先看这三个文件。
 - **`System.out` 不进 `run-client/logs/*.log`**：开发环境里它只到控制台，也就是 `client_probe.py start`
   重定向出来的 `build/client-run.log`。在 `latest.log` 里找不到自己打的调试输出，不能说明那段代码没跑。
+- **`shot` 会把玩家切成创造模式并飞行**（避免摔落），所以要测「生存模式才有」的消耗（罐子、物品），别在中间截图。
+- **生存模式的探针要先设和平难度**：夜里开阔平台会刷僵尸，把玩家打下去摔死（"doomed to fall by Zombie"），后面的探针全读到一个死人。
+- **服务端时间会「追帧」**：探针阻塞服务端线程后，服务端会连跑补帧，墙钟 0.5 秒能过 40 tick。按 tick 计的进度不要用墙钟估算。
 - **测试完记得停服/停客户端**：客户端 `python tools/client_probe.py stop`，服务端 `python tools/rcon.py stop`。

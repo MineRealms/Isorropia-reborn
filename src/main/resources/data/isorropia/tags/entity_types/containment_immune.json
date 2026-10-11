@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:bosses",
+      "required": false
+    },
+    {
+      "id": "thaumcraft:eldritch_warden",
+      "required": false
+    },
+    {
+      "id": "thaumcraft:eldritch_golem",
+      "required": false
+    },
+    {
+      "id": "thaumcraft:cultist_leader",
+      "required": false
+    },
+    {
+      "id": "thaumcraft:giant_taintacle",
+      "required": false
+    },
+    {
+      "id": "thaumcraft:traveling_trunk",
+      "required": false
+    }
+  ]
+}

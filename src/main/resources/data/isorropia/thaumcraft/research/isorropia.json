@@ -779,6 +779,16 @@
           "compound_blueprint": "",
           "recipe_link_policy": "DISABLED",
           "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/focus_containment"
+          ]
         }
       ]
     },
