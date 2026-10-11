@@ -13,6 +13,7 @@ import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
 import fr.wind_blade.isorropia.common.infusion.CreatureAbilities;
 import fr.wind_blade.isorropia.common.infusion.SelfInfusions;
+import fr.wind_blade.isorropia.common.infusion.SoulBeacon;
 import fr.wind_blade.isorropia.common.lenses.LensManager;
 import fr.wind_blade.isorropia.common.vat.VatStructure;
 import net.minecraft.core.BlockPos;
@@ -117,8 +118,9 @@ public final class IsorropiaEvents {
     }
 
     /**
-     * A body that dies: the tumor gives its warp back and every ability the body was grown with is lost, which
-     * is why the whole point of a reincarnation body is to be reborn into a new one.
+     * A body that takes a killing blow: the tumor gives its warp back and every ability the body was grown with
+     * is lost. A wizard bound to a soul beacon is then reborn in the body waiting in the vat, with that body's
+     * abilities only, which is the whole point of growing one. Upstream does the same, in the same order.
      */
     @SubscribeEvent
     public static void onPlayerHurt(LivingHurtEvent event) {
@@ -135,6 +137,7 @@ public final class IsorropiaEvents {
             }
             data.sync();
         });
+        SoulBeacon.tryRevive(event, player);
     }
 
     /**

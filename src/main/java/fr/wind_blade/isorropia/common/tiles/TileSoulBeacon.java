@@ -40,7 +40,8 @@ public class TileSoulBeacon extends BlockEntity {
         CompoundTag data = player.getPersistentData();
         data.putBoolean(BOUND, true);
         data.putIntArray(COORDS, new int[] {worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()});
-        data.putInt(DIMENSION, server.dimension().location().hashCode());
+        // Stored as the dimension's name, not its id: the id is not stable across worlds.
+        data.putString(DIMENSION, server.dimension().location().toString());
         player.displayClientMessage(Component.translatable("isorropia.setBeacon").withStyle(ChatFormatting.GRAY,
                 ChatFormatting.ITALIC), false);
         level.playSound(null, worldPosition, SoundsIS.CURATIVE_INFUSION_START.get(), SoundSource.BLOCKS, 1.0F, 1.4F);

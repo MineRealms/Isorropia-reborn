@@ -2,7 +2,8 @@
 
     python tools/client_probe.py start            # copy the probe world if needed, launch, wait for the bridge
     python tools/client_probe.py exec <probe.java>
-    python tools/client_probe.py shot <name> <x> <y> <z> <yaw> <pitch> [settle_seconds]
+    python tools/client_probe.py shot <name> <x> <y> <z> <yaw> <pitch> [settle_seconds] [--gui]
+    python tools/client_probe.py guishot <name>   # grab whatever screen is open right now, untouched
     python tools/client_probe.py stop
 
 Screenshots land in run-client/screenshots/<name>.png. The bridge only starts once a world is joined
@@ -137,6 +138,29 @@ def shot(name, x, y, z, yaw, pitch, settle="3", gui=False):
     time.sleep(float(settle))
     # Rotation is applied again on the render thread right before the grab, so mouse drift cannot move it.
     print(exec_body(GRAB % values, "grab"))
+
+
+# A container screen is not the HUD: it must be left open, so this grab neither closes it nor moves the
+# camera. It runs after the screen has been up for a frame or two, so the picture shows it.
+GUISHOT = """
+var mc = net.minecraft.client.Minecraft.getInstance();
+var done = new java.util.concurrent.CompletableFuture<String>();
+mc.execute(() -> {
+    try {
+        mc.options.hideGui = false;
+        net.minecraft.client.Screenshot.grab(mc.gameDirectory, "%(name)s.png", mc.getMainRenderTarget(),
+                message -> done.complete(message.getString()));
+    } catch (Throwable t) {
+        done.complete("FAILED " + t);
+    }
+});
+return done.get(20, java.util.concurrent.TimeUnit.SECONDS) + " screen=" + mc.screen;
+"""
+
+
+def guishot(name):
+    print(exec_body(GUISHOT % dict(name=name), "guishot"))
+    print("file:", RUN / "screenshots" / (name + ".png"))
     print("file:", RUN / "screenshots" / (name + ".png"))
 
 
@@ -157,6 +181,8 @@ def main():
         arguments = sys.argv[2:]
         gui = "--gui" in arguments
         shot(*[a for a in arguments if a != "--gui"], gui=gui)
+    elif command == "guishot":
+        guishot(sys.argv[2])
     elif command == "stop":
         print(exec_body(STOP, "stop"))
     else:

@@ -44,6 +44,9 @@ public final class ClientSetup {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> ItemProperties.register(ItemsIS.CAT.get(), Isorropia.id("cat"),
                 (stack, level, entity, seed) -> ItemCat.getType(stack).ordinal() / 100.0F));
+        event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
+                fr.wind_blade.isorropia.common.menu.MenusIS.MORPHIC_FINGERS.get(),
+                fr.wind_blade.isorropia.client.gui.MorphicFingersScreen::new));
     }
 
     @SubscribeEvent

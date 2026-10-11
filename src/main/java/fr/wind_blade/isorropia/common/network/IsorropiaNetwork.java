@@ -32,6 +32,8 @@ public final class IsorropiaNetwork {
                 ClientFxPacket::encode, ClientFxPacket::decode, ClientFxPacket::handle);
         register(LensChangePacket.class, NetworkDirection.PLAY_TO_SERVER,
                 LensChangePacket::encode, LensChangePacket::decode, LensChangePacket::handle);
+        register(OpenFingersPacket.class, NetworkDirection.PLAY_TO_SERVER,
+                OpenFingersPacket::encode, OpenFingersPacket::decode, OpenFingersPacket::handle);
     }
 
     public static <M> void register(Class<M> type, NetworkDirection direction, BiConsumer<M, FriendlyByteBuf> encoder,

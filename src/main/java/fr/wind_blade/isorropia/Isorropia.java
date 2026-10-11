@@ -6,6 +6,7 @@ import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.config.ConfigIS;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.menu.MenusIS;
 import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
 import fr.wind_blade.isorropia.common.tiles.TilesIS;
@@ -27,6 +28,7 @@ public class Isorropia {
         ItemsIS.ITEMS.register(modBus);
         SoundsIS.SOUNDS.register(modBus);
         TilesIS.TILES.register(modBus);
+        MenusIS.MENUS.register(modBus);
         EntitiesIS.ENTITIES.register(modBus);
         modBus.addListener(EntitiesIS::onAttributes);
         IsorropiaCreativeTabs.TABS.register(modBus);

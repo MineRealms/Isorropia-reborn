@@ -56,7 +56,8 @@ python ../RainJava-work/RosettaRemoteDebugBridge/legacy/tools/rosetta_remote.py 
 python tools/client_probe.py start                 # 复制探针世界（若缺）→ 启动客户端 → 等桥就绪
 python tools/client_probe.py exec probes/client/22_matrix_scene.java
 python tools/client_probe.py shot vat_quads 64.5 302.5 58.0 0 28 4        # 世界截图
-python tools/client_probe.py shot lens_wheel 64.5 300 60 0 0 1 --gui      # 保留 HUD（GUI 见下方限制）
+python tools/client_probe.py shot lens_wheel 64.5 300 60 0 0 1 --gui      # 连 HUD 一起截
+python tools/client_probe.py guishot fingers_by_key                       # 原样截当前打开的界面（不动镜头）
 python tools/client_probe.py stop                  # 优雅关闭客户端
 ```
 
@@ -78,6 +79,15 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 | 33_lens_envy | 嫉妒透镜：给牛灌一半嫉妒，看右下进度条 |
 | 36_block_aspects2 | 对比 `block(state)` 与 `placedBlock(stack,state)` 的要素差（原版方块只有后者非空） |
 | 43_lens_drop_probe / 44_lens_ordo_drop2 | 学者透镜读准星下方块上的掉落物（名牌+要素走物品） |
+| 45_fingers_open / 46_fingers_recipe / 53_fingers_take | 变形手指：长出手指并直接开界面、在格子里摆基础透镜配方、潜行取出成品并核对扣费 |
+| 47_beacon_setup → 48_beacon_kill → 51_vat_exit | 灵魂信标：成型治疗缸、放好待命身体并绑定，然后致死一击；应当活着、解绑、只剩新身体的能力、被缸收着；再右键出缸，客户端与服务端坐标都在缸顶上方 |
+| 49_keys → 50_fingers_key_check | 走真实按键路径：J 按住开轮盘/松开关轮盘，M 打开便携工作台；并检查两个键各只注册一次 |
+
+**探针体跑在服务端线程上**（`Thread.currentThread()` 是 `Server thread`）。所以凡是要服务端回话的操作——
+客户端发包、服务端开界面、关界面——在探针返回之前都不会发生：探针里等多久都看不到结果。做法是拆成两个探针，
+前一个只「按下」，后一个再「看结果」（见 49_keys → 50_fingers_key_check）。纯客户端的状态（轮盘开合）可以在
+同一个探针里轮询等结果，但要**等结果而不是固定睡眠**：后台窗口帧率低，同一帧里排进去的「按下」和「松开」
+会在任何一个 tick 看见之前就抵消掉。
 
 ### 5. 网格对照：`python tools/mesh_preview.py`
 
@@ -90,7 +100,14 @@ python tools/mesh_preview.py src/main/resources/assets/isorropia/models/block/va
     --camera "0,5.5,-6.5" --look "0,2,0"
 ```
 
-### 6. 服务端优雅停服
+### 6. 事件处理器撞名：`python tools/check_listener_names.py`
+
+Forge 的 EventBus 把每个 `@SubscribeEvent` 方法编译成一个类，类名只由
+「包名 + 声明类的简单名 + 方法名 + 事件简单名」拼成，并按这个名字缓存。两个处理器拼出同一个名字时，
+后注册的会**复用**前一个的类：前一个跑两次，后一个一次都不跑，而且没有任何报错。嵌套类最容易中招
+（两个不同外部类里的 `Register.onRegisterKeys` 在同一个包里就撞了）。加了事件处理器就跑一次，有撞名时退出码 1。
+
+### 7. 服务端优雅停服
 
 ```bash
 python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码为 isoropia
@@ -117,6 +134,9 @@ python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码�
 | 11 | 嫉妒进度条永远空 | `EnvyLens` 把嫉妒累加到**玩家**的数据上，而 HUD 读的是**被看生物**的数据 | 计数改记在生物自己的 `LivingData` 上，再 `syncTo(player)` |
 | 12 | 学者读数对方块显示「无要素」 | `AspectQueryApi.block(state)` 对原版放置方块返回空（它只认 datapack 声明的 block 要素） | 改走 `placedBlock(new ItemStack(state.getBlock()), state)`（原版也是问方块的**物品**要素） |
 | 13 | 学者读数对地面显示「Air」 | 玩家悬空、准星 `hitType == MISS`，并非读数错误 | 探针先在脚下铺一块草方块再抓图；读数随即显示 "Grass Block" |
+| 14 | M 键（变形手指）按了没反应；J 键注册了两次 | 两个按键类的嵌套处理器 `Register.onRegisterKeys`、`Poller.onClientTick` 在 EventBus 里**撞名**（见上文第 6 节），手指键的注册和轮询从未执行，透镜键的各执行两次 | 处理器改用不重复的方法名；新增 `tools/check_listener_names.py` 静态检查 |
+| 15 | 灵魂信标复生后保留了旧身体的能力 | 复生判定放在了「旧身体死亡清算」之前，旧能力没被清掉、新能力叠加上去 | 照上游顺序：先还肿瘤扭曲、清空旧能力，再复生并只给新身体的能力；复生者照上游被缸收着，右键出缸 |
+| 16 | 玩家右键出缸后又回到缸里（出不来） | 缸用 `entity.setPos` 挪动占用者；对玩家这只改了服务端坐标，客户端下一个移动包又把位置拉回去 | 玩家走 `connection.teleport`（`TileVat.place`），进缸与出缸都是 |
 
 ## 三、踩过的坑（写下来省下一个人一天）
 
@@ -131,4 +151,6 @@ python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码�
 - **TC4R 会把所有命名空间的 `textures/models/` 拼进方块图集**，渲染器皮肤一律放 `textures/entity/`。
 - **内部类的兼容点集中放置**：`common/compat/{ThaumBridge,TaintBridge,ScanBridge}` 是唯一允许引用 TC4R
   `*.registry/*.common/*.nativeimpl` 的地方，升级 TC4R 时先看这三个文件。
+- **`System.out` 不进 `run-client/logs/*.log`**：开发环境里它只到控制台，也就是 `client_probe.py start`
+  重定向出来的 `build/client-run.log`。在 `latest.log` 里找不到自己打的调试输出，不能说明那段代码没跑。
 - **测试完记得停服/停客户端**：客户端 `python tools/client_probe.py stop`，服务端 `python tools/rcon.py stop`。

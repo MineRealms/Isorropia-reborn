@@ -820,6 +820,18 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         }
     }
 
+    /**
+     * Moves an occupant. A player has to be moved through their connection: a bare position change on the
+     * server is undone by the client's next movement packet, which left players unable to get out.
+     */
+    private static void place(LivingEntity entity, double x, double y, double z) {
+        if (entity instanceof ServerPlayer player) {
+            player.connection.teleport(x, y, z, player.getYRot(), player.getXRot());
+        } else {
+            entity.setPos(x, y, z);
+        }
+    }
+
     /** Puts a creature in the vat: held without AI and immune until it leaves again. */
     public void setContained(@Nullable LivingEntity entity) {
         setNoAi(contained, false);
@@ -833,7 +845,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             setNoAi(entity, true);
             entity.setInvulnerable(true);
             entity.setDeltaMovement(0.0, 0.0, 0.0);
-            entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() - 1.6, worldPosition.getZ() + 0.5);
+            place(entity, worldPosition.getX() + 0.5, worldPosition.getY() - 1.6, worldPosition.getZ() + 0.5);
             if (level != null && !entity.isAddedToWorld()) {
                 level.addFreshEntity(entity);
             }
@@ -878,7 +890,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         setContained(null);
         setNoAi(entity, false);
         entity.setInvulnerable(false);
-        entity.setPos(worldPosition.getX() + 0.5, worldPosition.getY() + 2.0, worldPosition.getZ() + 0.5);
+        place(entity, worldPosition.getX() + 0.5, worldPosition.getY() + 2.0, worldPosition.getZ() + 0.5);
     }
 
     /** Breaks the vat open: whatever is inside dies, the consumed ingredients drop, the blocks come apart. */
