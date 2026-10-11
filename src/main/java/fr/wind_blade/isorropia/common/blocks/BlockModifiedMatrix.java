@@ -37,12 +37,12 @@ public class BlockModifiedMatrix extends Block implements EntityBlock {
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())
-                && level.getBlockEntity(pos.below()) instanceof TileVat vat && vat.isActive()) {
-            vat.setActive(false);
+        // As upstream: a running infusion tears the vat apart, and the vat always stops with its wind-up lost.
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos.below()) instanceof TileVat vat && vat.isMaster()) {
             if (vat.isInfusing()) {
                 vat.destroyStructure();
             }
+            vat.shutDown();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

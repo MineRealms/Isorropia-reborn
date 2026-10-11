@@ -105,6 +105,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     /** How far into an infusion the vat is, capped, used for the rendering of instability. */
     private int craftCount;
     private float stabilityReplenish;
+    /** The running recipe's instability, as the client last heard it; the client knows no recipes. */
+    private int syncedInstability;
 
     private final Map<AspectId, Integer> stored = new LinkedHashMap<>();
     private final Map<AspectId, Integer> needed = new LinkedHashMap<>();
@@ -378,7 +380,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             finishInfusion(false);
             return;
         }
-        stability -= level.random.nextFloat() * (currentInstability() / 6.0F);
+        stability -= level.random.nextFloat() * (currentInstability() / stabilityBand().erosionDivisor);
         stability = Math.min(stability + stabilityReplenish, MAX_INSTABILITY);
         if (stability < 0.0F && level.random.nextInt(1500) < Math.abs(stability)) {
             instabilityEvent(level);
@@ -955,6 +957,57 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         return stability;
     }
 
+    /** Upstream's four stability bands. The band divides a recipe's instability into the erosion per cycle. */
+    public enum StabilityBand {
+        VERY_STABLE(5.0F), STABLE(6.0F), UNSTABLE(7.0F), VERY_UNSTABLE(8.0F);
+
+        private final float erosionDivisor;
+
+        StabilityBand(float erosionDivisor) {
+            this.erosionDivisor = erosionDivisor;
+        }
+
+        public String translationKey() {
+            return "tooltip.isorropia.stability." + name().toLowerCase(java.util.Locale.ROOT);
+        }
+    }
+
+    public StabilityBand stabilityBand() {
+        if (stability <= -MAX_INSTABILITY) {
+            return StabilityBand.VERY_UNSTABLE;
+        }
+        if (stability < 0.0F) {
+            return StabilityBand.UNSTABLE;
+        }
+        return stability > MAX_INSTABILITY / 2.0F ? StabilityBand.VERY_STABLE : StabilityBand.STABLE;
+    }
+
+    /** The most stability one cycle of the running infusion can cost. */
+    public float lossPerCycle() {
+        int instability = level != null && level.isClientSide ? syncedInstability : currentInstability();
+        return instability / stabilityBand().erosionDivisor;
+    }
+
+    /** What the stabilisers around the vat give back each cycle; negative when they are out of symmetry. */
+    public float getSymmetryStability() {
+        return stabilityReplenish;
+    }
+
+    /** Takes stock of the stabilisers again, as a wand tap on the matrix did upstream. */
+    public void surveyStabilizers() {
+        if (level instanceof ServerLevel server) {
+            refreshStability(server);
+            sync();
+        }
+    }
+
+    /** The matrix is gone: the vat stops and its wind-up is lost at once rather than unwinding. */
+    public void shutDown() {
+        active = false;
+        startUp = 0.0F;
+        sync();
+    }
+
     /** How unstable the vat has become, as a positive number; the matrix shakes harder the higher it is. */
     public float getRawStability() {
         return Math.max(0.0F, -stability);
@@ -1138,6 +1191,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         tag.putInt("EffigyEssentia", effigyEssentia);
         tag.putFloat("StartUp", startUp);
         tag.putInt("CraftCount", craftCount);
+        tag.putFloat("Symmetry", stabilityReplenish);
+        tag.putInt("Instability", currentInstability());
         return tag;
     }
 
@@ -1170,6 +1225,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         effigyEssentia = tag.getInt("EffigyEssentia");
         startUp = tag.getFloat("StartUp");
         craftCount = tag.getInt("CraftCount");
+        stabilityReplenish = tag.getFloat("Symmetry");
+        syncedInstability = tag.getInt("Instability");
     }
 
     private void sync() {

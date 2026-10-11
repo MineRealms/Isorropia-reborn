@@ -4,11 +4,9 @@ import dev.tc4port.thaumcraft.api.wand.WandApi;
 import fr.wind_blade.isorropia.common.infusion.SoulJar;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.tiles.TileJarSoul;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -86,7 +84,7 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        LivingEntity freed = SoulJar.releaseAt(jar.getEntityData(), level, pos.above());
+        LivingEntity freed = SoulJar.releaseAt(jar.getEntityData(), level, pos);
         if (freed != null) {
             level.removeBlock(pos, false);
         }
@@ -99,8 +97,6 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
         if (be instanceof TileJarSoul jar && jar.getEntityData() != null) {
             ItemStack dropped = new ItemStack(ItemsIS.JAR_SOUL.get());
             dropped.getOrCreateTag().put(SoulJar.ENTITY_TAG, jar.getEntityData().copy());
-            dropped.setHoverName(Component.translatable("item.isorropia.jar_soul.jarred",
-                    Component.translatable(jar.getEntityData().getString("id"))).withStyle(ChatFormatting.DARK_PURPLE));
             Block.popResource(level, pos, dropped);
         } else {
             Block.popResource(level, pos, new ItemStack(ItemsIS.JAR_SOUL.get()));

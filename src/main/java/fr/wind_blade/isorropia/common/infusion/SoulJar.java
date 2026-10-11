@@ -2,7 +2,6 @@ package fr.wind_blade.isorropia.common.infusion;
 
 import dev.tc4port.thaumcraft.api.ThaumcraftContent;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -46,8 +45,6 @@ public final class SoulJar {
         CompoundTag data = new CompoundTag();
         target.save(data);
         jar.getOrCreateTag().put(ENTITY_TAG, data);
-        jar.setHoverName(Component.translatable("item.isorropia.jar_soul.jarred",
-                target.getDisplayName()).withStyle(ChatFormatting.DARK_PURPLE));
         int slot = findJarSlot(player);
         if (slot < 0 && !player.getAbilities().instabuild) {
             player.displayClientMessage(Component.translatable("isorropia.containment.fail"), true);

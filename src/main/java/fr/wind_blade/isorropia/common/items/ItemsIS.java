@@ -55,7 +55,8 @@ public final class ItemsIS {
 
     public static final RegistryObject<BlockItem> CHOCOLATE_BLOCK = blockItem("chocolate", BlocksIS.CHOCOLATE);
     public static final RegistryObject<BlockItem> MODIFIED_MATRIX = blockItem("modified_matrix", BlocksIS.MODIFIED_MATRIX);
-    public static final RegistryObject<BlockItem> JAR_SOUL = blockItem("jar_soul", BlocksIS.JAR_SOUL);
+    public static final RegistryObject<ItemJarSoul> JAR_SOUL = ITEMS.register("jar_soul",
+            () -> new ItemJarSoul(BlocksIS.JAR_SOUL.get(), new Item.Properties()));
     public static final RegistryObject<BlockItem> SOUL_BEACON = blockItem("soul_beacon", BlocksIS.SOUL_BEACON);
 
     public static final RegistryObject<ForgeSpawnEggItem> TAINT_PIG_SPAWN_EGG = spawnEgg("taint_pig", EntitiesIS.TAINT_PIG, 0x3A005B);

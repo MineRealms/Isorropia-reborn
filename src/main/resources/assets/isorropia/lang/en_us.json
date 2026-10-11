@@ -268,8 +268,6 @@
   "item.isorropia.golden_chicken_spawn_egg": "Golden Chicken Spawn Egg",
   "item.isorropia.guardian_panther_spawn_egg": "Guardian Panther Spawn Egg",
   "item.isorropia.nether_hound_spawn_egg": "Nether Hound Spawn Egg",
-  "isorropia.vat.activated": "The vat hums to life",
-  "isorropia.vat.nothing": "Nothing here can be infused",
   "tooltip.isorropia.stability.stable": "Stable",
   "tooltip.isorropia.stability.very_stable": "Very stable",
   "tooltip.isorropia.stability.unstable": "Unstable",
@@ -277,5 +275,9 @@
   "tooltip.isorropia.flux": "Flux: %s",
   "tooltip.isorropia.celestial": "Celestial aura: %s / %s",
   "item.isorropia.focus_containment": "Wand Focus: Containment",
-  "isorropia.containment.jar": "You need an empty Warded Jar to hold a creature"
+  "isorropia.containment.jar": "You need an empty Warded Jar to hold a creature",
+  "isorropia.vat.flux": "Flux: %s",
+  "isorropia.vat.celestial_aura": "Celestial Aura %s/%s",
+  "isorropia.vat.stability_gain": "%s stability regained per cycle",
+  "isorropia.vat.stability_loss": "Up to %s stability lost per cycle"
 }

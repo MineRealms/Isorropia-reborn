@@ -98,6 +98,10 @@ public final class ClientSetup {
                 "lens_readouts",
                 (gui, graphics, partialTick, width, height) ->
                         fr.wind_blade.isorropia.client.hud.LensHud.render(graphics, partialTick));
+        event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id(),
+                "matrix_readout",
+                (gui, graphics, partialTick, width, height) ->
+                        fr.wind_blade.isorropia.client.hud.MatrixReadout.render(graphics));
     }
 
     @SubscribeEvent

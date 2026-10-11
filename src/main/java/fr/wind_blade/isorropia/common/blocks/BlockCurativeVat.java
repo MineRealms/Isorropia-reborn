@@ -1,5 +1,6 @@
 package fr.wind_blade.isorropia.common.blocks;
 
+import dev.tc4port.thaumcraft.api.ThaumcraftContent;
 import fr.wind_blade.isorropia.common.infusion.SoulJar;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.tiles.TileVat;
@@ -98,6 +99,16 @@ public class BlockCurativeVat extends Block implements EntityBlock {
                 master.setContained(stored);
             }
             return InteractionResult.sidedSuccess(false);
+        }
+        // An empty warded jar takes the creature back out of the vat, as upstream did; never mid-infusion.
+        if (master.getContained() != null && !(master.getContained() instanceof Player) && !master.isInfusing()
+                && player.getItemInHand(hand).is(ThaumcraftContent.item("warded_jar"))) {
+            if (!level.isClientSide) {
+                LivingEntity creature = master.getContained();
+                master.setContained(null);
+                SoulJar.capture(player, creature);
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
         if (master.getContained() != null || master.isInfusing()) {
             return InteractionResult.PASS;
