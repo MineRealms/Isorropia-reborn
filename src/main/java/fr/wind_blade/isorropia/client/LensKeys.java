@@ -33,8 +33,10 @@ public final class LensKeys {
         private Register() {
         }
 
+        // Handler names must be unique per package: the event bus merges handlers whose class simple name,
+        // method and event match (see tools/check_listener_names.py).
         @SubscribeEvent
-        public static void onRegisterKeys(RegisterKeyMappingsEvent event) {
+        public static void onRegisterLensKey(RegisterKeyMappingsEvent event) {
             event.register(LENS);
         }
     }
@@ -46,7 +48,7 @@ public final class LensKeys {
         }
 
         @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent event) {
+        public static void onLensKeyTick(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) {
                 return;
             }
