@@ -2634,6 +2634,14 @@
           "recipe_ids": [
             "isorropia:infusion/focus_animation"
           ]
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.animation.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
         }
       ]
     },

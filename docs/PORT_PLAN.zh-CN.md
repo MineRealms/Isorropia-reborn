@@ -342,3 +342,7 @@ TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticN
 
 
 
+
+### 研究文字
+
+照项目约定，TH 内容的研究文字一律用 TH 原文：照明/分解/活化焦点与魔力发电机原先是改写或自编的，已换回 TH 原文；活化焦点补上了 TH 的第二页。
