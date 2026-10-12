@@ -92,7 +92,7 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **自我注魔**：11 项里 9 项被动能力已实现（`common/infusion/SelfInfusions`）；变形手指的便携工作台界面（S6）与按键开关（S5）未接——`climbDisabled`/`invisibilityDisabled` 字段已就位。上游“失败也把成果写进缸”的 bug 没有照抄，只有成功才记入。
 - **肿瘤扭曲**：把玩家扭曲（permanent/sticky/temporary）分档吸进肿瘤、上限 50，身体死亡时原样还回并清空自我注魔（照上游）。
 - **收容焦点**：未做（S6）。
-- **研究页**：治疗缸的蓝图页（COMPOUND_CRAFTING）仍未加——TC4R 的 `compound_blueprints` 只对内置的 9 个 handler 真正成型，第三方条目仅展示，留到 S7 做展示页。
+- **研究页**：治疗缸的蓝图页（COMPOUND_CRAFTING）已加（S7 收尾）——TC4R 的 `compound_blueprints` 只对内置的 9 个 handler 真正成型，所以本模组的蓝图只做展示，成型仍由法杖右键事件处理。水格用水桶表示。
 
 ### S5 进度明细
 

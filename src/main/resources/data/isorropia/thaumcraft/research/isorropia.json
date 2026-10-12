@@ -429,6 +429,14 @@
           "recipe_ids": []
         },
         {
+          "type": "COMPOUND_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "isorropia:compound/curative_vat",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
           "type": "TEXT",
           "value": "isorropia.research_page.curativevat.7",
           "aspects": {},

@@ -1,0 +1,54 @@
+{
+  "blueprints": [
+    {
+      "id": "isorropia:compound/curative_vat",
+      "research": "isorropia:curativevat",
+      "aspects": {
+        "aqua": 50,
+        "terra": 50,
+        "ordo": 50
+      },
+      "width": 3,
+      "height": 4,
+      "depth": 3,
+      "cells": [
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:alchemical_construct",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:water_bucket",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:water_bucket",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "minecraft:glass",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:alchemical_construct",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks",
+        "thaumcraft:greatwood_planks"
+      ]
+    }
+  ]
+}

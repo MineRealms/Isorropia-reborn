@@ -89,6 +89,7 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 | 57_soul_jar_flow | 灵魂罐：手持空守卫罐右键缸把生物装回罐（罐名随内容、不带缸里的无 AI 标记）、满罐右键缸放回并退还守卫罐、法杖开放置的罐子生物出现在罐子原位 |
 | 58_vat_effects | 接在 56 之后：改 `EFFECT` 为 aura/vent/burst，在客户端打开对应特效并数粒子引擎里的 `GenericFx`；**缸的渲染器只在缸在画面里时运行**，先用 `shot` 把镜头对准场景再触发 |
 | 59_gravekeeper_beam | 守墓者与一只静止僵尸相距 3 格，配合注释里的 `shot` 命令看光束 |
+| 60_vat_blueprint | 授予治疗缸研究，在客户端直接打开百科到蓝图页（20732 里百科是基于研究快照的客户端界面，不走服务端菜单），之后 `guishot vat_blueprint` 截图 |
 
 **探针体跑在服务端线程上**（`Thread.currentThread()` 是 `Server thread`）。所以凡是要服务端回话的操作——
 客户端发包、服务端开界面、关界面——在探针返回之前都不会发生：探针里等多久都看不到结果。做法是拆成两个探针，
