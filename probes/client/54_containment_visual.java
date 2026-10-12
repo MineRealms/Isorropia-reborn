@@ -33,6 +33,17 @@ for (int dx = -3; dx <= 3; dx++) for (int dz = -2; dz <= 8; dz++) {
             net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
 }
 player.teleportTo(level, x, y, z, 0.0F, 10.0F);
+// The focus probes share this platform and leave their target blocks in the beam's path; clear it.
+for (int dz = 1; dz <= 8; dz++) for (int dy = 0; dy <= 2; dy++) {
+    level.setBlock(net.minecraft.core.BlockPos.containing(x, y + dy, z + dz),
+            net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+}
+// Earlier runs leave creatures here (pigs, a wandering cow); the beam would hold the wrong one, or hop between
+// overlapping ones so no hold ever fills.
+for (var stale : level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,
+        new net.minecraft.world.phys.AABB(x - 3, y - 1, z - 2, x + 3, y + 4, z + 9))) {
+    stale.discard();
+}
 var pig = net.minecraft.world.entity.EntityType.PIG.create(level);
 pig.moveTo(x, y, z + 5.0, 180.0F, 0.0F);
 pig.setNoAi(true);
@@ -45,8 +56,21 @@ sb.append(" focus=").append(view.installedFocus().map(f -> f.focusId().toString(
 
 // Hold right-click the way the mouse does.
 var use = mc.options.keyUse.getKey();
+// Close any open menu properly first (a menu left open by an earlier probe swallows the click), let go of the
+// key, and press only a few frames later.
+// The server only syncs the wand it just put in hand at the end of its tick, after this probe returns, so the client
+// is handed the same wand directly; otherwise it would click with whatever it held before.
+var clientWand = player.getMainHandItem().copy();
 mc.execute(() -> {
+    if (mc.player != null) {
+        mc.player.closeContainer();
+        mc.player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, clientWand);
+    }
     mc.setScreen(null);
+    net.minecraft.client.KeyMapping.set(use, false);
+});
+Thread.sleep(300);
+mc.execute(() -> {
     mc.player.setYRot(0.0F); mc.player.setXRot(10.0F);
     net.minecraft.client.KeyMapping.set(use, true);
     net.minecraft.client.KeyMapping.click(use);

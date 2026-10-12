@@ -87,7 +87,7 @@ def our_registry():
     blocks = set(re.findall(r'BLOCKS\.register\("([a-z0-9_]+)"', text))
     items = set(re.findall(r'ITEMS\.register\("([a-z0-9_]+)"', text))
     items |= set(re.findall(r'\bsimple\("([a-z0-9_]+)"', text))
-    items |= set(re.findall(r'\bblockItem\("([a-z0-9_]+)"', text))
+    items |= set(re.findall(r'\b(?:blockItem|machineItem)\("([a-z0-9_]+)"', text))
     return {'isorropia:' + i for i in items}, {'isorropia:' + b for b in blocks}
 
 

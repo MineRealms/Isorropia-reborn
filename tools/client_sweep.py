@@ -45,10 +45,11 @@ STEPS = [
     ("47_beacon_setup", ["bound=true"], 3),
     ("48_beacon_kill", ["after: alive=true", "bound=false diamondSkin=true fingers=false", "vatHoldsPlayer=true"], 2),
     ("51_vat_exit", ["stillHeld=false", "invulnerable=false", "diamondSkin=true"], 1),
-    ("52_containment_hold", ["install=INSTALLED", "focus=isorropia:focus_containment"], 7),
-    ("53_containment_check", ["holds=minecraft:pig", "usingItem=false"], 1),
+    ("52_containment_hold", ["install=INSTALLED", "focus=isorropia:focus_containment"], 9),
+    # While the key is held vanilla retries the use every few ticks, so "using" flickers; the jar is the evidence.
+    ("53_containment_check", ["holds=minecraft:pig"], 1),
     ("55_containment_rules", ["canContain wither=false ironGolem=true", "emptyJar=false"], 4),
-    ("53_containment_check", ["usingItem=false"], 1),
+    ("53_containment_check", ["pigs nearby=1"], 1),
     ("56_matrix_flow", ["tap 1 (off -> on): true active=true", "tap 2 (nothing to infuse): false active=true",
                         "matrix broken: active=false startUp=0.0 vatStillFormed=true"], 1),
     ("57_soul_jar_flow", ["nameMatches=true", "customName=false", "noAiInJar=false", "vatHolds=pig wardedBack=1",
@@ -64,7 +65,8 @@ STEPS = [
     ("66_liquefaction_item", ["install=INSTALLED"], 6),
     ("67_liquefaction_item_check", ["minecraft:iron_ingot"], 1),
     ("68_liquefaction_nuggets", ["install=INSTALLED"], 6),
-    ("69_liquefaction_nuggets_check", ["minecraft:iron_nugget"], 1),
+    # The nuggets are a 45% roll per rank, so only the smelt itself is certain.
+    ("69_liquefaction_nuggets_check", ["minecraft:iron_ingot"], 1),
     ("70_disintegration", ["install=INSTALLED"], 8),
     ("71_disintegration_check", ["target_block=minecraft:air", "thaumcraft:crystal_essence"], 1),
     ("72_disintegration_catalog", ["profile=true"], 1),
@@ -84,6 +86,14 @@ STEPS = [
     ("86_vis_dynamo_check", ["supplying=true", "drain1=5"], 1),
     ("87_vis_dynamo_release", [], 3),
     ("88_vis_dynamo_release_check", ["supplying=false"], 1),
+    ("89_essentia_dynamo", ["filled=32", "dynamo=true", "victus=[TERRA, AQUA]",
+                            "humanus=[AER, TERRA, IGNIS, AQUA, ORDO, PERDITIO]"], 4),
+    ("90_essentia_dynamo_check", ["offered ignis=12", "aer=0", "drain1=12 drain2=0"], 1),
+    ("91_node_monitor", ["set=true", "monitor=true survives=true"], 2),
+    ("92_node_monitor_drain", ["healthy: powered=false signal=0", "drained=true"], 2),
+    ("93_node_monitor_check", ["critical: powered=true signal=15 strong=15"], 1),
+    ("94_node_monitor_orphan", ["node removed"], 2),
+    ("95_node_monitor_orphan_check", ["monitorGone=true", "isorropia:node_monitor"], 1),
 ]
 
 

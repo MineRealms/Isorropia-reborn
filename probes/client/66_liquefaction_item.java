@@ -44,7 +44,11 @@ player.teleportTo(level, x, y, z, 0.0F, 0.0F);
 sb.append(" item@").append(item.position());
 
 var use = mc.options.keyUse.getKey();
+// The server only syncs the wand it just put in hand at the end of its tick, after this probe returns, so the
+// client is handed the same wand directly; otherwise it would click with whatever it held before.
+var clientWand = player.getMainHandItem().copy();
 mc.execute(() -> {
+    mc.player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, clientWand);
     mc.setScreen(null);
     mc.player.setYRot(0.0F);
     mc.player.setXRot(0.0F);
