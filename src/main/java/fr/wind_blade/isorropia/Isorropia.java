@@ -14,6 +14,7 @@ import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.menu.MenusIS;
 import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
+import fr.wind_blade.isorropia.common.tiles.TileVisDynamo;
 import fr.wind_blade.isorropia.common.tiles.TilesIS;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -46,6 +47,7 @@ public class Isorropia {
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(LiquefactionFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DisintegrationFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AnimationFocus::register));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileVisDynamo::registerProvider));
     }
 
     public static ResourceLocation id(String path) {

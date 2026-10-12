@@ -81,6 +81,7 @@ public final class ItemsIS {
             () -> new ItemFocusDisintegration(new Item.Properties()));
     public static final RegistryObject<ItemFocusAnimation> FOCUS_ANIMATION = ITEMS.register("focus_animation",
             () -> new ItemFocusAnimation(new Item.Properties()));
+    public static final RegistryObject<BlockItem> VIS_DYNAMO = blockItem("vis_dynamo", BlocksIS.VIS_DYNAMO);
 
     private ItemsIS() {
     }

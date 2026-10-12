@@ -305,3 +305,40 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **不设家域**：TH 调 `golem.setHomeArea(...,32)`；本移植靠 `OwnerFollowGoal` 跟随召唤者，未做家域束缚。
 
 
+## S4：能量与节点系统（TH 独有，进行中）
+
+TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticNode / transductionAmplifier）串成一条研究链。
+本移植按此顺序逐个加入，**先做 Vis Dynamo**。
+
+### Vis Dynamo（`isorropia:vis_dynamo`）
+
+来源：TH `common/tiles/TileVisDynamo.java`、`common/blocks/BlockVisDynamo.java`、`client/renderer/tile/TileVisDynamoRender.java`；
+研究 `visDynamo`（TH `ThaumicHorizons.java:1067-1087`）。
+
+- **方块 + 方块实体**：`BlockVisDynamo`（`EntityBlock` + TC4R `WandInteractionTarget`）+ `TileVisDynamo`（实现 TC4R `VisSource`）。
+  硬度 0.7 / 抗性 1.0 / 发光 8（TH 原值），金属音。
+- **充能**（照 TH 的 `onWandRightClick` + `onUsingWandTick`）：手持法杖右键 → 进入「使用中」状态；此后每 5 tick 一次脉冲，
+  每次脉冲对**每个启用的原质**从法杖抽 **40 centivis**，成功则给该原质留 **5 centivis**，并把供给窗口重置为 **10 tick**。
+  供给期内每 tick 把这份「报价」铺成网络可取的额度，因此相当于以每 5 tick 40 cV 的代价，向网络提供 5 cV/tick。
+  法杖付不起的原质当次即静默（TH 每脉冲整体重建 `primalsProvided`，此处一致）。
+- **网络接入**：只有当 `ticksProvided > 0` **且**六面中有一面是 TC4R 的 `thaumcraft:vis_relay` 时才作为源注册
+  （`VisNetworkApi.registerProvider/registerSource/removeSource`）；`networkEndpoint()` 返回那个继电器。玩家松手、走开、
+  转开视线或法杖耗尽 → 供给窗口自然衰减到 0 → 注销。TH 是「必须贴着 vis net」，此处等价。
+- **模拟/执行**：`takeVis` 在 `SIMULATE` 下不扣任何额度，只有 `EXECUTE` 才扣，符合 TC4R 的两段式网络协议。
+- **配方**：TH 是**注魔**配方（不稳定度 5，auram 4 / potentia 16 / permutatio 16 / machina 16；催化物活塞；
+  材料 原质护符 + 金锭 + 大木板 + 金锭），照搬为 `isorropia:infusion/vis_dynamo`（原质护符用 TC4R 的 `thaumcraft:thaumic_charm`）。
+- **研究**：`isorropia:visdynamo`，隐藏父研究 `INFUSION` + `VISPOWER`，坐标 (7, 8)。
+
+与 TH 的偏差：
+
+- **未做外观渲染**：TH 用 TESR 画一个旋转的金环 + 底座模型（`scanner.obj` + `dynamobase.png`）。本移植先用一个 16×16 自绘贴图
+  的整方块代替，观感是「带金环的金属装置」但不是逐像素还原。TESR 留待后续。
+- **未做要素选择界面**：TH 空手右键开 `GuiVisDynamo`（6 个原质开关）。本移植的开关已进 NBT、默认全开并被充能逻辑读取，
+  但没有界面去改它——空手右键目前不做任何事。GUI 是后续项。
+- **按住充能靠方块实体自己的 ticker**：TC4R 的法杖 `onUseTick` 只派发焦点会话，没有 TC4 的 `IWandable.onUsingWandTick`。
+  所以「按住」由 `TileVisDynamo` 每 tick 回读「该玩家仍在用这把法杖、且视线还落在这个方块上」来判断（照 TC4R 自己的
+  `WandNodeTapping` 写法）。已知副作用：若玩家手里的法杖装有 **火焰/电击/挖掘** 这三个 TC4 内置焦点，按住时它们也会照常触发
+  （`WandFocusActions.usingTick` 不认我们的方块）。
+
+
+

@@ -23,6 +23,8 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileJarSoul::new, BlocksIS.JAR_SOUL.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileSoulBeacon>> SOUL_BEACON = TILES.register("soul_beacon",
             () -> BlockEntityType.Builder.of(TileSoulBeacon::new, BlocksIS.SOUL_BEACON.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileVisDynamo>> VIS_DYNAMO = TILES.register("vis_dynamo",
+            () -> BlockEntityType.Builder.of(TileVisDynamo::new, BlocksIS.VIS_DYNAMO.get()).build(null));
 
     private TilesIS() {
     }

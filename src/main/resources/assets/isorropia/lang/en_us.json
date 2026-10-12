@@ -307,5 +307,9 @@
   "isorropia.vat.flux": "Flux: %s",
   "isorropia.vat.celestial_aura": "Celestial Aura %s/%s",
   "isorropia.vat.stability_gain": "%s stability regained per cycle",
-  "isorropia.vat.stability_loss": "Up to %s stability lost per cycle"
+  "isorropia.vat.stability_loss": "Up to %s stability lost per cycle",
+  "block.isorropia.vis_dynamo": "Vis Dynamo",
+  "tc.research_name.isorropia:visdynamo": "Vis Dynamo",
+  "tc.research_text.isorropia:visdynamo": "A wand in every socket.",
+  "isorropia.research_page.visdynamo.1": "The vis network that energized nodes feed has always been a one-way street: vis pours out of a node and into whatever machine you hang off a relay, and there is no way to put anything back.<BR>By levering a wand against a §lVis Dynamo§r you can. Each pulse of the wand empties forty centivis of every primal into the dynamo and offers five centivis of it back to the network for the next ten ticks, so long as one of the dynamo's six faces is against a vis relay. Only the aspects left switched on are drawn on; by default the dynamo takes all six.<BR>An empty wand is an empty dynamo: the vis it hands out is only ever the vis you fed it, less the loss the conversion costs you."
 }

@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:visdynamo",
+  "central": {
+    "item": "minecraft:piston"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:thaumic_charm"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:greatwood_planks"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "instability": 5,
+  "aspects": {
+    "auram": 4,
+    "potentia": 16,
+    "permutatio": 16,
+    "machina": 16
+  },
+  "result": {
+    "item": "isorropia:vis_dynamo"
+  }
+}

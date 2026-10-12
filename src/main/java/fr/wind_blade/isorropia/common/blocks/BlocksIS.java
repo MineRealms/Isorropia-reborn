@@ -37,6 +37,9 @@ public final class BlocksIS {
                     .sound(SoundType.WOOL).noCollission().noOcclusion().noLootTable().instabreak()
                     .lightLevel(state -> state.getValue(BlockLight.SOLAR) ? 15 : 14)
                     .pushReaction(PushReaction.DESTROY)));
+    public static final RegistryObject<BlockVisDynamo> VIS_DYNAMO = BLOCKS.register("vis_dynamo",
+            () -> new BlockVisDynamo(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
+                    .sound(SoundType.METAL).lightLevel(state -> 8).requiresCorrectToolForDrops()));
 
     private BlocksIS() {
     }
