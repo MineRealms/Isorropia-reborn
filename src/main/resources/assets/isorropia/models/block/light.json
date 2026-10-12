@@ -1,0 +1,21 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "isorropia:block/light",
+    "mote": "isorropia:block/light"
+  },
+  "elements": [
+    {
+      "from": [3, 3, 3],
+      "to": [13, 13, 13],
+      "faces": {
+        "down": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false },
+        "up": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false },
+        "west": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false },
+        "east": { "uv": [0, 0, 16, 16], "texture": "#mote", "tintindex": 0, "shade": false }
+      }
+    }
+  ]
+}

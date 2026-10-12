@@ -177,3 +177,30 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - 从缸里装回罐子时不允许在注魔进行中操作（上游没拦，会让注魔失去对象）。
 - 物品形态的灵魂罐不画罐内生物：上游的物品渲染也只画罐子本身。
 
+## 范围外新增：TH 独有的内容
+
+上面各阶段只移植 **Isorropia 已有的功能**。TH（GTNH 1.7.10）另有约 7 个整块系统是 Isorropia 从未承接的
+（位面、血液注射、灵魂机器、能量节点、自定义傀儡、重构器、材料晶体等），本节记录**从 TH 补进来的、超出原范围的**内容。
+
+### 照明焦点（`isorropia:illumination`）
+
+来源：TH `common/items/ItemFocusIllumination.java`、`common/blocks/BlockLight.java`、`BlockLightSolar.java`、
+`common/tiles/TileLight.java`；研究 `focusIllumination`（TH `ThaumicHorizons.java:1721-1739`）。
+
+- **焦点**：`ItemFocusIllumination`（`FocusIdentityItem`）+ `common/focus/IlluminationFocus`（TC4R `FocusActionApi`，激活方式 `USE_BLOCK`，一次性施法）。
+  对准方块面右键，在其相邻空气格留下一个「光珠」；消耗 **ignis 100 + aer 100 centivis**（TH 原值），frugal 折扣经 TC4R 的 `vis_discount` 参数生效。
+- **光珠方块** `isorropia:light`：小方块（0.3–0.7），无碰撞、无掉落、即破、可被任何方块直接替换；发光 14（普通）/15（solar）。
+  16 色调色板与 TH `ItemFocusIllumination.colors` 完全一致，颜色经 `ClientSetup#onBlockColors` 用 `tintindex` 上色，方块与物品不会各说各话。
+- **solar 升级**：TH 的 `FocusUpgradeType.solar`（ordo 8 + vacuos 4），第 3 阶可选；装上后光珠变成 solar 光珠，走进去的亡灵着火 5 秒（照 TH）。
+- **配方**：TH 是**坩埚**配方（萤石 + lux 12 / potentia 8 / ignis 8），照搬为 `isorropia:crucible/focus_illumination`。
+- **研究**：`isorropia:illumination`，父研究 `FOCUSFIRE`，CONCEALED，坐标 (-1, 6)。
+
+与 TH 的偏差：
+
+- **未做染料换色**：TH 用 `RecipesFocusIlluminationDyes`（染料 + 焦点 → 改 metadata）给 16 种颜色。
+  本移植把颜色放进了焦点的 property（`isorropia:colour`，默认 11＝黄，即 TH 出货色），但**没有做换色配方**，
+  所以玩家暂时只能得到默认色；方块侧的 16 色与 `BlockColors` 已就位，加配方即可开放。
+- **未做光珠粒子/辉光渲染**：TH 用 ISBRH 画发光球体、并在 `ClientProxy.illuminationFX` 里撒粒子；
+  本移植用一个小立方体模型 + 颜色 tint 代替，观感接近但不是逐像素还原。实机外观仍需人眼确认。
+- **方块与太阳光珠合并为一个方块**（TH 是 `BlockLight` + `BlockLightSolar` 两个类），靠 `solar` 属性区分。
+

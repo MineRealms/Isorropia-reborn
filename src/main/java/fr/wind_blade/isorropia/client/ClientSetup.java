@@ -20,6 +20,8 @@ import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderSoulBeacon;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
+import fr.wind_blade.isorropia.common.blocks.BlockLight;
+import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.items.misc.ItemCat;
@@ -116,5 +118,14 @@ public final class ClientSetup {
     public static void onItemColors(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> tintIndex == 0 ? 0xFF000000 | JellyColors.of(ItemJelly.getAspect(stack)) : -1,
                 ItemsIS.JELLY.get());
+    }
+
+    /** A conjured mote wears the colour it was left in, so the block and the focus item never disagree. */
+    @SubscribeEvent
+    public static void onBlockColors(RegisterColorHandlersEvent.Block event) {
+        event.register((state, level, pos, tintIndex) -> tintIndex == 0
+                        ? 0xFF000000 | BlockLight.COLOURS[state.getValue(BlockLight.COLOUR)]
+                        : -1,
+                BlocksIS.LIGHT.get());
     }
 }

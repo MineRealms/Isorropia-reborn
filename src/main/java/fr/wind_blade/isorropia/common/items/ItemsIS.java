@@ -71,6 +71,11 @@ public final class ItemsIS {
     public static final RegistryObject<ForgeSpawnEggItem> GUARDIAN_PANTHER_SPAWN_EGG = spawnEgg("guardian_panther", EntitiesIS.GUARDIAN_PANTHER, 0xFFC300);
     public static final RegistryObject<ForgeSpawnEggItem> NETHER_HOUND_SPAWN_EGG = spawnEgg("nether_hound", EntitiesIS.NETHER_HOUND, 0xFF0C00);
 
+    // New items go at the end: inserting one in the middle shifts every later item's numeric id, which Forge
+    // warns about on a world that already knows the old ids.
+    public static final RegistryObject<ItemFocusIllumination> FOCUS_ILLUMINATION = ITEMS.register("focus_illumination",
+            () -> new ItemFocusIllumination(new Item.Properties()));
+
     private ItemsIS() {
     }
 

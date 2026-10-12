@@ -32,6 +32,11 @@ public final class BlocksIS {
     public static final RegistryObject<BlockSoulBeacon> SOUL_BEACON = BLOCKS.register("soul_beacon",
             () -> new BlockSoulBeacon(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(7.0F)
                     .sound(SoundType.METAL).lightLevel(state -> 15).requiresCorrectToolForDrops().noOcclusion()));
+    public static final RegistryObject<BlockLight> LIGHT = BLOCKS.register("light",
+            () -> new BlockLight(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(0.0F)
+                    .sound(SoundType.WOOL).noCollission().noOcclusion().noLootTable().instabreak()
+                    .lightLevel(state -> state.getValue(BlockLight.SOLAR) ? 15 : 14)
+                    .pushReaction(PushReaction.DESTROY)));
 
     private BlocksIS() {
     }

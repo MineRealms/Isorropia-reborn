@@ -1,0 +1,29 @@
+{
+  "upgrades": [
+    {
+      "id": "isorropia:solar",
+      "icon": "isorropia:textures/foci/solar.png",
+      "name": "isorropia.focus.upgrade.solar.name",
+      "description": "isorropia.focus.upgrade.solar.text",
+      "aspects": {
+        "ordo": 8,
+        "vacuos": 4
+      },
+      "max_level": 1,
+      "rank_vis": [
+        400,
+        400,
+        400,
+        400,
+        400
+      ],
+      "rank_xp": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ]
+    }
+  ]
+}
