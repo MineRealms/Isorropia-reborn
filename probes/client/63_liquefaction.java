@@ -35,6 +35,11 @@ for (int dz = 1; dz <= 2; dz++) for (int dy = 0; dy <= 2; dy++) {
             net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 }
 var target = new net.minecraft.core.BlockPos((int) Math.floor(x), (int) y + 1, (int) Math.floor(z) + 3);
+// An ingot left over from an earlier run would satisfy 65 without this run smelting anything.
+for (var stale : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+        new net.minecraft.world.phys.AABB(target).inflate(8))) {
+    stale.discard();
+}
 level.setBlock(target, net.minecraft.world.level.block.Blocks.ICE.defaultBlockState(), 3);
 player.teleportTo(level, x, y, z, 0.0F, 0.0F);
 

@@ -117,6 +117,24 @@ STEPS = [
     ("107_ethereal_shard_delayed_check", ["delayedGained=300", "remaining=0"], 1),
     ("109_ethereal_shard_compound", ["compoundNetworks=2", "boundary100=true", "fractionalRestored=true"], 4),
     ("110_ethereal_shard_compound_check", ["compoundCharged=true", "missingChannelBlocked=true"], 1),
+    # Vis Dynamo selection screen: server button, client screen click, data slot back to the client.
+    ("114_vis_dynamo_gui", ["menu=VisDynamoMenu", "button=true", "ignisOff=true", "aerOn=true", "offerIgnis=0",
+                            "offerAer=5", "paidIgnis=0", "paidAer=40"], 2),
+    ("115_vis_dynamo_gui_screen", ["screen=VisDynamoScreen", "ignisShownOff=true", "clicked=true"], 1),
+    ("116_vis_dynamo_gui_check", ["aerOff=true", "clientAerOff=true"], 1),
+    # A wand held against a machine does not also run its focus; the control proves the focus does run otherwise.
+    ("117_focus_hold_control", ["install=INSTALLED", "hooked=true"], 2),
+    ("118_focus_hold_machine", ["controlFires=true"], 3),
+    ("119_focus_hold_check", ["using=true", "holding=true", "charging=true", "focusSuppressed=true"], 1),
+    ("120_focus_hold_lookaway_check", ["released=true", "clientReleased=true"], 1),
+    # Illumination: dye recolouring and TH's invisible, wisp-throwing motes.
+    ("121_illumination_dye", ["defaultColour=11", "redColour=1", "redName=item.isorropia.focus_illumination.1",
+                              "lastWins=15", "strayRejected=true", "twoFociRejected=true"], 1),
+    ("122_illumination_light", ["invisible=5", "tiles=5"], 3),
+    ("123_illumination_light_check", ["clientTiles=5", "wispsNear=true"], 1),
+    # Containment slow upgrade.
+    ("124_containment_slow", ["install=INSTALLED"], 3),
+    ("125_containment_slow_check", ["slowed=true", "amplifier=0", "free=true"], 1),
 ]
 
 

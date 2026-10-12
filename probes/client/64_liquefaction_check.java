@@ -28,6 +28,13 @@ var target = new net.minecraft.core.BlockPos(40, 311, 43);
 var state = level.getBlockState(target);
 sb.append(" target_block=").append(net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(state.getBlock()));
 
-// Swap in an iron ore and leave the beam held so 65 can see the smelt.
+// The thaw left water spreading over the platform; its current carried the smelted ingot off the edge, so 65
+// found nothing. Drain it once the thaw has been checked, then swap in an iron ore and leave the beam held.
+for (int dx = -4; dx <= 4; dx++) for (int dy = -2; dy <= 3; dy++) for (int dz = -3; dz <= 9; dz++) {
+    var wet = target.offset(dx, dy, dz);
+    if (level.getFluidState(wet).is(net.minecraft.tags.FluidTags.WATER)) {
+        level.setBlock(wet, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+    }
+}
 level.setBlock(target, net.minecraft.world.level.block.Blocks.IRON_ORE.defaultBlockState(), 3);
 return sb.toString();
