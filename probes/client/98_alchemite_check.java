@@ -42,7 +42,7 @@ int stoneItems = 0;
 boolean essence = false;
 var found = new StringBuilder();
 for (var item : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
-        new net.minecraft.world.phys.AABB(centre.getX() - 8, centre.getY() - 4, centre.getZ() - 8,
+        new net.minecraft.world.phys.AABB(centre.getX() - 8, centre.getY() - 6, centre.getZ() - 8,
                 centre.getX() + 9, centre.getY() + 7, centre.getZ() + 9))) {
     var stack = item.getItem();
     var key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());

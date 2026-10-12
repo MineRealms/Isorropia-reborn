@@ -8,6 +8,13 @@ var player = server.getPlayerList().getPlayer(mc.player.getUUID());
 var sb = new StringBuilder();
 
 var centre = new net.minecraft.core.BlockPos(100, 310, 170);
+// Catch the drops after the blast removes its own stone floor; otherwise five seconds of gravity takes them
+// below 98's sampling box. Bedrock is outside the specimen and cannot be converted by the explosion.
+for (int dx = -12; dx <= 12; dx++) for (int dz = -12; dz <= 12; dz++) {
+    level.setBlock(centre.offset(dx, -6, dz), net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(), 3);
+}
+for (var item : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+        new net.minecraft.world.phys.AABB(centre).inflate(14))) item.discard();
 // A solid stone box, then a small hollow in the middle for the charge.
 for (int dx = -3; dx <= 3; dx++) for (int dy = -1; dy <= 3; dy++) for (int dz = -3; dz <= 3; dz++) {
     level.setBlock(centre.offset(dx, dy, dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
@@ -41,6 +48,11 @@ primed.setFuse(6);
 level.addFreshEntity(primed);
 sb.append(" entity=true fuse=").append(primed.getFuse());
 
-// Stand well clear of the five-block blast, looking down at it for a screenshot.
+// Stand well clear of the five-block blast, looking down at it for a screenshot. Fly there: the probe world is
+// flat and empty at this height, and an earlier probe may have left the player in survival, so a plain teleport
+// would drop them hundreds of blocks to their death and take every later probe down with them.
+player.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+player.getAbilities().flying = true;
+player.onUpdateAbilities();
 player.teleportTo(level, centre.getX() + 0.5 + 11.0, centre.getY() + 5.0, centre.getZ() + 0.5 + 11.0, 135.0F, 30.0F);
 return sb.toString();

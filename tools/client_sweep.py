@@ -8,6 +8,7 @@ Each step runs one probe through client_probe.py and looks for substrings that o
 Steps that start something the server must answer (a key press, a held beam) are followed by a pause and a
 separate checking probe, because probe bodies run on the server thread and nothing happens until they return.
 """
+import os
 import subprocess
 import sys
 import time
@@ -103,12 +104,26 @@ STEPS = [
     ("98_alchemite_check", ["alchemiteLeft=false", "plainNodes=0", "stoneItems=0", "essence=true"], 1),
     ("99_alchemite_dispense", ["powered=true"], 2),
     ("100_alchemite_dispense_check", ["dispenserEmpty=true", "primed=1", "at=161, 310, 100"], 1),
+    # Ethereal Shard: essence sets its capacity, the network fills it, and a wand draws it back out.
+    ("101_ethereal_shard", ["known=true", "block=true", "item=true", "recipe=true", "be=TileEtherealShard",
+                            "use=CONSUME", "capacity=12", "essenceLeft=0", "stored=5", "wandAer=0"], 4),
+    ("102_ethereal_shard_draw", ["refilled=true", "network=true", "clientRefilled=true"], 3),
+    ("103_ethereal_shard_check", ["wandGained=true", "shardSpent=true", "capacity=12", "drops=1", "dropCount=3",
+                                  "dropAspect=aer"], 1),
+    ("104_ethereal_shard_edges", ["rejected=true", "zeroRetained=true", "roundtrip=true", "legalStacks=true",
+                                  "monitorCritical=true", "noEarlyDrops=true", "actualAer=130", "actualFire=1", "actualBlocks=1"], 1),
+    ("105_ethereal_shard_empty_hold", ["empty=true"], 2),
+    ("106_ethereal_shard_delayed_fill", ["waiting=true", "delayedFill=3"], 2),
+    ("107_ethereal_shard_delayed_check", ["delayedGained=300", "remaining=0"], 1),
+    ("109_ethereal_shard_compound", ["compoundNetworks=2", "boundary100=true", "fractionalRestored=true"], 4),
+    ("110_ethereal_shard_compound_check", ["compoundCharged=true", "missingChannelBlocked=true"], 1),
 ]
 
 
 def run(stem):
     out = subprocess.run([sys.executable, str(ROOT / "tools" / "client_probe.py"), "exec", str(PROBES / (stem + ".java"))],
-                         capture_output=True, text=True, timeout=120, cwd=ROOT)
+                         capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120, cwd=ROOT,
+                         env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     return (out.stdout + out.stderr).strip()
 
 
