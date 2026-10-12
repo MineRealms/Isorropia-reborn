@@ -18,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -398,8 +399,47 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
         registeredEndpoint = null;
     }
 
-    /** Reads the current per-channel offer; used by tests and the future aspect-selection screen. */
+    /** Reads the current per-channel offer; used by tests. */
     public int offeredCentivis(VisChannel channel) {
         return offering.getOrDefault(channel, 0);
+    }
+
+    public boolean isEnabled(VisChannel channel) {
+        return enabled.getOrDefault(channel, Boolean.TRUE);
+    }
+
+    /** TH's {@code enchantItem}: one selection-screen button flips one primal. */
+    public void toggle(VisChannel channel) {
+        enabled.put(channel, !isEnabled(channel));
+        setChanged();
+    }
+
+    /** The six switches as one bit mask, which the selection screen reads through a data slot. */
+    public ContainerData switchData() {
+        return new ContainerData() {
+            @Override
+            public int get(int index) {
+                int mask = 0;
+                for (VisChannel channel : VisChannel.values()) {
+                    if (isEnabled(channel)) {
+                        mask |= 1 << channel.index();
+                    }
+                }
+                return mask;
+            }
+
+            @Override
+            public void set(int index, int value) {
+                for (VisChannel channel : VisChannel.values()) {
+                    enabled.put(channel, (value & 1 << channel.index()) != 0);
+                }
+                setChanged();
+            }
+
+            @Override
+            public int getCount() {
+                return 1;
+            }
+        };
     }
 }

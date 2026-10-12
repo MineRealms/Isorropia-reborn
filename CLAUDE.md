@@ -34,5 +34,8 @@ python tools/rcon.py stop           # 优雅停服（run-server）
 - TC 机制以 `../ThaumicHorizons`（TC4 原型）为准，TC6 独有机制不硬搬；TC6 与 TC4 都有的，取「1.12 实际出货的观感/数值」。
 - 引用 TC4R 内部类只能出现在 `common/compat/{ThaumBridge,TaintBridge,ScanBridge}`，并在此登记为版本升级复核点。
   - `ThaumBridge.WandTarget`：TC4R 20732 的 `common.WandInteractionTarget` 标记；升级时复核法杖 first-use 是否仍优先分派方块交互。
+  - `mixin/WandItemMixin`：注入 TC4R `dev.tc4port.thaumcraft.item.WandItem` 的 `onUseTick`（开发环境名 `onUseTick`，生产 jar 为 `m_5929_`，均不重映射），
+    让本模组机器接管按住的法杖。升级 TC4R 后确认启动日志有 `Wand use tick hook installed`，并跑 117–120。
+    Forge 1.20.1 只认清单里的 `MixinConfigs`：开发运行读 `src/main/resources/META-INF/MANIFEST.MF`，jar 由 `build.gradle` 生成同名属性。
 - 每个阶段：实现 → `build` → **实机验证**（见 VALIDATION）→ 提交；实机测试按批次集中做，不要每个小改动都开一次游戏。
 - `common` 里不得引用 client 类；客户端渲染放 `client/`，服务端只发事件/包。

@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.common.blocks;
 import dev.tc4port.thaumcraft.api.ThaumcraftContent;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.wand.WandApi;
+import fr.wind_blade.isorropia.common.compat.HeldWandTargets;
 import fr.wind_blade.isorropia.common.compat.ThaumBridge;
 import fr.wind_blade.isorropia.common.tiles.TileEtherealShard;
 import fr.wind_blade.isorropia.common.tiles.TilesIS;
@@ -67,6 +68,7 @@ public class BlockEtherealShard extends Block implements EntityBlock, ThaumBridg
              * server-side player is what the tile reads back each tick.
              */
             player.startUsingItem(hand);
+            HeldWandTargets.begin(player, pos);
             if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
                 shard.beginDraining(serverPlayer, held);
             }

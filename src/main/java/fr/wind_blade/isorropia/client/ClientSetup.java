@@ -52,6 +52,9 @@ public final class ClientSetup {
         event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
                 fr.wind_blade.isorropia.common.menu.MenusIS.MORPHIC_FINGERS.get(),
                 fr.wind_blade.isorropia.client.gui.MorphicFingersScreen::new));
+        event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
+                fr.wind_blade.isorropia.common.menu.MenusIS.VIS_DYNAMO.get(),
+                fr.wind_blade.isorropia.client.gui.VisDynamoScreen::new));
         event.enqueueWork(fr.wind_blade.isorropia.client.fx.ContainmentFx::register);
     }
 
