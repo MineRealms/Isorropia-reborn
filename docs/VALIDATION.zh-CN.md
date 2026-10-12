@@ -87,6 +87,7 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 | 55_containment_rules → 53 | 凋灵免疫、铁傀儡可收；无空罐时光束立刻停、不扣 vis、猪还在 |
 | 56_matrix_flow | 改造矩阵：法杖第一下开缸、无可注魔时不关缸、拆矩阵则停缸且启动量归零（缸仍成型）；末尾戴好护目镜，可接 `shot matrix_readout ... --gui` 看稳定度读数 |
 | 57_soul_jar_flow | 灵魂罐：手持空守卫罐右键缸把生物装回罐（罐名随内容、不带缸里的无 AI 标记）、满罐右键缸放回并退还守卫罐、法杖开放置的罐子生物出现在罐子原位 |
+| 58_vat_effects | 接在 56 之后：改 `EFFECT` 为 aura/vent/burst，在客户端打开对应特效并数粒子引擎里的 `GenericFx`；**缸的渲染器只在缸在画面里时运行**，先用 `shot` 把镜头对准场景再触发 |
 
 **探针体跑在服务端线程上**（`Thread.currentThread()` 是 `Server thread`）。所以凡是要服务端回话的操作——
 客户端发包、服务端开界面、关界面——在探针返回之前都不会发生：探针里等多久都看不到结果。做法是拆成两个探针，
@@ -161,4 +162,5 @@ python tools/rcon.py stop        # run-server/server.properties 里 RCON 密码�
 - **`shot` 会把玩家切成创造模式并飞行**（避免摔落），所以要测「生存模式才有」的消耗（罐子、物品），别在中间截图。
 - **生存模式的探针要先设和平难度**：夜里开阔平台会刷僵尸，把玩家打下去摔死（"doomed to fall by Zombie"），后面的探针全读到一个死人。
 - **服务端时间会「追帧」**：探针阻塞服务端线程后，服务端会连跑补帧，墙钟 0.5 秒能过 40 tick。按 tick 计的进度不要用墙钟估算。
+- **短命粒子要在同一段客户端序列里「触发 → 等几帧 → 抓帧」**：`shot` 的放置与等待加起来一两秒，寿命 30–50 tick 的爆发早就散完了。
 - **测试完记得停服/停客户端**：客户端 `python tools/client_probe.py stop`，服务端 `python tools/rcon.py stop`。

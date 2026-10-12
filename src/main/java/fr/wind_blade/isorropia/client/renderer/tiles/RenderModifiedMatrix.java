@@ -3,10 +3,10 @@ package fr.wind_blade.isorropia.client.renderer.tiles;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.tc4port.thaumcraft.api.client.ThaumcraftClientEffectsApi;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientVisualsApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.ClientRenderTypes;
+import fr.wind_blade.isorropia.client.fx.VatFx;
 import fr.wind_blade.isorropia.client.model.MatrixCubeModel;
 import fr.wind_blade.isorropia.common.tiles.TileModifiedMatrix;
 import fr.wind_blade.isorropia.common.tiles.TileVat;
@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * The modified matrix: eight cubes hanging around the block's centre in the eight corner directions, turning as
@@ -105,15 +104,11 @@ public class RenderModifiedMatrix implements BlockEntityRenderer<TileModifiedMat
                 (c == 0 ? -CORNER_OFFSET : CORNER_OFFSET) + Mth.sin((ticks + c * 10.0F) / 13.0F) * 0.01F * amplitude};
     }
 
-    /** While the vat vents flux, the matrix throws off purple particles to show it. */
+    /** While the vat vents flux, the matrix breathes out a plume, every frame as in 1.12. */
     private void venting(TileModifiedMatrix matrix, float ticks) {
-        if (!(matrix.getLevel() instanceof ClientLevel level)) {
-            return;
+        if (matrix.getLevel() instanceof ClientLevel level) {
+            VatFx.matrixPlume(level, matrix.getBlockPos());
         }
-        Vec3 at = Vec3.atLowerCornerOf(matrix.getBlockPos()).add(0.2 + level.random.nextFloat() * 0.6,
-                0.2 + level.random.nextFloat() * 0.6, 0.2 + level.random.nextFloat() * 0.6);
-        ThaumcraftClientEffectsApi.spawnCustomSparkle(level, at, 2.0F, 1.0F, 0.3F, 0.9F, 2, 100, 56, 0.0F,
-                true, false, false, false, null);
     }
 
     @Override

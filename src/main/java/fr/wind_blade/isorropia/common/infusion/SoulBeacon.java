@@ -2,7 +2,6 @@ package fr.wind_blade.isorropia.common.infusion;
 
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
 import fr.wind_blade.isorropia.common.compat.ThaumBridge;
-import fr.wind_blade.isorropia.common.network.ClientFxPacket;
 import fr.wind_blade.isorropia.common.tiles.TileSoulBeacon;
 import fr.wind_blade.isorropia.common.tiles.TileVat;
 import net.minecraft.core.BlockPos;
@@ -97,7 +96,6 @@ public final class SoulBeacon {
         // The wizard wakes inside the vat, as upstream had it, and leaves it the way any occupant does.
         vat.setContained(player);
         player.getPersistentData().putBoolean(TileSoulBeacon.BOUND, false);
-        ClientFxPacket.fluxBurst(level, Vec3.atCenterOf(beaconPos));
         LivingData.get(player).ifPresent(LivingData::sync);
     }
 

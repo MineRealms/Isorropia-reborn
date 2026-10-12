@@ -107,6 +107,10 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     private float stabilityReplenish;
     /** The running recipe's instability, as the client last heard it; the client knows no recipes. */
     private int syncedInstability;
+    /** True while the sun or moon is being drawn on; the client rains light into the vat for as long as it is. */
+    private boolean drawingAura;
+    /** The game tick the client last spawned the absorption for; it is spawned once a tick, not once a frame. */
+    public long lastAuraEffectTick = -1L;
 
     private final Map<AspectId, Integer> stored = new LinkedHashMap<>();
     private final Map<AspectId, Integer> needed = new LinkedHashMap<>();
@@ -412,13 +416,15 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             return true;
         }
         if (!celestialBody.canBeDrained(level, worldPosition.above())) {
+            setDrawingAura(false);
             return false;
         }
+        setDrawingAura(true);
         celestialAura += 1.0F;
-        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 2.0, 0xFFF7A0, 3);
         if (celestialAura >= celestialAuraNeeded) {
             celestialAura = 0.0F;
             celestialAuraNeeded = 0;
+            setDrawingAura(false);
             return true;
         }
         return false;
@@ -516,6 +522,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         celestialAura = 0.0F;
         celestialAuraNeeded = 0;
         celestialBody = CelestialBody.NONE;
+        drawingAura = false;
         cooldown = 0;
         sync();
     }
@@ -919,7 +926,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         consumed.clear();
         components.clear();
         if (level instanceof ServerLevel server) {
-            ClientFxPacket.fluxBurst(server, Vec3.atCenterOf(worldPosition));
+            ClientFxPacket.fluxBurst(server, Vec3.atCenterOf(worldPosition).add(0.0, 1.0, 0.0));
         }
         sync();
         VatStructure.restore(level, worldPosition, skip);
@@ -991,6 +998,17 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     /** What the stabilisers around the vat give back each cycle; negative when they are out of symmetry. */
     public float getSymmetryStability() {
         return stabilityReplenish;
+    }
+
+    public boolean isDrawingAura() {
+        return drawingAura;
+    }
+
+    private void setDrawingAura(boolean drawing) {
+        if (drawingAura != drawing) {
+            drawingAura = drawing;
+            sync();
+        }
     }
 
     /** Takes stock of the stabilisers again, as a wand tap on the matrix did upstream. */
@@ -1193,6 +1211,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         tag.putInt("CraftCount", craftCount);
         tag.putFloat("Symmetry", stabilityReplenish);
         tag.putInt("Instability", currentInstability());
+        tag.putBoolean("DrawingAura", drawingAura);
         return tag;
     }
 
@@ -1227,6 +1246,7 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         craftCount = tag.getInt("CraftCount");
         stabilityReplenish = tag.getFloat("Symmetry");
         syncedInstability = tag.getInt("Instability");
+        drawingAura = tag.getBoolean("DrawingAura");
     }
 
     private void sync() {

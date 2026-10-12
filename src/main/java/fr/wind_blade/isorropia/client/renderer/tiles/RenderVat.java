@@ -5,16 +5,19 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.ClientRenderTypes;
+import fr.wind_blade.isorropia.client.fx.VatFx;
 import fr.wind_blade.isorropia.client.model.ObjMesh;
 import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
 import fr.wind_blade.isorropia.common.tiles.TileVat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -54,6 +57,7 @@ public class RenderVat implements BlockEntityRenderer<TileVat> {
         if (vat.getBlockState().getValue(BlockCurativeVat.VARIANT) != BlockCurativeVat.Type.TOP) {
             return;
         }
+        celestialAbsorption(vat);
         poseStack.pushPose();
         // The body goes in first so the liquid blends over it, then the shell over both.
         renderCorpse(vat, partialTick, poseStack, buffers, light, overlay);
@@ -103,5 +107,19 @@ public class RenderVat implements BlockEntityRenderer<TileVat> {
     @Override
     public boolean shouldRenderOffScreen(TileVat vat) {
         return true;
+    }
+
+    /**
+     * While the vat draws on the sun or moon, light rains into it from four and a half blocks above, as 1.12 drew
+     * it each tick. The renderer runs every frame, so the tick it last spawned for is remembered on the vat.
+     */
+    private static void celestialAbsorption(TileVat vat) {
+        if (!vat.isDrawingAura() || !(vat.getLevel() instanceof ClientLevel level)
+                || vat.lastAuraEffectTick == level.getGameTime()) {
+            return;
+        }
+        vat.lastAuraEffectTick = level.getGameTime();
+        BlockPos pos = vat.getBlockPos();
+        VatFx.celestialAbsorption(level, pos.getX() + 0.5, pos.getY() + 4.5, pos.getZ() + 0.5, true);
     }
 }

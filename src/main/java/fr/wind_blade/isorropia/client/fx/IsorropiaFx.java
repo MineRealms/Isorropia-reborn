@@ -41,14 +41,9 @@ public final class IsorropiaFx {
         }
     }
 
-    /** A vat coming apart throws its flux up in one go. */
+    /** A vat coming apart throws its flux out in one go, as 1.12's flux explosion. */
     private static void burst(ClientLevel level, ClientFxPacket packet) {
-        float strength = packet.strength();
-        for (int i = 0; i < 3; i++) {
-            ThaumcraftClientEffectsApi.spawnBurst(level, packet.from(), strength);
-            ThaumcraftClientEffectsApi.spawnCustomSparkle(level, packet.from(), strength, 1.0F, 0.3F, 0.9F, 2, 40,
-                    56, -0.02F, true, false, false, false, null);
-        }
+        VatFx.fluxExplosion(level, packet.from().x, packet.from().y, packet.from().z);
     }
 
     /** Beams between two points in the world, used by the creatures that burn things. */
