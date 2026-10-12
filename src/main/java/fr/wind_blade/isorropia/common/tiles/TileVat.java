@@ -11,7 +11,6 @@ import dev.tc4port.thaumcraft.api.essentia.EssentiaTransferMode;
 import dev.tc4port.thaumcraft.api.essentia.EssentiaTransport;
 import dev.tc4port.thaumcraft.api.machine.InfusionPedestal;
 import dev.tc4port.thaumcraft.api.node.VisNetworkApi;
-import dev.tc4port.thaumcraft.api.presentation.WorldEffectsApi;
 import fr.wind_blade.isorropia.common.IsorropiaAspects;
 import fr.wind_blade.isorropia.common.blocks.BlockCurativeVat;
 import fr.wind_blade.isorropia.common.compat.ThaumBridge;
@@ -280,7 +279,6 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             if (draw(effect.aspect(), 1)) {
                 effect.apply().accept(contained);
                 cooldown = effect.cooldown();
-                WorldEffectsApi.blockSparkle(level, worldPosition, 2.0, 0xFFFFFF, 2);
             } else {
                 demand(effect.aspect(), 1);
                 pullEssentia(level, effect.aspect());
@@ -360,7 +358,6 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         pedestals = null;
         refreshStability((ServerLevel) level);
         level.playSound(null, worldPosition, SoundsIS.CURATIVE_INFUSION_START.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
-        WorldEffectsApi.blockSparkle((ServerLevel) level, worldPosition, 3.0, 0x7F3FBF, 6);
         sync();
         return true;
     }
@@ -468,7 +465,6 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
                 break;
             }
         }
-        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 2.0, 0xFFFFFF, 2);
         return components.isEmpty();
     }
 
@@ -501,12 +497,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
                         setContained(result);
                     }
                 });
-                WorldEffectsApi.blockSparkle(server, worldPosition.above(), 4.0, 0xFFFFFF, 12);
             } else if (success && selfRecipe != null) {
-                InfusionRecipes.selfRecipe(selfRecipe).ifPresent(recipe -> {
-                    selfInfusions.add(recipe.infusion());
-                    WorldEffectsApi.blockSparkle(server, worldPosition.above(), 4.0, 0xFFFFFF, 12);
-                });
+                InfusionRecipes.selfRecipe(selfRecipe).ifPresent(recipe -> selfInfusions.add(recipe.infusion()));
             }
         }
         mode = contained == null && hasEffigy ? MODE_SELF_READY : MODE_IDLE;
@@ -585,6 +577,8 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
                 level.addFreshEntity(new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 1.1, pos.getZ() + 0.5, stack.copy()));
             }
             pedestal.clearContent();
+            // Upstream's arc leaps up off the robbed pedestal.
+            ClientFxPacket.arc(level, Vec3.atCenterOf(pos), Vec3.atCenterOf(pos.above()));
             return;
         }
     }
@@ -595,7 +589,6 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             // A bolt runs from the vat up and out to whatever it caught.
             ClientFxPacket.arc(level, Vec3.atCenterOf(worldPosition).add(0.0, 1.0, 0.0), living.position());
         }
-        WorldEffectsApi.blockSparkle(level, worldPosition.above(), 6.0, 0x9B00FF, 24);
     }
 
     /** Flux taint or vis exhaustion, the two curses a botched infusion hands out. */

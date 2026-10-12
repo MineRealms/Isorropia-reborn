@@ -88,12 +88,19 @@ python tools/client_probe.py stop                  # 优雅关闭客户端
 | 56_matrix_flow | 改造矩阵：法杖第一下开缸、无可注魔时不关缸、拆矩阵则停缸且启动量归零（缸仍成型）；末尾戴好护目镜，可接 `shot matrix_readout ... --gui` 看稳定度读数 |
 | 57_soul_jar_flow | 灵魂罐：手持空守卫罐右键缸把生物装回罐（罐名随内容、不带缸里的无 AI 标记）、满罐右键缸放回并退还守卫罐、法杖开放置的罐子生物出现在罐子原位 |
 | 58_vat_effects | 接在 56 之后：改 `EFFECT` 为 aura/vent/burst，在客户端打开对应特效并数粒子引擎里的 `GenericFx`；**缸的渲染器只在缸在画面里时运行**，先用 `shot` 把镜头对准场景再触发 |
+| 59_gravekeeper_beam | 守墓者与一只静止僵尸相距 3 格，配合注释里的 `shot` 命令看光束 |
 
 **探针体跑在服务端线程上**（`Thread.currentThread()` 是 `Server thread`）。所以凡是要服务端回话的操作——
 客户端发包、服务端开界面、关界面——在探针返回之前都不会发生：探针里等多久都看不到结果。做法是拆成两个探针，
 前一个只「按下」，后一个再「看结果」（见 49_keys → 50_fingers_key_check）。纯客户端的状态（轮盘开合）可以在
 同一个探针里轮询等结果，但要**等结果而不是固定睡眠**：后台窗口帧率低，同一帧里排进去的「按下」和「松开」
 会在任何一个 tick 看见之前就抵消掉。
+
+### 4b. 一键回归：`python tools/client_sweep.py`
+
+在**一次**客户端会话里按依赖顺序跑完所有自洽的客户端探针，逐个检查输出里必须出现的事实（如「J held: wheel=true」
+「holds=minecraft:pig」「vatHoldsPlayer=true」），逐行打印 PASS/FAIL，有失败时退出码为 1。需要服务端回应的步骤后面自动停顿再接检查探针。
+可以只跑一部分：`python tools/client_sweep.py 52 57`（按探针名前缀）。改动较大后先跑它，再看截图。
 
 ### 5. 网格对照：`python tools/mesh_preview.py`
 

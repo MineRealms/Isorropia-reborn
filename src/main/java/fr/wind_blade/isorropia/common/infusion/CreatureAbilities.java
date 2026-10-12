@@ -1,6 +1,5 @@
 package fr.wind_blade.isorropia.common.infusion;
 
-import dev.tc4port.thaumcraft.api.presentation.WorldEffectsApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
 import fr.wind_blade.isorropia.common.network.ClientFxPacket;
@@ -90,7 +89,6 @@ public final class CreatureAbilities {
         attacker.hurt(level.damageSources().lightningBolt(), 4.0F);
         ClientFxPacket.arc(level, entity.position().add(0.0, entity.getBbHeight() / 2.0, 0.0),
                 attacker.position().add(0.0, attacker.getBbHeight() / 2.0, 0.0));
-        WorldEffectsApi.blockSparkle(level, entity.blockPosition(), 2.0, 0x7FE1FF, 6);
     }
 
     /**

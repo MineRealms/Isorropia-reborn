@@ -19,9 +19,13 @@ data.addSelfInfusion(fr.wind_blade.isorropia.common.infusion.SelfInfusions.MORPH
 data.sync();
 // The server cannot sync the goggles while this probe holds its thread, so the client's copy is set as well.
 var goggles = player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).copy();
+// Start from a closed wheel: one opened by another probe, not by the key, would not close on release.
 mc.execute(() -> {
     mc.setScreen(null);
     mc.player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, goggles);
+    if (fr.wind_blade.isorropia.client.hud.LensWheel.isOpen()) {
+        fr.wind_blade.isorropia.client.hud.LensWheel.close();
+    }
 });
 Thread.sleep(600);
 
