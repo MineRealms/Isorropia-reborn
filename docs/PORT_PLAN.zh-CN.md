@@ -75,7 +75,7 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - 腐化猪：吃 `thaumcraft:taint` 标签方块（腐化土/草→泥土，结壳腐化→石头，其余→空气），按 TH 净化该列生物群系；TC4R API 无净化接口，唯一的内部调用集中在 `common/compat/TaintBridge`。目标改为 `thaumcraft:taint_spider`。
 - 果冻兔：TC4 无区块灵气，生长不再抽 vis（上游本就不看抽取结果）；vitium 兔改为 `FluxApi.consumeNearby` 吸收附近通量。剥一层后 20 tick 无敌，防止火焰/仙人掌每 tick 剥层。ignis 兔名称键改为能命中的 `bunnignis`。
 - 矿猪：矿物表由 `forge:ores/*` 与 `forge:nuggets/*`（无粒则 `forge:dusts/*`）推导，每种材料一条；主矿/其他权重进 `isorropia-common.toml`（默认 1/1 同上游）。`taint_eat_cooldown` 同在该文件。
-- 守墓猫的圣光束用 `ThaumcraftClientEffectsApi.spawnEssentiaTrail` 代替 TC6 beamBore。刷怪蛋配色取 TH 原型（上游全黑）。
+- 守墓猫的圣光束：早期用精华流光代替，S7 已换成 TC4R 运行版公开的 `spawnBeam`（TC4 `FXBeam`，照 TH 参数，见 RENDERING）。刷怪蛋配色取 TH 原型（上游全黑）。
 - 悬挂标签：手持 TC4R `thaumcraft:jar_label` 右键方块侧面放置，需研究 `isorropia:hanginglabel`，罐子（`EssentiaJarView`）上不放。
 - 子类实体的战利品表引用原版表（猪/蜘蛛/羊/鸡/兔/牛）；矿猪掉 1–3 石头。
 - 未移植：`EntityAILigo`、`EntityAIZapAttack`、`ModelGuardianPanther`（上游均无引用）。
@@ -88,10 +88,10 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **vis**：改为 TC4R 的 `VisNetworkApi.drain`（单位 centivis），在缸上方矩阵所在位置按 recipe 的通道抽取；TH 的“抽不到 vis 就损血”没做，改成周期性的不稳定事件。
 - **不稳定事件**：保留上游 13 类（喷出基座物品/电弧/负面药水/给玩家加扭曲/爆炸/伤害缸内生物），概率与权重按上游；`!INSTABILITY` 研究在 TC4R 里不存在，故只加扭曲、不改进度。
 - **天体灵气**：`CelestialBody` 按 TC4 的日月相位判定；因为 TC4R 没有区块灵气，聚合改成“每周期采 1 点，攒够整份再继续”。
-- **灵魂罐**：`isorropia:jar_soul` 物品现在就能用——把生物装罐（消耗 TC 的 `warded_jar`）后对缸右键即放入缸内；罐方块的实体渲染仍留到 S6。
-- **自我注魔**：11 项里 9 项被动能力已实现（`common/infusion/SelfInfusions`）；变形手指的便携工作台界面（S6）与按键开关（S5）未接——`climbDisabled`/`invisibilityDisabled` 字段已就位。上游“失败也把成果写进缸”的 bug 没有照抄，只有成功才记入。
+- **灵魂罐**：`isorropia:jar_soul` 物品现在就能用——把生物装罐（消耗 TC 的 `warded_jar`）后对缸右键即放入缸内；罐方块的实体渲染已在 S6 完成。
+- **自我注魔**：11 项里 9 项被动能力已实现（`common/infusion/SelfInfusions`）；变形手指的便携工作台界面（S6）与按键开关（S5）后来均已接上并实机验证。上游“失败也把成果写进缸”的 bug 没有照抄，只有成功才记入。
 - **肿瘤扭曲**：把玩家扭曲（permanent/sticky/temporary）分档吸进肿瘤、上限 50，身体死亡时原样还回并清空自我注魔（照上游）。
-- **收容焦点**：未做（S6）。
+- **收容焦点**：已在 S6 完成（见下文 S6 一节）。
 - **研究页**：治疗缸的蓝图页（COMPOUND_CRAFTING）已加（S7 收尾）——TC4R 的 `compound_blueprints` 只对内置的 9 个 handler 真正成型，所以本模组的蓝图只做展示，成型仍由法杖右键事件处理。水格用水桶表示。
 
 ### S5 进度明细
@@ -119,7 +119,7 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 
 未完成：
 
-- 变形手指（`morphicFingers`）的便携奥术工作台界面——按计划属 S6。
+- ~~变形手指（`morphicFingers`）的便携奥术工作台界面~~：已在 S6 完成。
 - 躯体大脑的「知识拦截」：1.12 只有头部饰品渲染，没有拦截逻辑，本移植同样不做。
 
 ### S6 进度明细
@@ -156,7 +156,7 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 
 - 1.12 的收容是 TC6 的「焦点效果」（在焦点操纵台里组合），TC4R 没有这套体系，所以照 TC4 原型做成独立焦点物品。
 - 收容量按「玩家 + 目标」记：换目标就从零开始（TH 只按玩家记，换目标会继承进度，属可钻的空子）。
-- TH 的 `slow` 升级（给目标上缓慢）没做：需要新增一个焦点升级定义及其图标，收益很小。五个等级都只开放节俭与效能。
+- TH 的 `slow` 升级已补：照 TH 在第 2、4 阶与节俭、效能并列可选（最高 2 级，vinculum 8，图标沿用 TH），光束命中可收容的生物时给 40 tick 缓慢、等级为升级层数−1；其余阶仍只开放节俭与效能。
 - **装罐的传送门特效不做**：TH 的 `FXContainment` 在批次外加顶点、随后被自己的 `startDrawingQuads` 清掉，原版里从来没显示过；1.12 版本的特效函数是空的。
   装罐只有声音，与玩家当年实际看到的一致。
 
@@ -190,18 +190,21 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **焦点**：`ItemFocusIllumination`（`FocusIdentityItem`）+ `common/focus/IlluminationFocus`（TC4R `FocusActionApi`，激活方式 `USE_BLOCK`，一次性施法）。
   对准方块面右键，在其相邻空气格留下一个「光珠」；消耗 **ignis 100 + aer 100 centivis**（TH 原值），frugal 折扣经 TC4R 的 `vis_discount` 参数生效。
 - **光珠方块** `isorropia:light`：小方块（0.3–0.7），无碰撞、无掉落、即破、可被任何方块直接替换；发光 14（普通）/15（solar）。
-  16 色调色板与 TH `ItemFocusIllumination.colors` 完全一致，颜色经 `ClientSetup#onBlockColors` 用 `tintindex` 上色，方块与物品不会各说各话。
+  16 色调色板与 TH `ItemFocusIllumination.colors` 完全一致。照 TH，方块本身不画任何几何（TH 的渲染类型从未赋值），
+  可见的是 `TileLight` 在客户端每 tick 以 `1/(9-粒子档位×2)` 的概率在 (0.55, 0.5, 0.55) 处放出一颗 0.5 大小、无重力、不缩小的 TC4 wisp。
+- **换色**：TH 的 `RecipesFocusIlluminationDyes` 照搬为特殊合成 `isorropia:illumination_dye`：恰好一个照明焦点 + 任意染料，
+  最后一个染料生效，混入别的物品或第二个焦点则不成立。调色板下标是 1.7 的染料 metadata（黑 0 … 白 15），即 `15 − DyeColor.id`。
+  物品名与图标按颜色变（TH 的 16 个 `focus_illumination.N` 图标与「Wand Focus: Illumination (Red)」等名称）。
 - **solar 升级**：TH 的 `FocusUpgradeType.solar`（ordo 8 + vacuos 4），第 3 阶可选；装上后光珠变成 solar 光珠，走进去的亡灵着火 5 秒（照 TH）。
 - **配方**：TH 是**坩埚**配方（萤石 + lux 12 / potentia 8 / ignis 8），照搬为 `isorropia:crucible/focus_illumination`。
 - **研究**：`isorropia:illumination`，父研究 `FOCUSFIRE`，CONCEALED，坐标 (-1, 6)。
 
 与 TH 的偏差：
 
-- **未做染料换色**：TH 用 `RecipesFocusIlluminationDyes`（染料 + 焦点 → 改 metadata）给 16 种颜色。
-  本移植把颜色放进了焦点的 property（`isorropia:colour`，默认 11＝黄，即 TH 出货色），但**没有做换色配方**，
-  所以玩家暂时只能得到默认色；方块侧的 16 色与 `BlockColors` 已就位，加配方即可开放。
-- **未做光珠粒子/辉光渲染**：TH 用 ISBRH 画发光球体、并在 `ClientProxy.illuminationFX` 里撒粒子；
-  本移植用一个小立方体模型 + 颜色 tint 代替，观感接近但不是逐像素还原。实机外观仍需人眼确认。
+- **颜色存放位置**：TH 用物品 metadata，本移植放在焦点 property `isorropia:colour`（默认 11＝黄）；装上法杖后焦点头的颜色仍是
+  焦点档案里的固定黄色（TC4R 的焦点档案颜色不随物品变），TH 的焦点头会随颜色变。
+- **黑色光珠的混合方式**：TH 只对黑色（0）改用普通混合，其余加色；TC4R 公开的 `spawnWispMote` 不能选混合方式，
+  黑色 wisp 在加色下几乎看不见。其余 15 色与 TH 一致。
 - **方块与太阳光珠合并为一个方块**（TH 是 `BlockLight` + `BlockLightSolar` 两个类），靠 `solar` 属性区分。
 
 ### 液化焦点（`isorropia:liquefaction`）
@@ -259,8 +262,8 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 
 与 TH 的偏差：
 
-- **去掉 `alchemite` 父研究**：TH 的父研究是 `focusLiquefaction` + `alchemite` + `LIQUIDDEATH`。`alchemite` 是 TH 自有材料，
-  本整合包没有对应物，故仅保留 `isorropia:liquefaction` + `LIQUIDDEATH`（液死是 TC4R 原生研究）。
+- **父研究已恢复为 TH 原样**：`isorropia:liquefaction` + `isorropia:alchemite` + `LIQUIDDEATH`。早期因为还没有炼金炸药而去掉了中间一项，
+  炼金炸药移植后补回。
 - **结晶要素物品用 TC4R 的组件式实现**：TH 用 `ItemCrystalEssence` 的 NBT 存单个要素、靠**堆叠数**表示点数；本移植用
   `ThaumcraftItemApi.createCrystalEssence(aspect)` 生成组件式结晶，再把 `ItemStack` 的 `count` 设为点数，语义一致。
 - **不可摧毁的产出物**：TH 用 `EntityItemInvulnerable`（重写 `attackEntityFrom` 返回 false）。1.20.1 无该子类，改用普通
@@ -370,12 +373,15 @@ TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticN
 与 TH 的偏差：
 
 - ~~未做外观渲染~~：已补（见下方「外观」一节）。
-- **未做要素选择界面**：TH 空手右键开 `GuiVisDynamo`（6 个原质开关）。本移植的开关已进 NBT、默认全开并被充能逻辑读取，
-  但没有界面去改它——空手右键目前不做任何事。GUI 是后续项。
+- **要素选择界面已补**：照 TH，手持法杖以外的东西右键打开 `VisDynamoScreen`（`guidynamo.png`，111×104），六个原质图标的
+  位置、命中区（第二行点击区比绘制高 2 像素、边界含右/下沿）、关时 TC4 近黑色（0.1 灰、0.8 透明）与点击闪光（粒子表第 8 行，8 帧）照 TH；
+  点击走原版菜单按钮包（TH 用的是同一个附魔按钮包），服务端 `clickMenuButton` 切换对应原质，数据槽把开关同步回界面。
 - **按住充能靠方块实体自己的 ticker**：TC4R 的法杖 `onUseTick` 只派发焦点会话，没有 TC4 的 `IWandable.onUsingWandTick`。
   所以「按住」由 `TileVisDynamo` 每 tick 回读「该玩家仍在用这把法杖、且视线还落在这个方块上」来判断（照 TC4R 自己的
-  `WandNodeTapping` 写法）。已知副作用：若玩家手里的法杖装有 **火焰/电击/挖掘** 这三个 TC4 内置焦点，按住时它们也会照常触发
-  （`WandFocusActions.usingTick` 不认我们的方块）。
+  `WandNodeTapping` 写法）。TC4 里按住的 `IWandable` 会接管法杖，焦点不再施放；TC4R 只为自己的节点这样做，
+  其余方块照常每 tick 跑焦点（内置火焰/电击/挖掘，以及附属焦点的 `USING_TICK`）。本移植用 `mixin/WandItemMixin` 在
+  `WandItem.onUseTick` 开头询问 `common/compat/HeldWandTargets`：由本模组机器方块开启的按住，焦点不运行；视线离开机器时照 TH 停止使用法杖。
+  这是对 TC4R 内部类的注入，见 CLAUDE.md 的版本升级复核点；注入缺失时启动日志会警告。
 - **挖掘掉落**：原先设了「需要正确工具」却没进任何可挖掘标签，用什么挖都不掉落；已加进 `mineable/pickaxe`。
 
 ### 外观（三台机器共用）
@@ -450,7 +456,7 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 - **按住抽取由方块实体自己判**：TC4R 的节点抽取（`WandNodeTapping`）写死了核心的 `AuraNodeBlockEntity`，
   外挂方块实体接不进去。所以「按住」和魔力发电机一样，由 `TileEtherealShard` 每 tick 回读「该玩家仍在使用这把法杖、
   且视线还落在这个方块上」来判断。右键仅建立抽取状态，转移从后续 tick 开始，空仓也可一直等待充入。
-  本批用无焦点法杖验收；安装 TC4 内置持续焦点时仍有与魔力发电机相同的并行施法限制，尚未处理。
+  与魔力发电机共用 `HeldWandTargets`：按住时法杖上的焦点不运行（见魔力发电机一节）。
 - **现代光照与手部起点**：几何参数已按 TC4R 对 ModelCrystal 的转写重建；呼吸亮度仍通过现代 lightmap 采样，
   不保证与旧 OpenGL 浮点采样逐像素相同。光带手部起点复用 TC4R 的 `resolveFocusCastOrigin`，不复制旧版视角偏移。
 - **移除返还精华**：对应 TH 的 `breakBlock`，改用 `onRemove` 在方块种类改变时结算；普通破坏、创造拆除、爆炸移除均走此路径，
