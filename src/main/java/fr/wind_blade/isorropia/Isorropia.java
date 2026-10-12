@@ -13,6 +13,7 @@ import fr.wind_blade.isorropia.common.focus.DisintegrationFocus;
 import fr.wind_blade.isorropia.common.focus.IlluminationFocus;
 import fr.wind_blade.isorropia.common.focus.LiquefactionFocus;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.items.crafting.RecipesIS;
 import fr.wind_blade.isorropia.common.menu.MenusIS;
 import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
 import fr.wind_blade.isorropia.common.sounds.SoundsIS;
@@ -39,6 +40,7 @@ public class Isorropia {
         SoundsIS.SOUNDS.register(modBus);
         TilesIS.TILES.register(modBus);
         MenusIS.MENUS.register(modBus);
+        RecipesIS.SERIALIZERS.register(modBus);
         EntitiesIS.ENTITIES.register(modBus);
         modBus.addListener(EntitiesIS::onAttributes);
         IsorropiaCreativeTabs.TABS.register(modBus);

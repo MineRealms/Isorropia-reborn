@@ -2558,6 +2558,7 @@
       ],
       "parents": [
         "isorropia:liquefaction",
+        "isorropia:alchemite",
         "LIQUIDDEATH"
       ],
       "hidden_parents": [],

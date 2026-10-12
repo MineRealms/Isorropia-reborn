@@ -31,6 +31,8 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileNodeMonitor::new, BlocksIS.NODE_MONITOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileEtherealShard>> ETHEREAL_SHARD = TILES.register("ethereal_shard",
             () -> BlockEntityType.Builder.of(TileEtherealShard::new, BlocksIS.ETHEREAL_SHARD.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
+            () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
 
     private TilesIS() {
     }

@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.common.focus;
 import dev.tc4port.thaumcraft.api.ThaumcraftContent;
 import dev.tc4port.thaumcraft.api.aspect.VisAction;
 import dev.tc4port.thaumcraft.api.focus.FocusApi;
+import dev.tc4port.thaumcraft.api.focus.FocusUpgradeId;
 import dev.tc4port.thaumcraft.api.focus.action.FocusActionApi;
 import dev.tc4port.thaumcraft.api.focus.action.FocusActionContext;
 import dev.tc4port.thaumcraft.api.focus.action.FocusActionResult;
@@ -25,6 +26,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
@@ -54,6 +57,10 @@ public final class ContainmentFocus {
     /** Creatures no jar can hold: bosses and Thaumcraft's eldritch guardians. */
     public static final TagKey<EntityType<?>> IMMUNE = TagKey.create(Registries.ENTITY_TYPE,
             Isorropia.id("containment_immune"));
+    /** TH's slow upgrade, offered at the second and fourth ranks. */
+    public static final FocusUpgradeId SLOW = FocusUpgradeId.of(Isorropia.id("slow"));
+    /** How long the slow upgrade's slowness lasts on a struck creature. */
+    private static final int SLOW_TICKS = 40;
     /** How much the measure loses each tick it is not being filled. */
     private static final float EBB_PER_TICK = 1.0F;
     /** The measure needed is this many times the creature's remaining health. */
@@ -102,6 +109,11 @@ public final class ContainmentFocus {
         }
         if (action == VisAction.EXECUTE && context.authoritativeHit() instanceof EntityHitResult hit
                 && hit.getEntity() instanceof Mob target && canContain(target)) {
+            // TH's slow upgrade: a struck creature is slowed for two seconds, one amplifier per rank past the first.
+            int slow = context.installedUpgrades().getOrDefault(SLOW, 0);
+            if (slow > 0) {
+                target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SLOW_TICKS, slow - 1));
+            }
             hold(context, player, target);
         }
         return FocusActionResult.SUCCESS;

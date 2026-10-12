@@ -5,7 +5,10 @@ import dev.tc4port.thaumcraft.api.focus.FocusIdentityItem;
 import dev.tc4port.thaumcraft.api.focus.FocusStateView;
 import dev.tc4port.thaumcraft.api.focus.FocusUpgradeId;
 import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.common.blocks.BlockLight;
+import fr.wind_blade.isorropia.common.focus.IlluminationFocus;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -56,6 +59,36 @@ public class ItemFocusIllumination extends Item implements FocusIdentityItem {
             }
         }
         return new FocusStateView(ID, upgrades, properties);
+    }
+
+    /** The palette index the focus conjures in; TH kept it as the item's damage, the port as a focus property. */
+    public static int colour(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        String key = IlluminationFocus.COLOUR.toString();
+        if (tag != null && tag.getCompound(PROPERTIES).contains(key)) {
+            try {
+                return Math.max(0, Math.min(BlockLight.COLOURS.length - 1,
+                        Integer.parseInt(tag.getCompound(PROPERTIES).getString(key))));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return IlluminationFocus.DEFAULT_COLOUR;
+    }
+
+    /** A copy of the focus set to another palette index, keeping its upgrades. */
+    public static ItemStack withColour(ItemStack stack, int colour) {
+        ItemStack copy = stack.copyWithCount(1);
+        CompoundTag tag = copy.getOrCreateTag();
+        CompoundTag properties = tag.getCompound(PROPERTIES);
+        properties.putString(IlluminationFocus.COLOUR.toString(), Integer.toString(colour));
+        tag.put(PROPERTIES, properties);
+        return copy;
+    }
+
+    /** TH named each colour: "Wand Focus: Illumination (Red)". */
+    @Override
+    public Component getName(ItemStack stack) {
+        return Component.translatable(getDescriptionId(stack) + "." + colour(stack));
     }
 
     @Override

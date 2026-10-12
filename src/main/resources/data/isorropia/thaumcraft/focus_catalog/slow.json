@@ -1,0 +1,28 @@
+{
+  "upgrades": [
+    {
+      "id": "isorropia:slow",
+      "icon": "isorropia:textures/foci/slow.png",
+      "name": "isorropia.focus.upgrade.slow.name",
+      "description": "isorropia.focus.upgrade.slow.text",
+      "aspects": {
+        "vinculum": 8
+      },
+      "max_level": 2,
+      "rank_vis": [
+        200,
+        400,
+        800,
+        1600,
+        3200
+      ],
+      "rank_xp": [
+        8,
+        16,
+        24,
+        32,
+        40
+      ]
+    }
+  ]
+}

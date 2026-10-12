@@ -1,6 +1,104 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "isorropia:item/focus_illumination"
-  }
+    "layer0": "isorropia:item/focus_illumination_11"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "isorropia:colour": 0.0
+      },
+      "model": "isorropia:item/focus_illumination_0"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.01
+      },
+      "model": "isorropia:item/focus_illumination_1"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.02
+      },
+      "model": "isorropia:item/focus_illumination_2"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.03
+      },
+      "model": "isorropia:item/focus_illumination_3"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.04
+      },
+      "model": "isorropia:item/focus_illumination_4"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.05
+      },
+      "model": "isorropia:item/focus_illumination_5"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.06
+      },
+      "model": "isorropia:item/focus_illumination_6"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.07
+      },
+      "model": "isorropia:item/focus_illumination_7"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.08
+      },
+      "model": "isorropia:item/focus_illumination_8"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.09
+      },
+      "model": "isorropia:item/focus_illumination_9"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.1
+      },
+      "model": "isorropia:item/focus_illumination_10"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.11
+      },
+      "model": "isorropia:item/focus_illumination_11"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.12
+      },
+      "model": "isorropia:item/focus_illumination_12"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.13
+      },
+      "model": "isorropia:item/focus_illumination_13"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.14
+      },
+      "model": "isorropia:item/focus_illumination_14"
+    },
+    {
+      "predicate": {
+        "isorropia:colour": 0.15
+      },
+      "model": "isorropia:item/focus_illumination_15"
+    }
+  ]
 }
