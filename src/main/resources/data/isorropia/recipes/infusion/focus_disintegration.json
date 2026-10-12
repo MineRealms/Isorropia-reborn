@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:disintegration",
+  "central": {
+    "item": "thaumcraft:focus_excavation"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:liquid_death_bucket"
+    },
+    {
+      "item": "thaumcraft:thaumic_charm"
+    },
+    {
+      "item": "thaumcraft:liquid_death_bucket"
+    },
+    {
+      "item": "thaumcraft:alumentum"
+    }
+  ],
+  "instability": 7,
+  "aspects": {
+    "perditio": 32,
+    "praecantatio": 24,
+    "vitreus": 32,
+    "permutatio": 16
+  },
+  "result": {
+    "item": "isorropia:focus_disintegration"
+  }
+}

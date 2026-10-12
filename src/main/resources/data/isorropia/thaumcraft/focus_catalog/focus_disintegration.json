@@ -1,0 +1,71 @@
+{
+  "focus_profiles": [
+    {
+      "focus": "isorropia:focus_disintegration",
+      "color": 7930047,
+      "per_tick": false,
+      "base_cost": {
+        "ignis": 30,
+        "perditio": 30,
+        "terra": 30
+      },
+      "action_costs": {
+        "critter": {
+          "ignis": 12,
+          "perditio": 12,
+          "terra": 12
+        }
+      },
+      "ranks": [
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "thaumcraft:enlarge"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "isorropia:enervation"
+        ]
+      ],
+      "parameters": {
+        "vis_discount": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:frugal": 0.1
+          },
+          "min": 0,
+          "max": 1
+        },
+        "break_speed": {
+          "base": 0.05,
+          "per_level": {
+            "thaumcraft:potency": 0.015
+          },
+          "min": 0.05,
+          "max": 10
+        },
+        "enlarge": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:enlarge": 1
+          },
+          "min": 0,
+          "max": 1
+        }
+      }
+    }
+  ]
+}

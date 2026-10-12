@@ -237,3 +237,37 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
   作光束嘶声（每 24 tick 一次）。未逐帧还原 TH 的熔炼粒子。
 
 
+### 分解焦点（`isorropia:disintegration`）
+
+来源：TH `common/items/ItemFocusDisintegration.java`；研究 `focusDisintegration`（TH `ThaumicHorizons.java:1696-1719`）。
+
+- **焦点**：`ItemFocusDisintegration`（`FocusIdentityItem`）+ `common/focus/DisintegrationFocus`（TC4R `FocusActionApi`，
+  `USE_AIR`/`USING_TICK`/`STOP_USING`，`CONTINUOUS` 持续光束）。按住右键持续输出一条紫色光束。
+- **光束效果**（照 TH 的 `processBlock` 优先级，实体优先于方块）：
+  - **方块**：只有**带要素**的方块才会被分解。光束按硬度积累进度（照挖掘焦点的算法），满了之后把方块「解绑」为结晶要素——
+    每个要素按点数掉出对应数量的一颗 `thaumcraft:crystal_essence`，然后方块消失（先过 `GameplayHooks.fireBlockBreak`，尊重保护/事件）。
+  - **掉落物**：带要素的物品实体被整叠分解，每个要素掉出 `点数 × 叠数` 颗结晶要素。
+  - **生物**：只受少量「分解」伤害（`0.5 + 0.25×potency + 0.5×enervation`，`ThaumcraftDamageTypes.dissolve`）。
+- **进度**：与挖掘焦点一致——首次瞄准新方块的那一 tick 只记录目标、不加速度；之后每 tick 累加
+  `0.05 + 0.015×potency`，满则生效；换目标即清零。进度按玩家记在服务端，并用负的 `destroyBlockProgress` 覆盖层给施法者显示裂纹。
+- **升级**：`frugal`（折扣）、`potency`（加快、加伤）、`enlarge`（第 3 阶，主方块破后连带周围一整壳方块，逐格收费）、
+  `enervation`（第 5 阶，本模组新增升级，命中生物附加 2 秒缓慢 I）。
+- **消耗**：每分解一格 **ignis 30 + perditio 30 + terra 30 centivis**（TH 原值），打生物改走命名成本 `critter`（ignis/perditio/terra 各 12）。
+- **配方**：TH 是**注魔**配方（不稳定度 7，perditio 32 / praecantatio 24 / vitreus 32 / permutatio 16；催化物挖掘焦点；
+  材料 液死桶 ×2 + 原始护符 + 炼金煤），照搬为 `isorropia:infusion/focus_disintegration`。
+- **研究**：`isorropia:disintegration`，父研究 `isorropia:liquefaction` + `LIQUIDDEATH`，CONCEALED，坐标 (3, 8)。
+
+与 TH 的偏差：
+
+- **去掉 `alchemite` 父研究**：TH 的父研究是 `focusLiquefaction` + `alchemite` + `LIQUIDDEATH`。`alchemite` 是 TH 自有材料，
+  本整合包没有对应物，故仅保留 `isorropia:liquefaction` + `LIQUIDDEATH`（液死是 TC4R 原生研究）。
+- **结晶要素物品用 TC4R 的组件式实现**：TH 用 `ItemCrystalEssence` 的 NBT 存单个要素、靠**堆叠数**表示点数；本移植用
+  `ThaumcraftItemApi.createCrystalEssence(aspect)` 生成组件式结晶，再把 `ItemStack` 的 `count` 设为点数，语义一致。
+- **不可摧毁的产出物**：TH 用 `EntityItemInvulnerable`（重写 `attackEntityFrom` 返回 false）。1.20.1 无该子类，改用普通
+  `ItemEntity` + `setInvulnerable(true)`。
+- **光束不吞自己的产出**：TH 的 `getPointedEntity` 显式跳过 `itemCrystalEssence`，本移植的 `pointedEssence` 同样排除结晶要素，
+  避免光束反复分解刚生成的结晶。
+- **光束观感**：同液化焦点，依赖 TC4R `CONTINUOUS` 自带光束，并复用 `TCSounds.ZAP` 作光束噼啪声（TH 原为 100ms 间隔，本移植
+  放慢到 5 tick 一次）。未逐帧还原 TH 的 `disintegrateFX` 粒子。
+
+

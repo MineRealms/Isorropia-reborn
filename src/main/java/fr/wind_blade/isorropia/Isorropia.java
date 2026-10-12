@@ -6,6 +6,7 @@ import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.config.ConfigIS;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.focus.ContainmentFocus;
+import fr.wind_blade.isorropia.common.focus.DisintegrationFocus;
 import fr.wind_blade.isorropia.common.focus.IlluminationFocus;
 import fr.wind_blade.isorropia.common.focus.LiquefactionFocus;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
@@ -42,6 +43,7 @@ public class Isorropia {
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(ContainmentFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(IlluminationFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(LiquefactionFocus::register));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DisintegrationFocus::register));
     }
 
     public static ResourceLocation id(String path) {
