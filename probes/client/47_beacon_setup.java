@@ -6,7 +6,11 @@ var player = server.getPlayerList().getPlayer(mc.player.getUUID());
 var sb = new StringBuilder();
 
 // A clear spot a little away from the player, at their own height.
-var base = new net.minecraft.core.BlockPos((int) player.getX() + 6, (int) player.getY(), (int) player.getZ() + 6);
+if (!player.isAlive()) {
+    return "player is dead: run 00_reset first";
+}
+// A fixed spot clear of the other scenes, so repeated runs do not scatter vats across the sky.
+var base = new net.minecraft.core.BlockPos(88, 300, 64);
 fr.wind_blade.isorropia.common.vat.VatStructure.form(level, base);
 var beaconPos = base.above();
 level.setBlock(beaconPos, fr.wind_blade.isorropia.common.blocks.BlocksIS.SOUL_BEACON.get().defaultBlockState(), 3);
@@ -36,5 +40,10 @@ playerData.sync();
 var beacon = (fr.wind_blade.isorropia.common.tiles.TileSoulBeacon) level.getBlockEntity(beaconPos);
 beacon.activate(player);
 // Stand the player beside the vat so the death spot is known and in the open.
+// Something to stand on beside the vat: a survival player left in the air would fall to their death and spend
+// the beacon before the kill probe runs.
+for (int dx = 3; dx <= 5; dx++) for (int dz = -1; dz <= 1; dz++) {
+    level.setBlockAndUpdate(base.offset(dx, 0, dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+}
 player.teleportTo(level, base.getX() + 4.5, base.getY() + 1.0, base.getZ() + 0.5, player.getYRot(), player.getXRot());
 return sb.toString() + " bound=" + player.getPersistentData().getBoolean("soulBeacon") + " base=" + base;

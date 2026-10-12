@@ -40,6 +40,9 @@ for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
 }
 sb.append("\n1 jar from vat: use=").append(result).append(" vatEmpty=").append(vat.getContained() == null)
   .append(" soulJar=").append(full.getHoverName().getString())
+  // Compared with the name in whatever language the client runs, not a hard-coded English string.
+  .append(" nameMatches=").append(full.getHoverName().getString().equals(net.minecraft.network.chat.Component.translatable(
+          "item.isorropia.jar_soul.jarred", net.minecraft.world.entity.EntityType.PIG.getDescription()).getString()))
   .append(" customName=").append(full.hasCustomHoverName())
   .append(" noAiInJar=").append(full.isEmpty() ? "-" : full.getTag().getCompound("EntityData").getBoolean("NoAI"))
   .append(" wardedLeft=").append(player.getInventory().countItem(warded));
