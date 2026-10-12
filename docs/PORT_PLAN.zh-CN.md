@@ -316,6 +316,33 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **验证**：`96_shard_trans` 一次摆六个沸腾坩埚，各投一颗平衡碎片，六个原质碎片全部产出（`made=6/6`）。
 
 
+### 炼金炸药（`isorropia:alchemite`）
+
+来源：TH `common/blocks/BlockAlchemite.java`、`common/entities/EntityAlchemitePrimed.java`、
+`common/lib/ExplosionAlchemite.java`、`client/renderer/entity/RenderAlchemitePrimed.java`；研究 `alchemite`。
+
+- **方块** `isorropia:alchemite`：照 TNT 的点火路径（打火石/火焰弹右键、红石信号、燃烧的弹射物、被别的爆炸波及）引爆成 `EntityAlchemitePrimed`；
+  硬度 0.7 / 抗性 1.0 / 发光 7 / 草质音，贴图直接用 TH 的 `alchemite_{side,top,bottom}`。
+- **引信实体** `EntityAlchemitePrimed`：`fuse=80`、有重力、`0.98³` 体积，抛掷初速与摩擦照 TH；引信到点后交给爆炸逻辑。
+- **爆炸** `common/explosion/AlchemiteExplosion`：半径 5，生物吃 `dissolve` 伤害；**波及的方块不再掉原物品，而是按要素碎成结晶要素**
+  （要素取自 `AspectQueryApi.placedBlock(stack, state)`，掉落物不可摧毁）。灵气节点单独处理——25% 碎成结晶要素并消失、25% 变 `fading`、其余变 `unstable`。
+  节点的抗性高达 200，照 TH「先判节点、再算抗性」的顺序，用自定义 `ExplosionDamageCalculator` 对节点返回零抗性，否则射线根本够不到它。
+  因为用的是 `BlockInteraction.KEEP`（不然原版会自己掉原物品），爆炸音效与大烟环由自己补发。
+- **客户端**：`RenderAlchemitePrimed` 复用原版 `TntMinecartRenderer.renderWhiteSolidBlock` 画方块本体并在引信将尽时闪白；
+  爆炸时另发 `ClientFxPacket.BURST`，让客户端撒一圈 TC4 的 `FXBurst` 粒子（TH 的 `alchemiteFX`）。
+- **配方**：TH 是**坩埚**配方（TNT + potentia 4 / vitreus 4 / permutatio 4），照搬为 `isorropia:crucible/alchemite`。
+- **研究**：`isorropia:alchemite`，隐藏父研究 `ESSENTIACRYSTAL`，坐标 (3, 6)，文本用 TH 原文。
+- **验证**：`97_alchemite` 摆一圈石头加八个灵气节点、点一颗短引信炸药；`98_alchemite_check` 读回——石头碎成 terra 结晶、**没有**掉出石头物品、
+  炸药块本身被炸掉、八个节点无一保持原样（`plainNodes=0`）。
+
+与 TH 的偏差：
+
+- ~~未做发射器行为~~：已补（`AlchemiteDispenseBehavior`，照 TH：从发射器正前方一格放出已点燃的炸药并播 TNT 点燃声）。
+- **对生物的伤害偏低**：TH 自己算伤害（`(x²+x)/2 × 16 × 2r + 1`，最高约 161），本移植用原版爆炸的伤害公式（系数 7，最高约 71），伤害类型仍是 TH 的 `dissolve`、击退相同。原版 `Explosion` 不允许换系数，要还原需要重写整个爆炸，暂不做。
+- **结晶要素按堆叠上限拆开**：TH 把一个要素的全部点数塞进一堆（节点可上百点），本移植拆成多堆，避免超过 64 的非法堆叠。
+- **爆炸粒子**：TH 用 TC 的 `FXBurst`；本移植复用 TC4R 的 `spawnBurst`（同一效果）。
+
+
 ## S4：能量与节点系统（TH 独有，进行中）
 
 TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticNode / transductionAmplifier）串成一条研究链。
