@@ -60,6 +60,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockTransductionAmplifier> TRANSDUCTION_AMPLIFIER = BLOCKS.register("transduction_amplifier",
             () -> new BlockTransductionAmplifier(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
                     .sound(SoundType.METAL).lightLevel(state -> 7).noOcclusion().requiresCorrectToolForDrops()));
+    /** TH: iron, hardness 10.0 (no explicit resistance). Fires a beam that quiets a hungry node. */
+    public static final RegistryObject<BlockVortexStabilizer> VORTEX_STABILIZER = BLOCKS.register("vortex_stabilizer",
+            () -> new BlockVortexStabilizer(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(10.0F)
+                    .sound(SoundType.METAL).lightLevel(state -> 7).noOcclusion().requiresCorrectToolForDrops()));
 
     private BlocksIS() {
     }

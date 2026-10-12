@@ -33,6 +33,8 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileEtherealShard::new, BlocksIS.ETHEREAL_SHARD.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileTransductionAmplifier>> TRANSDUCTION_AMPLIFIER = TILES.register("transduction_amplifier",
             () -> BlockEntityType.Builder.of(TileTransductionAmplifier::new, BlocksIS.TRANSDUCTION_AMPLIFIER.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileVortexStabilizer>> VORTEX_STABILIZER = TILES.register("vortex_stabilizer",
+            () -> BlockEntityType.Builder.of(TileVortexStabilizer::new, BlocksIS.VORTEX_STABILIZER.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
             () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
 

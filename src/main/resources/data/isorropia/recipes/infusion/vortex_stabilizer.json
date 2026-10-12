@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:vortexStabilizer",
+  "central": {
+    "item": "thaumcraft:node_stabilizer"
+  },
+  "components": [
+    {
+      "item": "isorropia:planar_conduit"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    },
+    {
+      "item": "thaumcraft:amber"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    }
+  ],
+  "instability": 6,
+  "aspects": {
+    "auram": 8,
+    "vinculum": 32,
+    "fames": 32,
+    "potentia": 16
+  },
+  "result": {
+    "item": "isorropia:vortex_stabilizer"
+  }
+}

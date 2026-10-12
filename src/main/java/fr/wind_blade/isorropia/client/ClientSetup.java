@@ -21,6 +21,7 @@ import fr.wind_blade.isorropia.client.renderer.tiles.RenderEtherealShard;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderNodeMonitor;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderTransductionAmplifier;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderVortexStabilizer;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderSoulBeacon;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
@@ -136,6 +137,7 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(TilesIS.NODE_MONITOR.get(), RenderNodeMonitor::new);
         event.registerBlockEntityRenderer(TilesIS.ETHEREAL_SHARD.get(), RenderEtherealShard::new);
         event.registerBlockEntityRenderer(TilesIS.TRANSDUCTION_AMPLIFIER.get(), RenderTransductionAmplifier::new);
+        event.registerBlockEntityRenderer(TilesIS.VORTEX_STABILIZER.get(), RenderVortexStabilizer::new);
     }
 
     @SubscribeEvent
