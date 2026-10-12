@@ -10,7 +10,7 @@
 | 构建/工具参考 | `../Technomancy-1.20.1` | 同一 TC4R 的成熟移植工程（local-repo、探针、GameTest 套路） |
 | 插件写法参考 | `../_tc4_1201/forbidden-magic-*.jar` | TC4R 生态里的附属 mod：要素/研究/实体要素 datapack 写法 |
 
-范围：移植 Isorropia 已有的功能，不移植 Thaumic Horizons 中 Isorropia 没有的内容。Isorropia 中依赖 TC6 独有机制（光环区块 vis、knowledge 点数、研究 stage）的地方，按 Thaumic Horizons 的 TC4 做法落到 TC4R。
+范围：最初 S0–S7 为 Isorropia 已有功能；后续按用户要求扩展到 GTNH Thaumic Horizons 中 Isorropia 没有承接的内容（下文 TH 扩展分组）。原 S0–S7 完成不代表 TH 全覆盖。Isorropia 中依赖 TC6 独有机制（光环区块 vis、knowledge 点数、研究 stage）的地方，按 Thaumic Horizons 的 TC4 做法落到 TC4R。
 
 ## 已定决策
 
@@ -343,10 +343,10 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **爆炸粒子**：TH 用 TC 的 `FXBurst`；本移植复用 TC4R 的 `spawnBurst`（同一效果）。
 
 
-## S4：能量与节点系统（TH 独有，进行中）
+## S4：能量与节点系统（TH 独有，4 台已完成本批验收）
 
 TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticNode / transductionAmplifier）串成一条研究链。
-本移植按此顺序逐个加入，**先做 Vis Dynamo**。
+本移植按此顺序逐个加入：Vis Dynamo、精华发电机、节点监视器、合成节点（以太碎片）已完成本批验收，已知偏差见各节。2026-10-12 完整客户端回归 82 步通过；转导放大器待位面线与兼容接口评估，并非已判定无法移植。
 
 ### Vis Dynamo（`isorropia:vis_dynamo`）
 
@@ -409,11 +409,59 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 - **配方**：TH 注魔（不稳定度 2；神秘仪为中心；僵尸脑、红石比较器、风之碎片；auram 2、sensus 8、machina 8）。
 - **研究**：`isorropia:nodemonitor`，隐藏父研究 `INFUSION`，坐标 (7, 6)。
 
-### 暂不做的两台
+### 合成节点 / 以太碎片（`isorropia:ethereal_shard`）
 
-- **合成节点（Ethereal Shard）**：研究父项是 TH 材料线的 `shardTrans`，且要用精灵精华扩容，放到 S6「材料晶体」之后。
-- **转导放大器**：研究父项是位面线的 `planarTheory`、配方要位面导管；而且 TC4R 明确不允许改充能节点（`NodeApi` 对充能节点返回
-  `NOT_A_MUTABLE_NODE`），它「给充能节点每种要素 +10」做不了。放到 S1 位面线一起评估。
+来源：TH `common/tiles/TileSyntheticNode.java`、`common/blocks/BlockSyntheticNode.java`、
+`client/renderer/tile/TileEtherealShardRender.java`；研究 `etherealShard`（TH 里方块注册名是 `synthNode`，
+但显示名、研究键与渲染器都叫 ethereal shard，本移植取后者）。
+
+- **方块 + 方块实体**：`BlockEtherealShard`（`EntityBlock` + TC4R `WandInteractionTarget`）+ `TileEtherealShard`。
+  硬度 0.7 / 抗性 1.0 / 发光 7（TH 原值）、玻璃音、碰撞盒 0.3–0.7 全高、无遮挡；整体由 TESR 绘制。
+- **扩容**（照 TH 的 `addEssence`）：手持以太精华右键，该精华所属要素的**容量**加 `4 × 叠数`，整叠消耗。
+  一个碎片本身不含任何容量，必须先喂精华。
+- **从网络充能**（照 TH 的 `updateEntity`）：对每个「还有余量」的要素，每 tick 向灵气网络要 **10 centivis**
+  （`VisNetworkApi.drain`，消费者位置就是这个方块），沿用 TH 的严格 `> 100` 小数累积判定折成整 vis（恰好 100 暂留，下一次输入再折算）。
+  原质直接走自己的通道；**复合要素**要把它的全部原质逐级展开、逐个各要 10 cV，取其中**最小值**入账
+  —— 对应 TH 的 `reduceToPrimals` + 取最小，也就是研究原文说的「提供的 centivis 必须含该复合要素的全部原质」。
+- **法杖抽取**（照 TH 的 `onUsingWandTick`，并对齐 TC4R 核心节点的 `tapIntoWand`）：手持法杖右键并按住，
+  每 **5 tick** 从「法杖还有余量」的要素里**随机挑一个**抽走：基数 1 点，`NODETAPPER1`/`NODETAPPER2` 各 +1，
+  上限不超过存量；非潜行且完成 `NODEPRESERVE`、杖杆不是木、杖端不是铁时保留最后 1 点。抽走的整 vis 按
+  **1 点 = 100 centivis** 灌进法杖，按实际到账量回扣。
+- **被读取为节点**：实现 TC4R 的 `AuraNodeView`，所以**魔导透镜/神秘测魔仪**能像读真节点一样读它
+  （TH 的碎片本来就是个 `INode`）。身份用「方块坐标」回退（`instanceId` 为空），类型 NORMAL、无修饰。
+  顺带地，节点监视器也能装在它旁边。
+- **挖掘掉落**（照 TH 的 `breakBlock`）：每个要素按 **容量 ÷ 4** 掉出等量以太精华（每颗带该要素 2 点），
+  数量等于喂入的精华；返还物的要素量固定为 TH 的 2，超出物品堆叠上限时拆成多堆。
+- **配方**：TH 是**注魔**配方（不稳定度 7；催化物平衡碎片；材料 4 × 闪耀之光；auram 8 / potentia 32 / vacuos 32），
+  照搬为 `isorropia:infusion/ethereal_shard`。
+- **研究**：`isorropia:etherealshard`，父研究 `isorropia:shardtrans`，隐藏父研究 `INFUSION`/`VISPOWER`，
+  CONCEALED，坐标 (11, 8)，要素照 TH（auram 8 / potentia 16 / vacuos 16 / praecantatio 8），复杂度 3，
+  文本用 TH 原文（两页文本夹配方页）。
+- **外观**：照 TH 的 `TileEtherealShardRender`——一枚按**容量加权平均要素色**上色的晶体（TH 用 TC4 的
+  `ModelCrystal`：box (-16,-16,0;16,16,16)、旋转点 (0,32,0)、X/Z 各 0.7071 弧度、64×32 UV；本移植用独立 ModelPart 层重建，
+  不引用 TC4R 内部模型类）。位置种子决定三轴尺寸，按 TH 的 y=-0.15、sin×0.1 浮动与 1°/tick 自转，颜色按容量混合后除以 220；
+  每个绑定要素一个绕行符标（nodes 图集第 1 行，32 帧、alpha 0.9，使用 TC4R 公开 UV 映射处理 1088² 图集边距）。
+  抽取光带使用分段正弦波、双平面、加色混合、端部淡出与滚动 wispy 贴图，颜色每 tick 按 (目标+4×当前)/5 过渡。
+
+与 TH 的偏差：
+
+- **不向网络供电**：TH 的 `TileSyntheticNode.isSource()` 返回 false，它只**消费**网络，本移植照此，因此不实现
+  `VisSource`。
+- **按住抽取由方块实体自己判**：TC4R 的节点抽取（`WandNodeTapping`）写死了核心的 `AuraNodeBlockEntity`，
+  外挂方块实体接不进去。所以「按住」和魔力发电机一样，由 `TileEtherealShard` 每 tick 回读「该玩家仍在使用这把法杖、
+  且视线还落在这个方块上」来判断。右键仅建立抽取状态，转移从后续 tick 开始，空仓也可一直等待充入。
+  本批用无焦点法杖验收；安装 TC4 内置持续焦点时仍有与魔力发电机相同的并行施法限制，尚未处理。
+- **现代光照与手部起点**：几何参数已按 TC4R 对 ModelCrystal 的转写重建；呼吸亮度仍通过现代 lightmap 采样，
+  不保证与旧 OpenGL 浮点采样逐像素相同。光带手部起点复用 TC4R 的 `resolveFocusCastOrigin`，不复制旧版视角偏移。
+- **移除返还精华**：对应 TH 的 `breakBlock`，改用 `onRemove` 在方块种类改变时结算；普通破坏、创造拆除、爆炸移除均走此路径，
+  同方块的状态更新不返还。方块物品本身仍由 loot table 决定。
+- **抽取状态会同步**：为了让光带颜色跟着**抽走的要素**走，每次成功抽取都发一次方块实体更新（最多 4 次/秒，
+  只在有人正抽时发生）；网络存量增长成整点也发更新，确保符标大小和节点读数不会滞后。TH 同样在增加整点存量时更新方块。
+
+### 暂不做的一台
+
+- **转导放大器**：研究父项是位面线的 `planarTheory`、配方要位面导管；当前公开 `NodeApi` 对充能节点返回
+  `NOT_A_MUTABLE_NODE`，不能直接通过普通节点 CAS 实现「每种要素 +10」。随位面线评估专用 API 或隔离兼容桥，暂缓而非判定不可能。
 
 ### 研究文字
 
