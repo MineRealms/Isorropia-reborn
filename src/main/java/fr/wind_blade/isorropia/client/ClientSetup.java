@@ -20,6 +20,7 @@ import fr.wind_blade.isorropia.client.renderer.tiles.RenderDynamo;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderEtherealShard;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderNodeMonitor;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderTransductionAmplifier;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderSoulBeacon;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
@@ -134,6 +135,7 @@ public final class ClientSetup {
                 RenderDynamo.texture("thaumiumring"), RenderDynamo.texture("dynamoessentiabase")));
         event.registerBlockEntityRenderer(TilesIS.NODE_MONITOR.get(), RenderNodeMonitor::new);
         event.registerBlockEntityRenderer(TilesIS.ETHEREAL_SHARD.get(), RenderEtherealShard::new);
+        event.registerBlockEntityRenderer(TilesIS.TRANSDUCTION_AMPLIFIER.get(), RenderTransductionAmplifier::new);
     }
 
     @SubscribeEvent

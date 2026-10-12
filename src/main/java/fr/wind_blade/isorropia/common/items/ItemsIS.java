@@ -88,6 +88,8 @@ public final class ItemsIS {
     public static final RegistryObject<BlockItem> ALCHEMITE = blockItem("alchemite", BlocksIS.ALCHEMITE);
     /** Drawn by its block entity renderer in the world, in the hand and in the inventory, as TH's was. */
     public static final RegistryObject<MachineBlockItem> ETHEREAL_SHARD = machineItem("ethereal_shard", BlocksIS.ETHEREAL_SHARD);
+    /** Drawn by its block entity renderer, as TH's amplifier was with the node-converter model. */
+    public static final RegistryObject<MachineBlockItem> TRANSDUCTION_AMPLIFIER = machineItem("transduction_amplifier", BlocksIS.TRANSDUCTION_AMPLIFIER);
 
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",

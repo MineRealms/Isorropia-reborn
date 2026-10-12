@@ -1,0 +1,34 @@
+{
+  "type": "thaumcraft:arcane_shaped",
+  "research": "isorropia:transductionAmplifier",
+  "pattern": [
+    " C ",
+    "ATA",
+    "RNR"
+  ],
+  "key": {
+    "C": {
+      "item": "isorropia:planar_conduit"
+    },
+    "A": {
+      "item": "thaumcraft:amber"
+    },
+    "T": {
+      "item": "thaumcraft:node_stabilizer"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "N": {
+      "item": "thaumcraft:nitor"
+    }
+  },
+  "result": {
+    "item": "isorropia:transduction_amplifier"
+  },
+  "vis": {
+    "aer": 10,
+    "ignis": 10,
+    "ordo": 10
+  }
+}

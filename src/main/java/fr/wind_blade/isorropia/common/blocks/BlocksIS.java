@@ -56,6 +56,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockEtherealShard> ETHEREAL_SHARD = BLOCKS.register("ethereal_shard",
             () -> new BlockEtherealShard(BlockBehaviour.Properties.of().mapColor(MapColor.NONE)
                     .strength(0.7F, 1.0F).sound(SoundType.GLASS).lightLevel(state -> 7).noOcclusion()));
+    /** TH: iron, hardness 0.7, resistance 1.0, light 0.5 (level 7). Points at the energized node it is placed on. */
+    public static final RegistryObject<BlockTransductionAmplifier> TRANSDUCTION_AMPLIFIER = BLOCKS.register("transduction_amplifier",
+            () -> new BlockTransductionAmplifier(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
+                    .sound(SoundType.METAL).lightLevel(state -> 7).noOcclusion().requiresCorrectToolForDrops()));
 
     private BlocksIS() {
     }
