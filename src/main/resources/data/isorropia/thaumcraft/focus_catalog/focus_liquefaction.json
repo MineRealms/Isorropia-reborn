@@ -1,0 +1,70 @@
+{
+  "focus_profiles": [
+    {
+      "focus": "isorropia:focus_liquefaction",
+      "color": 16729156,
+      "per_tick": false,
+      "base_cost": {
+        "ignis": 40
+      },
+      "action_costs": {
+        "critter": {
+          "ignis": 15
+        }
+      },
+      "ranks": [
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "isorropia:nuggets"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "isorropia:nuggets"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "thaumcraft:enlarge"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "isorropia:nuggets"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:potency",
+          "isorropia:purity"
+        ]
+      ],
+      "parameters": {
+        "vis_discount": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:frugal": 0.1
+          },
+          "min": 0,
+          "max": 1
+        },
+        "break_speed": {
+          "base": 0.15,
+          "per_level": {
+            "thaumcraft:potency": 0.05
+          },
+          "min": 0.05,
+          "max": 10
+        },
+        "enlarge": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:enlarge": 1
+          },
+          "min": 0,
+          "max": 1
+        }
+      }
+    }
+  ]
+}

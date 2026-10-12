@@ -1,0 +1,28 @@
+{
+  "upgrades": [
+    {
+      "id": "isorropia:purity",
+      "icon": "isorropia:textures/foci/purity.png",
+      "name": "isorropia.focus.upgrade.purity.name",
+      "description": "isorropia.focus.upgrade.purity.text",
+      "aspects": {
+        "ordo": 8
+      },
+      "max_level": 1,
+      "rank_vis": [
+        200,
+        400,
+        800,
+        1600,
+        3200
+      ],
+      "rank_xp": [
+        8,
+        16,
+        24,
+        32,
+        40
+      ]
+    }
+  ]
+}

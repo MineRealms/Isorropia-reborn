@@ -75,6 +75,8 @@ public final class ItemsIS {
     // warns about on a world that already knows the old ids.
     public static final RegistryObject<ItemFocusIllumination> FOCUS_ILLUMINATION = ITEMS.register("focus_illumination",
             () -> new ItemFocusIllumination(new Item.Properties()));
+    public static final RegistryObject<ItemFocusLiquefaction> FOCUS_LIQUEFACTION = ITEMS.register("focus_liquefaction",
+            () -> new ItemFocusLiquefaction(new Item.Properties()));
 
     private ItemsIS() {
     }

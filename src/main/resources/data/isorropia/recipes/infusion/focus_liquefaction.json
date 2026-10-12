@@ -1,0 +1,27 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:liquefaction",
+  "central": {
+    "item": "minecraft:diamond"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:focus_fire"
+    },
+    {
+      "item": "thaumcraft:salis_mundus"
+    },
+    {
+      "item": "thaumcraft:focus_excavation"
+    }
+  ],
+  "instability": 3,
+  "aspects": {
+    "ignis": 12,
+    "metallum": 8,
+    "permutatio": 4
+  },
+  "result": {
+    "item": "isorropia:focus_liquefaction"
+  }
+}

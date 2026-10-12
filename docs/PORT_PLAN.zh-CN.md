@@ -204,3 +204,36 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
   本移植用一个小立方体模型 + 颜色 tint 代替，观感接近但不是逐像素还原。实机外观仍需人眼确认。
 - **方块与太阳光珠合并为一个方块**（TH 是 `BlockLight` + `BlockLightSolar` 两个类），靠 `solar` 属性区分。
 
+### 液化焦点（`isorropia:liquefaction`）
+
+来源：TH `common/items/ItemFocusLiquefaction.java`；研究 `focusLiquefaction`（TH `ThaumicHorizons.java:1673-1695`）。
+
+- **焦点**：`ItemFocusLiquefaction`（`FocusIdentityItem`）+ `common/focus/LiquefactionFocus`（TC4R `FocusActionApi`，
+  `USE_AIR`/`USING_TICK`/`STOP_USING`，`CONTINUOUS` 持续光束）。按住右键持续输出一条灼热光束。
+- **光束效果**（按 TH 的 `processBlock` 优先级）：
+  - **熔融**：石→岩浆（慢）、冰/浮冰/蓝冰/霜冰→水（下界为空气）、草方块/菌丝/土径→泥土、TNT→引爆、雪块/树叶/花/树苗/作物/藤蔓/蛛网→空气。
+  - **熔炼**：其余有熔炉配方的方块按熔炉结果产出（方块变方块或掉物品）。
+  - **点燃**：可燃烧的方块被点燃。
+  - **掉落物**：地上的物品实体被就地熔炼（如粗铁→铁锭）。
+  - **生物**：只受少量火焰伤害（`1 + 0.5×potency`），并着火 4 秒，并非武器。
+- **破坏进度**：照 TH，光束先在方块上「积累」一个与硬度相关的进度（石头 20、可熔/可燃 0.25、普通熔炼 2.0），
+  每 tick 累加 `0.15 + 0.05×potency`，满则生效；换目标即清零。进度按玩家记在服务端。
+- **升级**：`frugal`（折扣）、`potency`（加快、加伤）、`enlarge`（第 3 阶，扩到 3×3×3 邻域，逐格收费）、
+  `nuggets`（第 1/2/4 阶，按 TH 的 45%/级掉地狱熔炉式额外产物）、`purity`（第 5 阶，把矿石净化为原生晶簇而非普通金属）。
+- **消耗**：每熔掉一格 **ignis 40 centivis**（TH 原值），打生物改走命名成本 `critter`（ignis 15）。
+- **配方**：TH 是**注魔**配方（不稳定度 3，ignis 12 / metallum 8 / permutatio 4；催化物钻石；材料 火焰焦点 + salis mundus + 挖掘焦点），
+  照搬为 `isorropia:infusion/focus_liquefaction`。
+- **研究**：`isorropia:liquefaction`，父研究 `isorropia:illumination` + `FOCUSEXCAVATION`，CONCEALED，坐标 (1, 8)。
+
+与 TH 的偏差：
+
+- **`nuggets` 走 TC4R 20732 的地狱熔炉配方表**：TH 调 `ThaumcraftApi.getSmeltingBonus(stack)` 取单条奖励；
+  20732 已改成数据驱动的 `thaumcraft:infernal_smelting` 配方（`bonus: true` 的产物）。本移植扫描 `TCRecipes.INFERNAL_SMELTING`
+  里匹配该方块的配方、取其中的 bonus 产物，因此**不区分 append/replace 模式与优先级**——奖励表本身是逐条附加的，实际效果一致。
+- **`purity` 直接掉原生晶簇，不再代玩家二次熔炼**：TH 会拿晶簇再查一次熔炉配方。TC4R 里晶簇的熔炼是 `thaumcraft:common_metal_smelting`
+  自定义配方（晶簇→2 锭），本移植改用 `ArcaneBoreMiningResults.replace(...)`（TH `Utils.findSpecialMiningResult` 的 20732 等价物）
+  直接掉晶簇，玩家自行熔炼即可得到双倍金属，也更贴合研究文本「净化矿石为原生晶簇」。
+- **光束观感**：TH 用 `beamCont` + `smeltFX` 粒子；本移植依赖 TC4R `CONTINUOUS` 施法自带的预测光束，并复用 `SoundEvents.FIRE_AMBIENT`
+  作光束嘶声（每 24 tick 一次）。未逐帧还原 TH 的熔炼粒子。
+
+

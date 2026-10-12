@@ -7,6 +7,7 @@ import fr.wind_blade.isorropia.common.config.ConfigIS;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.focus.ContainmentFocus;
 import fr.wind_blade.isorropia.common.focus.IlluminationFocus;
+import fr.wind_blade.isorropia.common.focus.LiquefactionFocus;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.menu.MenusIS;
 import fr.wind_blade.isorropia.common.network.IsorropiaNetwork;
@@ -40,6 +41,7 @@ public class Isorropia {
         // The wand predicts the beam on the client, so the action is registered on both sides.
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(ContainmentFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(IlluminationFocus::register));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(LiquefactionFocus::register));
     }
 
     public static ResourceLocation id(String path) {
