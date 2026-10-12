@@ -1,0 +1,30 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:etherealshard",
+  "central": {
+    "item": "thaumcraft:balanced_shard"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:nitor"
+    },
+    {
+      "item": "thaumcraft:nitor"
+    },
+    {
+      "item": "thaumcraft:nitor"
+    },
+    {
+      "item": "thaumcraft:nitor"
+    }
+  ],
+  "instability": 7,
+  "aspects": {
+    "auram": 8,
+    "potentia": 32,
+    "vacuos": 32
+  },
+  "result": {
+    "item": "isorropia:ethereal_shard"
+  }
+}

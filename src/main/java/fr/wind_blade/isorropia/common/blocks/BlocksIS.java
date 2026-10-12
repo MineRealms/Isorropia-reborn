@@ -52,6 +52,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockAlchemite> ALCHEMITE = BLOCKS.register("alchemite",
             () -> new BlockAlchemite(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE)
                     .strength(0.7F, 1.0F).sound(SoundType.GRASS).lightLevel(state -> 7)));
+    /** TH: glass, hardness 0.7, resistance 1.0, light 0.5 (level 7); it needs no tool. */
+    public static final RegistryObject<BlockEtherealShard> ETHEREAL_SHARD = BLOCKS.register("ethereal_shard",
+            () -> new BlockEtherealShard(BlockBehaviour.Properties.of().mapColor(MapColor.NONE)
+                    .strength(0.7F, 1.0F).sound(SoundType.GLASS).lightLevel(state -> 7).noOcclusion()));
 
     private BlocksIS() {
     }

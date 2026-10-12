@@ -85,6 +85,8 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> ESSENTIA_DYNAMO = machineItem("essentia_dynamo", BlocksIS.ESSENTIA_DYNAMO);
     public static final RegistryObject<MachineBlockItem> NODE_MONITOR = machineItem("node_monitor", BlocksIS.NODE_MONITOR);
     public static final RegistryObject<BlockItem> ALCHEMITE = blockItem("alchemite", BlocksIS.ALCHEMITE);
+    /** Drawn by its block entity renderer in the world, in the hand and in the inventory, as TH's was. */
+    public static final RegistryObject<MachineBlockItem> ETHEREAL_SHARD = machineItem("ethereal_shard", BlocksIS.ETHEREAL_SHARD);
 
     private ItemsIS() {
     }

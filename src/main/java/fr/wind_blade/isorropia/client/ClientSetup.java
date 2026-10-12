@@ -17,6 +17,7 @@ import fr.wind_blade.isorropia.client.renderer.entities.RenderSheeder;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderTaintPig;
 import fr.wind_blade.isorropia.client.model.MatrixCubeModel;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderDynamo;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderEtherealShard;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderNodeMonitor;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
@@ -59,6 +60,8 @@ public final class ClientSetup {
         event.registerLayerDefinition(ModelJellyRabbit.LAYER, ModelJellyRabbit::createBodyLayer);
         event.registerLayerDefinition(ModelJelly.LAYER, ModelJelly::createBodyLayer);
         event.registerLayerDefinition(MatrixCubeModel.LAYER, MatrixCubeModel::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.EtherealShardModel.LAYER,
+                fr.wind_blade.isorropia.client.model.EtherealShardModel::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.DynamoBaseModel.LAYER,
                 fr.wind_blade.isorropia.client.model.DynamoBaseModel::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSomaticBrain.LAYER,
@@ -126,6 +129,7 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(TilesIS.ESSENTIA_DYNAMO.get(), context -> new RenderDynamo<>(context,
                 RenderDynamo.texture("thaumiumring"), RenderDynamo.texture("dynamoessentiabase")));
         event.registerBlockEntityRenderer(TilesIS.NODE_MONITOR.get(), RenderNodeMonitor::new);
+        event.registerBlockEntityRenderer(TilesIS.ETHEREAL_SHARD.get(), RenderEtherealShard::new);
     }
 
     @SubscribeEvent
