@@ -8,6 +8,7 @@ import fr.wind_blade.isorropia.common.items.misc.ItemCat;
 import fr.wind_blade.isorropia.common.items.misc.ItemChocolateBucket;
 import fr.wind_blade.isorropia.common.items.misc.ItemIncubatedEgg;
 import fr.wind_blade.isorropia.common.items.misc.ItemJelly;
+import fr.wind_blade.isorropia.common.items.misc.ItemPlanarConduit;
 import fr.wind_blade.isorropia.common.items.misc.ItemLens;
 import fr.wind_blade.isorropia.common.lenses.Lenses;
 import net.minecraft.world.entity.EntityType;
@@ -87,6 +88,10 @@ public final class ItemsIS {
     public static final RegistryObject<BlockItem> ALCHEMITE = blockItem("alchemite", BlocksIS.ALCHEMITE);
     /** Drawn by its block entity renderer in the world, in the hand and in the inventory, as TH's was. */
     public static final RegistryObject<MachineBlockItem> ETHEREAL_SHARD = machineItem("ethereal_shard", BlocksIS.ETHEREAL_SHARD);
+
+    // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
+    public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",
+            ItemPlanarConduit::new);
 
     private ItemsIS() {
     }
