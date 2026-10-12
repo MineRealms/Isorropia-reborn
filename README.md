@@ -18,6 +18,7 @@ mod id：isorropia      包名：fr.wind_blade.isorropia
 ./gradlew.bat runClient             # 客户端（run-client/）
 python tools/validate_tc_data.py    # TC 数据静态校验（研究/配方/要素/语言键）
 python tools/client_probe.py start  # 自动开客户端进探针世界并连上 Rosetta 桥
+python tools/client_sweep.py        # 在同一会话里跑完全部客户端探针并逐项判定
 ```
 
 TC4R 是用户提供的本地构建，**不入库**：把 `local-repo/dev/tc4port/thaumcraft-forge/0.1.0-20732/{jar,pom}`
@@ -35,7 +36,7 @@ API 查阅用的 20721 sources 解包在 `reference/tc4r-20721-sources`（git �
 | S4 | 治疗缸多方块 + 生物/自我注魔 + capability + 网络 | 完成，**实机验证通过** |
 | S5 | 透镜系统 + 躯体大脑 + 按键 + HUD | 完成，**实机验证通过**（透镜/轮盘/世界叠加/HUD 读数/躯体大脑落点） |
 | S6 | 灵魂信标绑定/复生流程、改造矩阵交互收尾、收容焦点、变形手指界面 | 完成，**实机验证通过** |
-| S7 | 客户端特效收尾 + 集中实机验收 | 进行中：1.12 的天穹吸收、通量爆炸、矩阵排气已按原参数重建并实机截图 |
+| S7 | 客户端特效收尾 + 集中实机验收 | 完成：特效按 1.12/TH 原参数重建；一键回归 31 个客户端探针 + 6 个服务端探针全部通过 |
 
 细表与逐阶段偏差见 [docs/PORT_PLAN.zh-CN.md](docs/PORT_PLAN.zh-CN.md)。
 
