@@ -13,4 +13,12 @@ mc.execute(() -> {
     mc.setScreen(null);
 });
 var state = revived.get(5, java.util.concurrent.TimeUnit.SECONDS);
+// The client's respawn request only reaches a player the server still tracks. One an earlier probe removed
+// (a vat that swallowed it, a beacon that moved it) has to be brought back on the server directly, or the
+// client's request is silently dropped and the player stays gone for the whole sweep.
+var sp = server.getPlayerList().getPlayer(mc.player.getUUID());
+if (sp != null && sp.isRemoved()) {
+    server.getPlayerList().respawn(sp, false);
+    state += " server-respawned";
+}
 return state + " (the server applies it once this probe returns)";

@@ -42,7 +42,7 @@ for (int dz = 1; dz <= 4; dz++) for (int dy = 0; dy <= 3; dy++) {
             net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 }
 for (var stale : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
-        new net.minecraft.world.phys.AABB(36, 306, 36, 45, 315, 45))) {
+        new net.minecraft.world.phys.AABB(35, 305, 35, 46, 316, 46))) {
     stale.discard();
 }
 var target = new net.minecraft.core.BlockPos((int) Math.floor(x), (int) y + 1, (int) Math.floor(z) + 3);

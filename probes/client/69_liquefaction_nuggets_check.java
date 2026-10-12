@@ -11,7 +11,9 @@ var target = new net.minecraft.core.BlockPos(40, 311, 43);
 sb.append(" target_block=").append(net.minecraftforge.registries.ForgeRegistries.BLOCKS
         .getKey(level.getBlockState(target).getBlock()));
 
-var box = new net.minecraft.world.phys.AABB(37, 307, 37, 44, 314, 44);
+// Vanilla Block.popResource scatters drops up to a block from the block centre, so the box is kept wide
+// enough to see them wherever they land.
+var box = new net.minecraft.world.phys.AABB(35, 305, 35, 46, 316, 46);
 var found = new StringBuilder();
 for (var item : level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box)) {
     found.append(" ").append(net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(item.getItem().getItem()))
