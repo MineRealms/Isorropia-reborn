@@ -305,6 +305,17 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
 - **不设家域**：TH 调 `golem.setHomeArea(...,32)`；本移植靠 `OwnerFollowGoal` 跟随召唤者，未做家域束缚。
 
 
+### 碎片嬗变（`isorropia:shardtrans`）
+
+来源：TH `ThaumicHorizons.java:975-1021`；纯数据（无新方块/物品）。
+
+- **配方**：六条 TC4R 坩埚配方 `isorropia:crucible/shard_trans_{fire,water,air,earth,order,entropy}`——催化物 `thaumcraft:balanced_shard`，
+  各需对应原质 2 点 + `permutatio` 1 点，产出六种原质碎片之一（照 TH：EXCHANGE=permutatio、CRYSTAL=vitreus）。
+- **研究**：`isorropia:shardtrans`，无父研究、`SECONDARY`；要素 `permutatio` 4 / `vitreus` 4 / 六原质各 2（照 TH），坐标 (11, 6)，
+  文本页 + `CRUCIBLE_CRAFTING` 页（`COMPLETED_CRUCIBLE_VARIANTS`，把六条配方都列在一页）。研究文字用 TH 原文。
+- **验证**：`96_shard_trans` 一次摆六个沸腾坩埚，各投一颗平衡碎片，六个原质碎片全部产出（`made=6/6`）。
+
+
 ## S4：能量与节点系统（TH 独有，进行中）
 
 TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticNode / transductionAmplifier）串成一条研究链。

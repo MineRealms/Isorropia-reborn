@@ -95,6 +95,9 @@ STEPS = [
     ("93_node_monitor_check", ["critical: powered=true signal=15 strong=15"], 1),
     ("94_node_monitor_orphan", ["node removed"], 2),
     ("95_node_monitor_orphan_check", ["monitorGone=true", "isorropia:node_monitor"], 1),
+    # Shard Transmutation: six heated crucibles each turn a balanced shard into one primal shard.
+    ("96_shard_trans", ["known=true", "fire_shard=true", "water_shard=true", "air_shard=true",
+                        "earth_shard=true", "order_shard=true", "entropy_shard=true", "made=6/6"], 1),
 ]
 
 

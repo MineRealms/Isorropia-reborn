@@ -1,0 +1,14 @@
+{
+  "type": "thaumcraft:crucible",
+  "research": "isorropia:shardtrans",
+  "catalyst": {
+    "item": "thaumcraft:balanced_shard"
+  },
+  "result": {
+    "item": "thaumcraft:earth_shard"
+  },
+  "aspects": {
+    "terra": 2,
+    "permutatio": 1
+  }
+}
