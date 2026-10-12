@@ -98,6 +98,11 @@ STEPS = [
     # Shard Transmutation: six heated crucibles each turn a balanced shard into one primal shard.
     ("96_shard_trans", ["known=true", "fire_shard=true", "water_shard=true", "air_shard=true",
                         "earth_shard=true", "order_shard=true", "entropy_shard=true", "made=6/6"], 1),
+    # Alchemite: a charge whose blast turns blocks into crystallized essentia and scars aura nodes.
+    ("97_alchemite", ["block=isorropia:alchemite", "nodes=8", "entity=true"], 5),
+    ("98_alchemite_check", ["alchemiteLeft=false", "plainNodes=0", "stoneItems=0", "essence=true"], 1),
+    ("99_alchemite_dispense", ["powered=true"], 2),
+    ("100_alchemite_dispense_check", ["dispenserEmpty=true", "primed=1", "at=161, 310, 100"], 1),
 ]
 
 
