@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +33,12 @@ public class BlockVisDynamo extends Block implements EntityBlock, WandInteractio
         super(properties);
     }
 
+    /** The base and rings are drawn by the block entity renderer, as TH's dynamo was all TESR. */
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
@@ -41,11 +48,17 @@ public class BlockVisDynamo extends Block implements EntityBlock, WandInteractio
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide ? null : (lvl, pos, st, be) -> {
-            if (be instanceof TileVisDynamo dynamo) {
-                TileVisDynamo.serverTick(lvl, pos, st, dynamo);
-            }
-        };
+        return level.isClientSide
+                ? (lvl, pos, st, be) -> {
+                    if (be instanceof TileVisDynamo dynamo) {
+                        TileVisDynamo.clientTick(lvl, pos, st, dynamo);
+                    }
+                }
+                : (lvl, pos, st, be) -> {
+                    if (be instanceof TileVisDynamo dynamo) {
+                        TileVisDynamo.serverTick(lvl, pos, st, dynamo);
+                    }
+                };
     }
 
     @Override

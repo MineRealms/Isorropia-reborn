@@ -312,5 +312,14 @@
   "tc.research_name.isorropia:visdynamo": "Vis Dynamo",
   "tc.research_text.isorropia:visdynamo": "Portable power",
   "isorropia.research_page.visdynamo.1": "Occasionally you find yourself needing centivis without an energized node at hand. This apparatus neatly solves the problem by powering devices directly from the user's wand.<BR>Holding down the right mouse button with a wand in hand will charge the dynamo, drawing one vis per second from the wand and emitting 5 cV. By default the vis dynamo will operate on all six primal aspects simultaneously, but the frugal thaumaturge can also restrict it to only draw the aspects she needs via its GUI.",
+  "block.isorropia.essentia_dynamo": "Essentia Dynamo",
+  "block.isorropia.node_monitor": "Node Monitor",
+  "tc.research_name.isorropia:essentiadynamo": "Essentia Dynamo",
+  "tc.research_text.isorropia:essentiadynamo": "Liquid fuel",
+  "isorropia.research_page.essentiadynamo.1": "Though the vis dynamo is certainly useful, its need for manual attention often makes it impractical. What if you could automate the process by piping in essentia?<BR>From your early attempts to develop the alchemical centrifuge, you remember that it was all too easy to accidentally vaporize essentia into vis. Ordinarily this energy would simply bleed into the local aura and be lost to you, but performing this operation within the proper containment field can produce an intense stream of centivis.",
+  "isorropia.research_page.essentiadynamo.2": "The dynamo consumes one unit of essentia per second and outputs a total of 12 cV. It can accept compound aspects, though the energy is evenly split among all primals present in that compound. For example, §5Arbor§0 essentia would produce 4 cV each of §6Aer§0, §3Aqua§0, and §2Terra§0, while §5Humanus§0 would produce 2 cV of all six primals.",
+  "tc.research_name.isorropia:nodemonitor": "Node Monitor",
+  "tc.research_text.isorropia:nodemonitor": "Keeping an eye on things",
+  "isorropia.research_page.nodemonitor.1": "Nodes are perhaps a thaumaturge's most valuable asset, and it's high time you treated them as such.<BR>With some slight modifications to a thaumometer, you have created a device which hovers adjacent to an aura node and keeps track of its status. Should any of the node's aspects drop to a single point of vis, the node monitor emits a redstone signal until the aspect recovers.<BR>Hopefully this will give you enough warning to rescue the beleaguered node.",
   "isorropia.research_page.animation.2": "The golems spawned by this focus are identical to those created with animation powder. The vis requirement varies by material, but generally stronger golems will require more energy to animate."
 }

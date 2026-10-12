@@ -40,6 +40,14 @@ public final class BlocksIS {
     public static final RegistryObject<BlockVisDynamo> VIS_DYNAMO = BLOCKS.register("vis_dynamo",
             () -> new BlockVisDynamo(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
                     .sound(SoundType.METAL).lightLevel(state -> 8).requiresCorrectToolForDrops()));
+    /** TH: iron, hardness 0.7, resistance 1.0, light 0.5 (level 7). */
+    public static final RegistryObject<BlockEssentiaDynamo> ESSENTIA_DYNAMO = BLOCKS.register("essentia_dynamo",
+            () -> new BlockEssentiaDynamo(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
+                    .sound(SoundType.METAL).lightLevel(state -> 7).noOcclusion().requiresCorrectToolForDrops()));
+    /** TH: glass, hardness 0.7, resistance 1.0, light 0.5 (level 7); it needs no tool. */
+    public static final RegistryObject<BlockNodeMonitor> NODE_MONITOR = BLOCKS.register("node_monitor",
+            () -> new BlockNodeMonitor(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
+                    .sound(SoundType.GLASS).lightLevel(state -> 7).noOcclusion()));
 
     private BlocksIS() {
     }

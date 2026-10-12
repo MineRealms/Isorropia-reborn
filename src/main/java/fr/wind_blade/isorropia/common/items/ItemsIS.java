@@ -81,7 +81,9 @@ public final class ItemsIS {
             () -> new ItemFocusDisintegration(new Item.Properties()));
     public static final RegistryObject<ItemFocusAnimation> FOCUS_ANIMATION = ITEMS.register("focus_animation",
             () -> new ItemFocusAnimation(new Item.Properties()));
-    public static final RegistryObject<BlockItem> VIS_DYNAMO = blockItem("vis_dynamo", BlocksIS.VIS_DYNAMO);
+    public static final RegistryObject<MachineBlockItem> VIS_DYNAMO = machineItem("vis_dynamo", BlocksIS.VIS_DYNAMO);
+    public static final RegistryObject<MachineBlockItem> ESSENTIA_DYNAMO = machineItem("essentia_dynamo", BlocksIS.ESSENTIA_DYNAMO);
+    public static final RegistryObject<MachineBlockItem> NODE_MONITOR = machineItem("node_monitor", BlocksIS.NODE_MONITOR);
 
     private ItemsIS() {
     }
@@ -110,6 +112,10 @@ public final class ItemsIS {
     /** Thaumic Horizons' egg colours: the creature's base colour over the shared purple spots. */
     private static RegistryObject<ForgeSpawnEggItem> spawnEgg(String name, Supplier<? extends EntityType<? extends Mob>> type, int base) {
         return ITEMS.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(type, base, 0xA500FF, new Item.Properties()));
+    }
+
+    private static RegistryObject<MachineBlockItem> machineItem(String name, Supplier<? extends Block> block) {
+        return ITEMS.register(name, () -> new MachineBlockItem(block.get(), new Item.Properties()));
     }
 
     private static RegistryObject<BlockItem> blockItem(String name, Supplier<? extends Block> block) {

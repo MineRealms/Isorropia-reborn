@@ -1,0 +1,27 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:nodemonitor",
+  "central": {
+    "item": "thaumcraft:thaumometer"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:zombie_brain"
+    },
+    {
+      "item": "minecraft:comparator"
+    },
+    {
+      "item": "thaumcraft:air_shard"
+    }
+  ],
+  "instability": 2,
+  "aspects": {
+    "auram": 2,
+    "sensus": 8,
+    "machina": 8
+  },
+  "result": {
+    "item": "isorropia:node_monitor"
+  }
+}

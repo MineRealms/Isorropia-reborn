@@ -1,0 +1,35 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:essentiadynamo",
+  "central": {
+    "item": "minecraft:piston"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    },
+    {
+      "item": "thaumcraft:alchemical_construct"
+    },
+    {
+      "item": "thaumcraft:greatwood_planks"
+    },
+    {
+      "item": "thaumcraft:thaumium_ingot"
+    },
+    {
+      "item": "thaumcraft:alchemical_centrifuge"
+    }
+  ],
+  "instability": 5,
+  "aspects": {
+    "auram": 4,
+    "potentia": 16,
+    "permutatio": 16,
+    "machina": 16,
+    "aqua": 32
+  },
+  "result": {
+    "item": "isorropia:essentia_dynamo"
+  }
+}

@@ -2693,6 +2693,118 @@
           ]
         }
       ]
+    },
+    {
+      "key": "isorropia:essentiadynamo",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "auram": 5,
+        "machina": 5,
+        "potentia": 5,
+        "aqua": 5
+      },
+      "display_column": 9,
+      "display_row": 8,
+      "complexity": 2,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:essentia_dynamo"
+        }
+      },
+      "flags": [
+        "SECONDARY",
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:visdynamo"
+      ],
+      "hidden_parents": [
+        "INFUSION",
+        "VISPOWER",
+        "THAUMIUM"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiadynamo.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/essentia_dynamo"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiadynamo.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:nodemonitor",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "auram": 3,
+        "machina": 3,
+        "sensus": 3
+      },
+      "display_column": 7,
+      "display_row": 6,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:node_monitor"
+        }
+      },
+      "flags": [],
+      "parents": [],
+      "hidden_parents": [
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.nodemonitor.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/node_monitor"
+          ]
+        }
+      ]
     }
   ]
 }

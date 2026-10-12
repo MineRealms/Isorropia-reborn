@@ -16,7 +16,9 @@ import fr.wind_blade.isorropia.client.renderer.entities.RenderOrePig;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderSheeder;
 import fr.wind_blade.isorropia.client.renderer.entities.RenderTaintPig;
 import fr.wind_blade.isorropia.client.model.MatrixCubeModel;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderDynamo;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderJarSoul;
+import fr.wind_blade.isorropia.client.renderer.tiles.RenderNodeMonitor;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderModifiedMatrix;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderSoulBeacon;
 import fr.wind_blade.isorropia.client.renderer.tiles.RenderVat;
@@ -57,6 +59,8 @@ public final class ClientSetup {
         event.registerLayerDefinition(ModelJellyRabbit.LAYER, ModelJellyRabbit::createBodyLayer);
         event.registerLayerDefinition(ModelJelly.LAYER, ModelJelly::createBodyLayer);
         event.registerLayerDefinition(MatrixCubeModel.LAYER, MatrixCubeModel::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.DynamoBaseModel.LAYER,
+                fr.wind_blade.isorropia.client.model.DynamoBaseModel::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSomaticBrain.LAYER,
                 fr.wind_blade.isorropia.client.model.ModelSomaticBrain::createBodyLayer);
     }
@@ -114,6 +118,12 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(TilesIS.MODIFIED_MATRIX.get(), RenderModifiedMatrix::new);
         event.registerBlockEntityRenderer(TilesIS.JAR_SOUL.get(), RenderJarSoul::new);
         event.registerBlockEntityRenderer(TilesIS.SOUL_BEACON.get(), RenderSoulBeacon::new);
+        // Thaumic Horizons' machines: both dynamos share one renderer, each with its own ring and base.
+        event.registerBlockEntityRenderer(TilesIS.VIS_DYNAMO.get(), context -> new RenderDynamo<>(context,
+                RenderDynamo.texture("goldring"), RenderDynamo.texture("dynamobase")));
+        event.registerBlockEntityRenderer(TilesIS.ESSENTIA_DYNAMO.get(), context -> new RenderDynamo<>(context,
+                RenderDynamo.texture("thaumiumring"), RenderDynamo.texture("dynamoessentiabase")));
+        event.registerBlockEntityRenderer(TilesIS.NODE_MONITOR.get(), RenderNodeMonitor::new);
     }
 
     @SubscribeEvent

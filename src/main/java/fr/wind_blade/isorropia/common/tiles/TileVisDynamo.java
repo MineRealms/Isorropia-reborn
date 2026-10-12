@@ -1,5 +1,7 @@
 package fr.wind_blade.isorropia.common.tiles;
 
+import dev.tc4port.thaumcraft.api.ThaumcraftContent;
+import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.VisAction;
 import dev.tc4port.thaumcraft.api.aspect.VisChannel;
 import dev.tc4port.thaumcraft.api.aspect.VisCost;
@@ -7,16 +9,19 @@ import dev.tc4port.thaumcraft.api.node.VisNetworkApi;
 import dev.tc4port.thaumcraft.api.node.VisSource;
 import dev.tc4port.thaumcraft.api.wand.VisTransferResult;
 import dev.tc4port.thaumcraft.api.wand.WandApi;
-import dev.tc4port.thaumcraft.registry.TCBlocks;
 import fr.wind_blade.isorropia.Isorropia;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -38,7 +43,7 @@ import java.util.UUID;
  * something to offer and while one of the six neighbours is a vis relay, exactly as TH's tile had to
  * sit on the vis net.</p>
  */
-public class TileVisDynamo extends BlockEntity implements VisSource {
+public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisual {
     /** Centivis the wand pays per enabled primal, per pulse (TH: 40). */
     public static final int WAND_COST = 40;
     /** Centivis offered back per enabled primal, per pulse (TH: 5). */
@@ -64,6 +69,12 @@ public class TileVisDynamo extends BlockEntity implements VisSource {
     @Nullable
     private BlockPos registeredEndpoint;
 
+    // What the client is told: whether the dynamo is supplying, and which primals it offers (the lightning's colour).
+    private boolean shownSupplying;
+    private int shownChannels;
+    private final DynamoMotion motion = new DynamoMotion();
+    private int colour = 0xFFFFFF;
+
     public TileVisDynamo(BlockPos pos, BlockState state) {
         super(TilesIS.VIS_DYNAMO.get(), pos, state);
         for (VisChannel channel : VisChannel.values()) {
@@ -74,6 +85,104 @@ public class TileVisDynamo extends BlockEntity implements VisSource {
     public static void serverTick(Level level, BlockPos pos, BlockState state, TileVisDynamo dynamo) {
         if (level instanceof ServerLevel server) {
             dynamo.tick(server);
+            dynamo.showChanges();
+        }
+    }
+
+    /** The rings rise and turn, and the lightning drifts to the colour of what is offered, as TH animated them. */
+    public static void clientTick(Level level, BlockPos pos, BlockState state, TileVisDynamo dynamo) {
+        dynamo.motion.tick(dynamo.shownSupplying);
+        if (dynamo.shownSupplying) {
+            int target = averageColour(dynamo.shownChannels);
+            dynamo.colour = ease(dynamo.colour, target);
+        }
+    }
+
+    /** Tells the client when the dynamo starts or stops supplying, or offers a different set of primals. */
+    private void showChanges() {
+        boolean supplying = ticksProvided > 0;
+        int channels = channelMask(offering);
+        if (supplying != shownSupplying || channels != shownChannels) {
+            shownSupplying = supplying;
+            shownChannels = channels;
+            if (level != null) {
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            }
+        }
+    }
+
+    private static int channelMask(Map<VisChannel, Integer> offer) {
+        int mask = 0;
+        for (VisChannel channel : offer.keySet()) {
+            mask |= 1 << channel.index();
+        }
+        return mask;
+    }
+
+    /** TH's lightning colour: the plain average of the offered primals' colours. */
+    private static int averageColour(int mask) {
+        int red = 0;
+        int green = 0;
+        int blue = 0;
+        int count = 0;
+        for (VisChannel channel : VisChannel.values()) {
+            if ((mask & 1 << channel.index()) != 0) {
+                int rgb = AspectApi.get(channel.aspectId()).color();
+                red += rgb >> 16 & 255;
+                green += rgb >> 8 & 255;
+                blue += rgb & 255;
+                count++;
+            }
+        }
+        return count == 0 ? 0xFFFFFF : (red / count) << 16 | (green / count) << 8 | blue / count;
+    }
+
+    /** One fifth of the way from the current colour to the target, per channel, as TH eased it each wand tick. */
+    private static int ease(int current, int target) {
+        int red = ((target >> 16 & 255) + (current >> 16 & 255) * 4) / 5;
+        int green = ((target >> 8 & 255) + (current >> 8 & 255) * 4) / 5;
+        int blue = ((target & 255) + (current & 255) * 4) / 5;
+        return red << 16 | green << 8 | blue;
+    }
+
+    @Override
+    public DynamoMotion motion() {
+        return motion;
+    }
+
+    @Override
+    public boolean supplying() {
+        return shownSupplying;
+    }
+
+    @Override
+    public int glowColour() {
+        return colour;
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putBoolean("Supplying", ticksProvided > 0);
+        tag.putInt("Channels", channelMask(offering));
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        shownSupplying = tag.getBoolean("Supplying");
+        shownChannels = tag.getInt("Channels");
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.Connection connection, ClientboundBlockEntityDataPacket packet) {
+        if (packet.getTag() != null) {
+            handleUpdateTag(packet.getTag());
         }
     }
 
@@ -208,7 +317,7 @@ public class TileVisDynamo extends BlockEntity implements VisSource {
         }
         for (Direction side : Direction.values()) {
             BlockPos neighbour = worldPosition.relative(side);
-            if (level.isLoaded(neighbour) && level.getBlockState(neighbour).is(TCBlocks.VIS_RELAY.get())) {
+            if (level.isLoaded(neighbour) && level.getBlockState(neighbour).is(ThaumcraftContent.block("vis_relay"))) {
                 return neighbour;
             }
         }

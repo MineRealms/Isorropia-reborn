@@ -1,6 +1,5 @@
 {
-  "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "isorropia:block/vis_dynamo"
+    "particle": "isorropia:block/vis_dynamo"
   }
 }

@@ -331,18 +331,53 @@ TH 的 5 个能量方块（visDynamo / essentiaDynamo / nodeMonitor / syntheticN
 
 与 TH 的偏差：
 
-- **未做外观渲染**：TH 用 TESR 画一个旋转的金环 + 底座模型（`scanner.obj` + `dynamobase.png`）。本移植先用一个 16×16 自绘贴图
-  的整方块代替，观感是「带金环的金属装置」但不是逐像素还原。TESR 留待后续。
+- ~~未做外观渲染~~：已补（见下方「外观」一节）。
 - **未做要素选择界面**：TH 空手右键开 `GuiVisDynamo`（6 个原质开关）。本移植的开关已进 NBT、默认全开并被充能逻辑读取，
   但没有界面去改它——空手右键目前不做任何事。GUI 是后续项。
 - **按住充能靠方块实体自己的 ticker**：TC4R 的法杖 `onUseTick` 只派发焦点会话，没有 TC4 的 `IWandable.onUsingWandTick`。
   所以「按住」由 `TileVisDynamo` 每 tick 回读「该玩家仍在用这把法杖、且视线还落在这个方块上」来判断（照 TC4R 自己的
   `WandNodeTapping` 写法）。已知副作用：若玩家手里的法杖装有 **火焰/电击/挖掘** 这三个 TC4 内置焦点，按住时它们也会照常触发
   （`WandFocusActions.usingTick` 不认我们的方块）。
+- **挖掘掉落**：原先设了「需要正确工具」却没进任何可挖掘标签，用什么挖都不掉落；已加进 `mineable/pickaxe`。
 
+### 外观（三台机器共用）
 
+照 TH 的 TESR 重做：`client/renderer/tiles/RenderDynamo`（两台发电机共用，构造时给环和底座贴图）与 `RenderNodeMonitor`。
+TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名空间的 `textures/models/` 拼进方块图集，所以不能放那里），
+`scanner.obj` 直接用 TC4R 自带的，`hexagon.obj` 从 TH 拷来。环的升降/转动在客户端由 `DynamoMotion` 按 TH 的每 tick 步长推进，
+服务端只在「开始/停止供给」或「供给的原质组合变化」时同步一次。物品由 `MachineBlockItem` + `MachineItemRenderer`（BEWLR）
+交给同一个方块实体渲染器画。
 
+### Essentia Dynamo（`isorropia:essentia_dynamo`）
+
+来源：TH `common/tiles/TileEssentiaDynamo.java`、`client/renderer/tile/TileEssentiaDynamoRender.java`；研究 `essentiaDynamo`。
+
+- **机制**（照 TH 的 `updateEntity`/`drawEssentia`/`addEssentia`）：只从**正下方**的精华管道/罐取精华；每单位提供 **21 tick** 的供给，
+  每 tick 共 **12 cV**，平分到这种精华拆出来的原质上（火→12 火；生命→地/水各 6；人类→六原质各 2），研究原文称「每秒一单位」。
+  剩余 ≤20 tick 时对下方吸力 128；供给用完那一 tick 自己再抽一单位，抽不到就停机。和魔力发电机一样经旁边的 vis 中继接入网络。
+- **配方**：TH 注魔（不稳定度 5；活塞为中心；神秘金属锭 ×2、炼金构造体、大木板、炼金离心机；auram 4、potentia 16、permutatio 16、machina 16、aqua 32）。
+- **研究**：`isorropia:essentiadynamo`，父研究 `isorropia:visdynamo`，隐藏父研究 `INFUSION`/`VISPOWER`/`THAUMIUM`，SECONDARY + CONCEALED，坐标 (9, 8)。
+
+与 TH 的偏差：
+
+- 精华流光：TH 在 TESR 里每帧生成一条，本移植每 tick 生成一条，避免帧率高时变密。
+
+### Node Monitor（`isorropia:node_monitor`）
+
+来源：TH `common/tiles/TileNodeMonitor.java`、`common/blocks/BlockNodeMonitor.java`、`client/renderer/tile/TileNodeMonitorRender.java`；研究 `nodeMonitor`。
+
+- **机制**：只能贴着灵气节点放置（点哪一面就朝哪一面；点的不是节点就找任一相邻节点），朝向背离节点。节点的任一要素（包括已经抽干到 0 的）
+  **≤ 1** 时输出 **15 级强信号**，否则 0；节点没了自己掉落成物品（TH 的 `killMe`）。节点状态经 TC4R 公开的 `AuraNodeView` 读取。
+- **配方**：TH 注魔（不稳定度 2；神秘仪为中心；僵尸脑、红石比较器、风之碎片；auram 2、sensus 8、machina 8）。
+- **研究**：`isorropia:nodemonitor`，隐藏父研究 `INFUSION`，坐标 (7, 6)。
+
+### 暂不做的两台
+
+- **合成节点（Ethereal Shard）**：研究父项是 TH 材料线的 `shardTrans`，且要用精灵精华扩容，放到 S6「材料晶体」之后。
+- **转导放大器**：研究父项是位面线的 `planarTheory`、配方要位面导管；而且 TC4R 明确不允许改充能节点（`NodeApi` 对充能节点返回
+  `NOT_A_MUTABLE_NODE`），它「给充能节点每种要素 +10」做不了。放到 S1 位面线一起评估。
 
 ### 研究文字
 
 照项目约定，TH 内容的研究文字一律用 TH 原文：照明/分解/活化焦点与魔力发电机原先是改写或自编的，已换回 TH 原文；活化焦点补上了 TH 的第二页。
+

@@ -25,6 +25,10 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileSoulBeacon::new, BlocksIS.SOUL_BEACON.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileVisDynamo>> VIS_DYNAMO = TILES.register("vis_dynamo",
             () -> BlockEntityType.Builder.of(TileVisDynamo::new, BlocksIS.VIS_DYNAMO.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileEssentiaDynamo>> ESSENTIA_DYNAMO = TILES.register("essentia_dynamo",
+            () -> BlockEntityType.Builder.of(TileEssentiaDynamo::new, BlocksIS.ESSENTIA_DYNAMO.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileNodeMonitor>> NODE_MONITOR = TILES.register("node_monitor",
+            () -> BlockEntityType.Builder.of(TileNodeMonitor::new, BlocksIS.NODE_MONITOR.get()).build(null));
 
     private TilesIS() {
     }
