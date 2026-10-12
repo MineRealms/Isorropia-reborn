@@ -4,7 +4,8 @@
   "package": "fr.wind_blade.isorropia.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "WandItemMixin"
+    "WandItemMixin",
+    "AuraNodeBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 0
