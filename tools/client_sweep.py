@@ -67,7 +67,8 @@ STEPS = [
     ("68_liquefaction_nuggets", ["install=INSTALLED"], 6),
     # The nuggets are a 45% roll per rank, so only the smelt itself is certain.
     ("69_liquefaction_nuggets_check", ["minecraft:iron_ingot"], 1),
-    ("70_disintegration", ["install=INSTALLED"], 8),
+    # The beam has to start, reach the ore and break it; eight ticks was often not enough for the drops to exist.
+    ("70_disintegration", ["install=INSTALLED"], 20),
     ("71_disintegration_check", ["target_block=minecraft:air", "thaumcraft:crystal_essence"], 1),
     ("72_disintegration_catalog", ["profile=true"], 1),
     ("73_disintegration_item", ["install=INSTALLED"], 6),
