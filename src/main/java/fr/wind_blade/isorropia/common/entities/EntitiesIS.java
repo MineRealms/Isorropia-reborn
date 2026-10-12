@@ -57,6 +57,9 @@ public final class EntitiesIS {
                     .clientTrackingRange(4).updateInterval(10));
     public static final RegistryObject<EntityType<EntityAnimatedBlock>> ANIMATED_BLOCK = register("animated_block",
             EntityType.Builder.of(EntityAnimatedBlock::new, MobCategory.CREATURE).sized(0.75F, 1.4F).clientTrackingRange(10));
+    public static final RegistryObject<EntityType<EntityAlchemitePrimed>> ALCHEMITE_PRIMED = register("alchemite_primed",
+            EntityType.Builder.<EntityAlchemitePrimed>of(EntityAlchemitePrimed::new, MobCategory.MISC).sized(0.98F, 0.98F)
+                    .clientTrackingRange(10).updateInterval(10));
 
     private EntitiesIS() {
     }

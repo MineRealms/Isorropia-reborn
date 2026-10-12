@@ -27,7 +27,9 @@ public record ClientFxPacket(Kind kind, Vec3 from, Vec3 to, float red, float gre
         /** One ingredient flying from a pedestal into the vat. */
         ITEM_FLIGHT,
         /** The burst when a vat tears itself apart. */
-        FLUX_BURST
+        FLUX_BURST,
+        /** The expanding ring of motes over an alchemite blast. */
+        BURST
     }
 
     public static void encode(ClientFxPacket packet, FriendlyByteBuf buf) {
@@ -80,5 +82,10 @@ public record ClientFxPacket(Kind kind, Vec3 from, Vec3 to, float red, float gre
 
     public static void fluxBurst(ServerLevel level, Vec3 at) {
         send(level, at, new ClientFxPacket(Kind.FLUX_BURST, at, at, 1.0F, 1.0F, 1.0F, 1, 3.0F));
+    }
+
+    /** The ring of motes Thaumic Horizons' alchemite throws over its blast; {@code size} is the burst radius. */
+    public static void burst(ServerLevel level, Vec3 at, float size) {
+        send(level, at, new ClientFxPacket(Kind.BURST, at, at, 1.0F, 1.0F, 1.0F, 1, size));
     }
 }

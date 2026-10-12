@@ -84,6 +84,7 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> VIS_DYNAMO = machineItem("vis_dynamo", BlocksIS.VIS_DYNAMO);
     public static final RegistryObject<MachineBlockItem> ESSENTIA_DYNAMO = machineItem("essentia_dynamo", BlocksIS.ESSENTIA_DYNAMO);
     public static final RegistryObject<MachineBlockItem> NODE_MONITOR = machineItem("node_monitor", BlocksIS.NODE_MONITOR);
+    public static final RegistryObject<BlockItem> ALCHEMITE = blockItem("alchemite", BlocksIS.ALCHEMITE);
 
     private ItemsIS() {
     }

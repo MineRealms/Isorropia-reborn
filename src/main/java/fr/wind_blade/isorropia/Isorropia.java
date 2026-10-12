@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import fr.wind_blade.isorropia.common.IsorropiaCreativeTabs;
 import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.config.ConfigIS;
+import fr.wind_blade.isorropia.common.entities.AlchemiteDispenseBehavior;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.focus.ContainmentFocus;
 import fr.wind_blade.isorropia.common.focus.AnimationFocus;
@@ -50,6 +51,7 @@ public class Isorropia {
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AnimationFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileVisDynamo::registerProvider));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileEssentiaDynamo::registerProvider));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AlchemiteDispenseBehavior::register));
     }
 
     public static ResourceLocation id(String path) {

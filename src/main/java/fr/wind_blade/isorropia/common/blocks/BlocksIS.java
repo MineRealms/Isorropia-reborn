@@ -48,6 +48,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockNodeMonitor> NODE_MONITOR = BLOCKS.register("node_monitor",
             () -> new BlockNodeMonitor(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(0.7F, 1.0F)
                     .sound(SoundType.GLASS).lightLevel(state -> 7).noOcclusion()));
+    /** TH: grass sound, hardness 0.7, resistance 1.0, light 0.5 (level 7), no tool needed. */
+    public static final RegistryObject<BlockAlchemite> ALCHEMITE = BLOCKS.register("alchemite",
+            () -> new BlockAlchemite(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE)
+                    .strength(0.7F, 1.0F).sound(SoundType.GRASS).lightLevel(state -> 7)));
 
     private BlocksIS() {
     }

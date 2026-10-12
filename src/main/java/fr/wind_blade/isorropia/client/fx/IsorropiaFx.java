@@ -25,6 +25,7 @@ public final class IsorropiaFx {
             case ITEM_FLIGHT -> ThaumcraftClientEffectsApi.spawnDestinationWisp(level, packet.from(), packet.to(),
                     0.35F, 0, true, 0.0F);
             case FLUX_BURST -> burst(level, packet);
+            case BURST -> ThaumcraftClientEffectsApi.spawnBurst(level, packet.from(), packet.strength());
         }
     }
 
