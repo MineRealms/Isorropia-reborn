@@ -79,6 +79,8 @@ public final class ClientSetup {
         event.registerEntityRenderer(EntitiesIS.GUARDIAN_PANTHER.get(), RenderGuardianPanther::new);
         event.registerEntityRenderer(EntitiesIS.NETHER_HOUND.get(), RenderHellHound::new);
         event.registerEntityRenderer(EntitiesIS.EMBER.get(), RenderEmber::new);
+        event.registerEntityRenderer(EntitiesIS.ANIMATED_BLOCK.get(),
+                fr.wind_blade.isorropia.client.renderer.entities.RenderAnimatedBlock::new);
     }
 
     @SubscribeEvent

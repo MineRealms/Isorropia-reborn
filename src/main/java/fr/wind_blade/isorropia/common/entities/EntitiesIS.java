@@ -55,6 +55,8 @@ public final class EntitiesIS {
     public static final RegistryObject<EntityType<EntityEmber>> EMBER = register("ember",
             EntityType.Builder.<EntityEmber>of(EntityEmber::new, MobCategory.MISC).sized(0.25F, 0.25F).fireImmune()
                     .clientTrackingRange(4).updateInterval(10));
+    public static final RegistryObject<EntityType<EntityAnimatedBlock>> ANIMATED_BLOCK = register("animated_block",
+            EntityType.Builder.of(EntityAnimatedBlock::new, MobCategory.CREATURE).sized(0.75F, 1.4F).clientTrackingRange(10));
 
     private EntitiesIS() {
     }
@@ -75,6 +77,7 @@ public final class EntitiesIS {
         event.put(GOLDEN_CHICKEN.get(), Chicken.createAttributes().build());
         event.put(GUARDIAN_PANTHER.get(), guardianPanther());
         event.put(NETHER_HOUND.get(), Wolf.createAttributes().build());
+        event.put(ANIMATED_BLOCK.get(), EntityAnimatedBlock.createAttributes().build());
     }
 
     private static AttributeSupplier guardianPanther() {

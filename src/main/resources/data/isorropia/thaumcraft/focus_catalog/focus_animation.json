@@ -1,0 +1,59 @@
+{
+  "focus_profiles": [
+    {
+      "focus": "isorropia:focus_animation",
+      "color": 15054592,
+      "per_tick": false,
+      "base_cost": {
+        "aer": 500,
+        "terra": 500,
+        "ignis": 500,
+        "aqua": 500,
+        "ordo": 500,
+        "perditio": 500
+      },
+      "ranks": [
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:extend"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:extend"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:extend",
+          "isorropia:berserk"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:extend"
+        ],
+        [
+          "thaumcraft:frugal",
+          "thaumcraft:extend",
+          "isorropia:detonation"
+        ]
+      ],
+      "parameters": {
+        "vis_discount": {
+          "base": 0,
+          "per_level": {
+            "thaumcraft:frugal": 0.1
+          },
+          "min": 0,
+          "max": 1
+        },
+        "duration": {
+          "base": 600,
+          "per_level": {
+            "thaumcraft:extend": 200
+          },
+          "min": 600,
+          "max": 100000
+        }
+      }
+    }
+  ]
+}

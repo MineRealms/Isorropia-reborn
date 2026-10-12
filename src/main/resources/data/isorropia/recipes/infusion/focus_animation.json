@@ -1,0 +1,49 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:animation",
+  "central": {
+    "item": "thaumcraft:eldritch_object"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:golem_core_guard"
+    },
+    {
+      "item": "thaumcraft:thaumic_charm"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_air"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_earth"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_fire"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_water"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_order"
+    },
+    {
+      "item": "thaumcraft:golem_upgrade_entropy"
+    },
+    {
+      "item": "thaumcraft:thaumic_charm"
+    },
+    {
+      "item": "thaumcraft:golem_core_guard"
+    }
+  ],
+  "instability": 10,
+  "aspects": {
+    "humanus": 64,
+    "motus": 64,
+    "spiritus": 64,
+    "fabrico": 64
+  },
+  "result": {
+    "item": "isorropia:focus_animation"
+  }
+}

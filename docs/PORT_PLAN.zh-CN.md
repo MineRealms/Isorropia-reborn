@@ -271,3 +271,37 @@ S2、S3 在独立 worktree 分支上并行（`../Isorropia-wt/s2-data`、`../Iso
   放慢到 5 tick 一次）。未逐帧还原 TH 的 `disintegrateFX` 粒子。
 
 
+### 活化焦点（`isorropia:animation`）
+
+来源：TH `common/items/ItemFocusAnimation.java`（+ `common/entities/EntityGolemTH.java` 的方块钱魔像部分）；研究
+`focusAnimation`（TH `ThaumicHorizons.java:1740-1769`）。
+
+- **焦点**：`ItemFocusAnimation`（`FocusIdentityItem`）+ `common/focus/AnimationFocus`（TC4R `FocusActionApi`，
+  `USE_BLOCK` 单次触发，`INSTANT`）。右键点方块，把它「叫」出来变成会走路的魔像。
+- **判定**（照 TH 的 `onFocusRightClick`）：非空气、无方块实体（`hasBlockEntity()`）、非流体/植物、硬度 ≥ 0（不挖基岩），
+  且要么是实心不透明方块（`canOcclude()`），要么在透明白名单里（蛋糕、仙人掌、玻璃、浮冰、冰、蛛网、TNT）。
+- **魔像**：`common/entities/EntityAnimatedBlock`（`PathfinderMob`，独立于 TC4R 核心魔像系统）。同步方块状态 + 材质类型
+  （`AnimatedBlockType`）+ 两个升级标志；材质决定血量/护甲/移速/火免/回血间隔/攻击力（照 TH 的 16 项材质表，用 1.20.1 方块标签
+  映射）。寿命 = `600 + 200×extend` tick（照 TH）；到寿或被打死时**变回原方块**（就近找可替换位置放下），TNT 魔像或带
+  `detonation` 的魔像则**爆炸**。
+- **行为**：跟随召唤者（自写 `OwnerFollowGoal`）、攻击怪物；带 `berserk`（第 3 阶）时攻击除召唤者外的一切（含创造模式玩家豁免）。
+- **消耗**：照 TH——**六个原质各 `type.visCost` centivis**（泥土/沙 500、木/植物 750……金属 1250），一次性付清；每种材质不同价。
+  目录 `base_cost` 取最低价 500×6，作为「能否施放」的门槛与显示值，实际按材质扣费（TC4R 的 `canAffordCast` 门槛用 `base_cost`）。
+- **升级**：`frugal`（折扣）、`extend`（延长寿命，走目录参数 `duration`：base 600、每级 +200）、`berserk`（第 3 阶，本模组新增）、
+  `detonation`（第 5 阶，本模组新增）。
+- **配方**：TH 是**注魔**配方（不稳定度 10，humanus/motus/spiritus/fabrico 各 64；催化物 `itemEldritchObject:3`；材料
+  2 个魔像核心 + 2 支人类注射器 + 6 种魔像升级），照搬为 `isorropia:infusion/focus_animation`：催化物 `thaumcraft:eldritch_object`，
+  材料 `golem_core_guard` ×2 + `thaumic_charm` ×2 + 6 种 `golem_upgrade_*`。
+- **研究**：`isorropia:animation`，父研究 `isorropia:disintegration` + `PRIMPEARL`，CONCEALED，坐标 (5, 8)。
+
+与 TH 的偏差：
+
+- **魔像实现自成一系**：TH 的活化方块钱魔像是 `EntityGolemTH`（TH 自有的完整魔像实体，带工作核心/升级/家域等）。本移植不复用
+  TC4R 的核心魔像系统，另写一个轻量 `EntityAnimatedBlock`，只保留 TH 活化方块的玩法（材质属性、跟随、战斗、到寿变回方块）。
+- **渲染用方块本体**：TH 造了一套方块贴图的人形模型；本移植直接用 `BlockRenderDispatcher.renderSingleBlock` 把方块本体画在实体
+  胸口高度（带轻微上下浮动），观感更朴素但一眼可辨是「被活化的方块」。
+- **注射器与核心的替换**：TH 的 `itemSyringeHuman`、`itemGolemCore:100` 在本整合包无对应物，改用 `thaumcraft:golem_core_guard`
+  与 `thaumcraft:thaumic_charm` 凑齐 10 个材料，保持配方规模一致。
+- **不设家域**：TH 调 `golem.setHomeArea(...,32)`；本移植靠 `OwnerFollowGoal` 跟随召唤者，未做家域束缚。
+
+

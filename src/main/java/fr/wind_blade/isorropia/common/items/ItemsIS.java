@@ -79,6 +79,8 @@ public final class ItemsIS {
             () -> new ItemFocusLiquefaction(new Item.Properties()));
     public static final RegistryObject<ItemFocusDisintegration> FOCUS_DISINTEGRATION = ITEMS.register("focus_disintegration",
             () -> new ItemFocusDisintegration(new Item.Properties()));
+    public static final RegistryObject<ItemFocusAnimation> FOCUS_ANIMATION = ITEMS.register("focus_animation",
+            () -> new ItemFocusAnimation(new Item.Properties()));
 
     private ItemsIS() {
     }

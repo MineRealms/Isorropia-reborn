@@ -1,0 +1,28 @@
+{
+  "upgrades": [
+    {
+      "id": "isorropia:detonation",
+      "icon": "isorropia:textures/foci/detonation.png",
+      "name": "isorropia.focus.upgrade.detonation.name",
+      "description": "isorropia.focus.upgrade.detonation.text",
+      "aspects": {
+        "telum": 8
+      },
+      "max_level": 1,
+      "rank_vis": [
+        200,
+        400,
+        800,
+        1600,
+        3200
+      ],
+      "rank_xp": [
+        8,
+        16,
+        24,
+        32,
+        40
+      ]
+    }
+  ]
+}
