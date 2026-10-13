@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -23,6 +24,11 @@ import java.util.Map;
  * ground is drawn one layer per resonant aspect, in TH's fixed order (cold, water, taint, cloth, flesh, earth, fire,
  * armour, then dust if nothing matched), each layer carved out of the plane's sphere and limited on top by an octave
  * noise that {@link #calcNoise} bounds.
+ *
+ * <p>Stage 2c adds the passes TH ran over that ground: {@code drawCaves} (noise-driven tunnels that leave the odd
+ * crystal or ore vein behind) and {@code drawPockets} (buried ore veins keyed to the plane's aspects). TH's other
+ * terrain passes — {@code drawRavines}, {@code drawClouds}, {@code drawSurfaceFeatures}, {@code drawUndergroundFeatures}
+ * and {@code drawLeviathanBones} — are empty stubs upstream, so there is nothing to port for them.</p>
  *
  * <p><b>Worth knowing:</b> TH steps a running {@code level} down between layers, but in {@code drawLayer} that value
  * cancels out of both the top and the bottom of the carved column (the offsets added to the sphere equations subtract
@@ -177,6 +183,341 @@ public final class PocketPlaneTerrain {
                 }
             }
         }
+    }
+
+    /**
+     * TH's {@code drawCaves} then {@code drawPockets}, in the order {@code generatePocketPlane} ran them. The integrator
+     * calls this straight after {@link #drawLayers}, so the caverns and veins are cut into the layered ground before the
+     * aspect rings and the void bubble are drawn over it.
+     */
+    public static void drawCavesAndPockets(ServerLevel level, int radius, BlockPos centre,
+            Map<AspectId, Integer> aspects) {
+        int noise = calcNoise(aspects);
+        drawCaves(level, radius, centre, aspects, noise);
+        drawPockets(level, radius, centre, aspects, noise);
+    }
+
+    /** TH's drawCaves: hollows noise-driven caverns out of the plane's solid ground and veins their walls. */
+    private static void drawCaves(ServerLevel level, int radius, BlockPos centre, Map<AspectId, Integer> aspects,
+            int noise) {
+        RandomSource random = level.getRandom();
+
+        // How solid the sphere stays: air and void hollow it out, order and craft pack it back, flight and trap loosen it.
+        float solidity = 0.5F;
+        solidity -= aspectFraction(aspects, "aer") * 0.5F;
+        solidity += aspectFraction(aspects, "ordo") * 0.25F;
+        solidity -= aspectFraction(aspects, "vacuos");
+        solidity -= aspectFraction(aspects, "volatus") * 0.5F;
+        solidity += aspectFraction(aspects, "fabrico") * 0.5F;
+        solidity -= aspectFraction(aspects, "vinculum") * 0.5F;
+        solidity = Math.max(0.0F, Math.min(1.0F, solidity));
+        int numCaves = (int) (radius * radius * radius / 10000 * (solidity + 0.1F));
+
+        // What a cavern may be laced with. TH collected these into a HashMap and rolled against it by weight; the port
+        // keeps TH's insertion order, since a HashMap's order is not reproducible and the weights are what matter.
+        Map<AspectId, Double> dressing = new LinkedHashMap<>();
+        for (String path : CAVE_DRESSING) {
+            dredge(dressing, aspects, path);
+        }
+
+        for (int i = 0; i < numCaves; i++) {
+            int xSize = random.nextInt(10) + 10;
+            int zSize = random.nextInt(10) + 10;
+            int xOffset = random.nextInt((int) (radius * 1.5F)) - (int) (radius * 0.75F);
+            int yOffset = -random.nextInt((int) (radius * 0.5F));
+            int zOffset = random.nextInt((int) (radius * 1.5F)) - (int) (radius * 0.75F);
+            drawACave(level, centre, noise, xSize, zSize, xOffset, yOffset, zOffset, dressing);
+        }
+    }
+
+    /**
+     * TH's drawACave: over a box of {@code xSize} by sixteen by {@code zSize}, everything the octave noise puts above
+     * average is carved to air; where that cell sits on solid ground there is a one-in-fifty chance the roll turns
+     * instead into a vein. TH anchored the box with {@code - xSize + xOffset}, which nudges it back by its own width.
+     */
+    private static void drawACave(ServerLevel level, BlockPos centre, int noise, int xSize, int zSize, int xOffset,
+            int yOffset, int zOffset, Map<AspectId, Double> dressing) {
+        RandomSource random = level.getRandom();
+        int baseX = centre.getX() - xSize + xOffset;
+        int baseY = centre.getY() + yOffset;
+        int baseZ = centre.getZ() - zSize + zOffset;
+        double[] noiseData = octaveNoise3(random, baseX, baseY, baseZ, xSize, 16, zSize, noise / 10.0D, noise / 25.0D,
+                noise / 10.0D);
+        int avg = getAvg(noiseData);
+
+        for (int x = 0; x < xSize; x++) {
+            for (int z = 0; z < zSize; z++) {
+                for (int y = 0; y < 16; y++) {
+                    if (noiseData[x + xSize * z + y * xSize * zSize] <= avg) {
+                        continue;
+                    }
+                    int wx = baseX + x;
+                    int wy = baseY + y;
+                    int wz = baseZ + z;
+                    BlockState here = level.getBlockState(new BlockPos(wx, wy, wz));
+                    // TH never touches a water block (1.7's flowing water; the port has one water block for both).
+                    if (here.is(Blocks.WATER)) {
+                        continue;
+                    }
+                    if (!level.getBlockState(new BlockPos(wx, wy - 1, wz)).isAir() && random.nextInt(50) == 49) {
+                        AspectId which = pickWeighted(dressing, random);
+                        // A miss, or a ceiling of already-carved air, leaves the cell as it was: TH only dresses stone.
+                        if (which != null && !here.isAir()) {
+                            setFast(level, wx, wy, wz, veinBlock(which, random));
+                        }
+                    } else {
+                        setFast(level, wx, wy, wz, Blocks.AIR.defaultBlockState());
+                    }
+                }
+            }
+        }
+    }
+
+    /** TH's drawPockets: scatters buried ore veins through the lower half of the plane, one aspect's ore per pocket. */
+    private static void drawPockets(ServerLevel level, int radius, BlockPos centre, Map<AspectId, Integer> aspects,
+            int noise) {
+        RandomSource random = level.getRandom();
+        int numPockets = radius * radius * radius / 200;
+        Map<AspectId, Double> probabilities = new LinkedHashMap<>();
+        for (String path : POCKET_DRESSING) {
+            dredge(probabilities, aspects, path);
+        }
+
+        // TH hoisted the block out of the loop and only replaced it when a roll matched an aspect, so a roll that misses
+        // leaves a pocket of whatever the last matching pocket was.
+        BlockState block = Blocks.AIR.defaultBlockState();
+        for (int i = 0; i < numPockets; i++) {
+            AspectId which = pickWeighted(probabilities, random);
+            if (which != null) {
+                BlockState chosen = pocketVein(which.value().getPath(), random);
+                if (chosen != null) {
+                    block = chosen;
+                }
+            }
+            int xSize = random.nextInt(3) + 1;
+            int zSize = random.nextInt(3) + 1;
+            int xOffset = random.nextInt(radius * 2) - radius;
+            int yOffset = -random.nextInt(radius);
+            int zOffset = random.nextInt(radius * 2) - radius;
+            drawAPocket(level, centre, noise, block, xSize, zSize, xOffset, yOffset, zOffset);
+        }
+    }
+
+    /**
+     * TH's drawAPocket: a two-block slab of ore tucked among the plane's solid ground. TH built a top and a bottom slice
+     * from the same generator with the same arguments, so the two are identical and one slice stands in for both.
+     */
+    private static void drawAPocket(ServerLevel level, BlockPos centre, int noise, BlockState block, int xSize,
+            int zSize, int xOffset, int yOffset, int zOffset) {
+        RandomSource random = level.getRandom();
+        int baseX = centre.getX() - xSize + xOffset;
+        int baseY = centre.getY() + yOffset;
+        int baseZ = centre.getZ() - zSize + zOffset;
+        double[] slice = octaveNoise3(random, baseX, baseY, baseZ, xSize, 1, zSize, noise / 50.0D, noise / 25.0D,
+                noise / 50.0D);
+
+        for (int x = 0; x < xSize; x++) {
+            for (int z = 0; z < zSize; z++) {
+                int height = (int) (slice[x + z * xSize] / 16.0D);
+                for (int y = height - 1; y < height + 1; y++) {
+                    int wx = baseX + x;
+                    int wy = baseY + y;
+                    int wz = baseZ + z;
+                    BlockState here = level.getBlockState(new BlockPos(wx, wy, wz));
+                    // A vein only replaces solid, non-water ground: a pocket is ore inside the terrain, not a hole.
+                    if (!here.isAir() && !here.is(Blocks.WATER)) {
+                        setFast(level, wx, wy, wz, block);
+                    }
+                }
+            }
+        }
+    }
+
+    /** TH's drawCaves dressing table, in the order TH inserted it. */
+    private static final String[] CAVE_DRESSING = {
+            "terra", "ignis", "ordo", "aer", "aqua", "perditio", "metallum", "mortuus", "exanimis", "sensus", "lucrum",
+    };
+
+    /** TH's drawPockets probability table, in the order TH inserted it. */
+    private static final String[] POCKET_DRESSING = {
+            "terra", "ignis", "ordo", "aer", "aqua", "perditio", "metallum", "vitreus", "spiritus", "praecantatio",
+            "auram", "potentia", "arbor", "corpus", "sensus", "perfodio", "instrumentum", "lucrum", "vitium", "venenum",
+            "permutatio", "cognitio", "humanus", "fames", "fabrico",
+    };
+
+    /** Adds an aspect to a weighted table, but only when the plane actually holds it, as TH checked. */
+    private static void dredge(Map<AspectId, Double> table, Map<AspectId, Integer> aspects, String path) {
+        if (amount(aspects, path) <= 0) {
+            return;
+        }
+        for (Map.Entry<AspectId, Integer> entry : aspects.entrySet()) {
+            if (entry.getKey().value().getPath().equals(path)) {
+                table.put(entry.getKey(), aspectFraction(aspects, path));
+                return;
+            }
+        }
+    }
+
+    /**
+     * TH's weighted roll: one {@code nextFloat}, then walk the table subtracting each weight until it fits. Returns null
+     * when the roll lands past every weight, which TH read as "no dressing at all".
+     */
+    private static AspectId pickWeighted(Map<AspectId, Double> table, RandomSource random) {
+        float which = random.nextFloat();
+        for (Map.Entry<AspectId, Double> entry : table.entrySet()) {
+            float weight = entry.getValue().floatValue();
+            if (which <= weight) {
+                return entry.getKey();
+            }
+            which -= weight;
+        }
+        return null;
+    }
+
+    /** TH's drawACave dressing: six aspect crystals, a skull, lapis, gold or iron. */
+    private static BlockState veinBlock(AspectId aspect, RandomSource random) {
+        return switch (aspect.value().getPath()) {
+            case "terra" -> tc("earth_crystal_cluster");
+            case "aer" -> tc("air_crystal_cluster");
+            case "aqua" -> tc("water_crystal_cluster");
+            case "ignis" -> tc("fire_crystal_cluster");
+            case "ordo" -> tc("order_crystal_cluster");
+            case "perditio" -> tc("entropy_crystal_cluster");
+            case "mortuus", "exanimis" -> Blocks.SKELETON_SKULL.defaultBlockState();
+            case "sensus" -> Blocks.LAPIS_BLOCK.defaultBlockState();
+            case "lucrum" -> random.nextBoolean()
+                    ? Blocks.GOLD_BLOCK.defaultBlockState()
+                    : Blocks.EMERALD_BLOCK.defaultBlockState();
+            case "metallum" -> random.nextBoolean()
+                    ? Blocks.GOLD_BLOCK.defaultBlockState()
+                    : Blocks.IRON_BLOCK.defaultBlockState();
+            default -> Blocks.AIR.defaultBlockState();
+        };
+    }
+
+    /** TH's drawPockets ore table: the aspect's ore, or null when the aspect has none and the last pocket repeats. */
+    private static BlockState pocketVein(String path, RandomSource random) {
+        return switch (path) {
+            case "terra" -> infusedOre(4);
+            case "aer" -> infusedOre(1);
+            case "aqua" -> infusedOre(3);
+            case "ignis" -> random.nextBoolean() ? infusedOre(2) : Blocks.LAVA.defaultBlockState();
+            case "ordo" -> infusedOre(5);
+            case "perditio" -> infusedOre(6);
+            case "metallum" -> metalOre(random);
+            case "vitreus" -> Blocks.QUARTZ_BLOCK.defaultBlockState();
+            case "spiritus" -> Blocks.SOUL_SAND.defaultBlockState();
+            case "praecantatio", "auram" -> infusedOre(random.nextInt(6) + 1);
+            case "potentia" -> Blocks.REDSTONE_BLOCK.defaultBlockState();
+            case "arbor" -> random.nextBoolean() ? Blocks.OAK_LOG.defaultBlockState() : infusedOre(7);
+            case "corpus" -> tc("tainted_flesh");
+            case "sensus" -> Blocks.LAPIS_ORE.defaultBlockState();
+            case "perfodio", "instrumentum" -> mineOre(random);
+            case "lucrum" -> greedOre(random);
+            case "vitium" -> tc("crusted_taint");
+            case "venenum" -> liquidDeath();
+            case "permutatio" -> infusedOre(0);
+            case "cognitio" -> random.nextBoolean() ? Blocks.BOOKSHELF.defaultBlockState() : brainBlock();
+            case "humanus" -> switch (random.nextInt(3)) {
+                case 0 -> Blocks.BOOKSHELF.defaultBlockState();
+                case 1 -> brainBlock();
+                default -> tc("tainted_flesh");
+            };
+            case "fames" -> tc("tainted_flesh");
+            case "fabrico" -> Blocks.CRAFTING_TABLE.defaultBlockState();
+            default -> null;
+        };
+    }
+
+    /**
+     * TH's {@code blockCustomOre} metadata, recovered from the legacy tile names: 0 cinnabar, 1..6 the six infused
+     * stones in primal order, 7 amber. TC4R splits it into one block per ore.
+     */
+    private static BlockState infusedOre(int metadata) {
+        return switch (metadata) {
+            case 0 -> tc("cinnabar_ore");
+            case 1 -> tc("air_infused_stone");
+            case 2 -> tc("fire_infused_stone");
+            case 3 -> tc("water_infused_stone");
+            case 4 -> tc("earth_infused_stone");
+            case 5 -> tc("order_infused_stone");
+            case 6 -> tc("entropy_infused_stone");
+            default -> tc("amber_bearing_stone");
+        };
+    }
+
+    /** TH's metal branch: half iron, two fifths gold, the rest cinnabar. */
+    private static BlockState metalOre(RandomSource random) {
+        if (random.nextFloat() <= 0.5F) {
+            return Blocks.IRON_ORE.defaultBlockState();
+        }
+        if (random.nextFloat() <= 0.8F) {
+            return Blocks.GOLD_ORE.defaultBlockState();
+        }
+        return infusedOre(0);
+    }
+
+    /** TH's mine and tool branch: a weighted spread of vanilla ores, then a random Thaumcraft one. */
+    private static BlockState mineOre(RandomSource random) {
+        float which = random.nextFloat();
+        if (which < 0.4F) {
+            return Blocks.IRON_ORE.defaultBlockState();
+        }
+        if (which < 0.5F) {
+            return Blocks.GOLD_ORE.defaultBlockState();
+        }
+        if (which < 0.6F) {
+            return Blocks.DIAMOND_ORE.defaultBlockState();
+        }
+        if (which < 0.7F) {
+            return Blocks.EMERALD_ORE.defaultBlockState();
+        }
+        if (which < 0.8F) {
+            return Blocks.LAPIS_ORE.defaultBlockState();
+        }
+        return infusedOre(random.nextInt(8));
+    }
+
+    /** TH's greed branch: gold, diamond, emerald or lapis. */
+    private static BlockState greedOre(RandomSource random) {
+        float which = random.nextFloat();
+        if (which < 0.4F) {
+            return Blocks.GOLD_ORE.defaultBlockState();
+        }
+        if (which < 0.6F) {
+            return Blocks.DIAMOND_ORE.defaultBlockState();
+        }
+        if (which < 0.8F) {
+            return Blocks.EMERALD_ORE.defaultBlockState();
+        }
+        return Blocks.LAPIS_ORE.defaultBlockState();
+    }
+
+    /**
+     * TH laid its own brain block here, a taint-material block that dropped zombie brains. The port has no brain block
+     * and cannot add one (the block's model, texture and lang belong to another module), so it uses the tainted flesh
+     * that TH's brain reused the same material as.
+     */
+    private static BlockState brainBlock() {
+        return tc("tainted_flesh");
+    }
+
+    /**
+     * TH set {@code blockFluidDeath} at metadata 16 for a poison pocket. That is past the end of TC4's finite-fluid
+     * range, so the port places the block at its fullest level instead of guessing at a clamped metadata.
+     */
+    private static BlockState liquidDeath() {
+        return dev.tc4port.thaumcraft.registry.TCBlocks.LIQUID_DEATH.get().overfullState();
+    }
+
+    /** TH's getAvg: each value truncated to a long before the sum, then the whole divided down and truncated again. */
+    private static int getAvg(double[] array) {
+        long total = 0L;
+        for (double value : array) {
+            total += (long) value;
+        }
+        total /= array.length;
+        return (int) total;
     }
 
     /** TH's surface dressing: grass and crops on dirt, ice and lilies on water, pillars, mobs and so on. */
@@ -416,19 +757,32 @@ public final class PocketPlaneTerrain {
      */
     private static double[] octaveNoise(RandomSource random, int xOffset, int zOffset, int xSize, int zSize,
             double xScale, double zScale) {
+        return octaveNoise3(random, xOffset, 0, zOffset, xSize, 1, zSize, xScale, 0.0D, zScale);
+    }
+
+    /**
+     * The same stand-in over a box: the cave and pocket passes sample a slab (and the pocket pass a single slice of one),
+     * so they share this generator rather than a second noise implementation. Indexed x, then z, then y — the order TH
+     * read {@code generateNoiseOctaves}' output in.
+     */
+    private static double[] octaveNoise3(RandomSource random, int xOffset, int yOffset, int zOffset, int xSize,
+            int ySize, int zSize, double xScale, double yScale, double zScale) {
         Perlin[] octaves = new Perlin[OCTAVES];
         for (int i = 0; i < OCTAVES; i++) {
             octaves[i] = new Perlin(random);
         }
-        double[] out = new double[xSize * zSize];
+        double[] out = new double[xSize * ySize * zSize];
         double amplitude = 1.0D;
         for (int octave = 0; octave < OCTAVES; octave++) {
             double baseX = xOffset * amplitude * xScale;
+            double baseY = yOffset * amplitude * yScale;
             double baseZ = zOffset * amplitude * zScale;
             for (int x = 0; x < xSize; x++) {
                 for (int z = 0; z < zSize; z++) {
-                    out[x + z * xSize] += octaves[octave].noise(baseX + x * xScale * amplitude, 0.0D,
-                            baseZ + z * zScale * amplitude) * amplitude;
+                    for (int y = 0; y < ySize; y++) {
+                        out[x + z * xSize + y * xSize * zSize] += octaves[octave].noise(baseX + x * xScale * amplitude,
+                                baseY + y * yScale * amplitude, baseZ + z * zScale * amplitude) * amplitude;
+                    }
                 }
             }
             amplitude /= 2.0D;
