@@ -72,6 +72,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockVortex> VORTEX = BLOCKS.register("vortex",
             () -> new BlockVortex(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 20000.0F)
                     .sound(SoundType.WOOL).lightLevel(state -> 15).noCollission().noOcclusion().noLootTable()));
+    /** TH: cloth sound, hardness -1 (unbreakable), resistance 60000, light 15. The pocket plane's shell. */
+    public static final RegistryObject<BlockVoid> VOID = BLOCKS.register("void",
+            () -> new BlockVoid(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 60000.0F)
+                    .sound(SoundType.WOOL).lightLevel(state -> 15).noLootTable()));
 
     private BlocksIS() {
     }

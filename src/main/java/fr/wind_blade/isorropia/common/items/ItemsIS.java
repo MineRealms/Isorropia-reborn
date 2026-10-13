@@ -96,6 +96,8 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> RECOMBINATOR = machineItem("recombinator", BlocksIS.RECOMBINATOR);
     /** The rift itself: creative-only, since in play it is made by collapsing an over-amplified node. */
     public static final RegistryObject<BlockItem> VORTEX = blockItem("vortex", BlocksIS.VORTEX);
+    /** The pocket plane's shell: creative-only, laid down by the planar generator. */
+    public static final RegistryObject<BlockItem> VOID = blockItem("void", BlocksIS.VOID);
 
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",

@@ -53,6 +53,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
     private int beams;
     private boolean ateDevices;
     private boolean collapsing;
+    /**
+     * TH's cheat rift: it never eats, never grinds and never collapses. A pocket plane's exit rift is one of these, so
+     * each island keeps its doorway (and TH's creative-only variant was one too).
+     */
+    private boolean cheat;
     private final Map<AspectId, Integer> aspects = new LinkedHashMap<>();
     private final List<net.minecraft.world.item.ItemStack> items = new ArrayList<>();
     /** Last beam count pushed to clients, so a same-tick change cannot send two packets. */
@@ -72,6 +77,15 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
 
     public boolean collapsing() {
         return collapsing;
+    }
+
+    public boolean isCheat() {
+        return cheat;
+    }
+
+    public void setCheat(boolean value) {
+        this.cheat = value;
+        syncToClients();
     }
 
     /** Read-only aspect view, ordered as TH's AspectList was. */
@@ -128,6 +142,10 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         }
         if (vortex.count < 50) {
             vortex.count++;
+            return;
+        }
+        if (vortex.cheat) {
+            // A doorway, not a predator: nothing to eat, nothing to grind, no clock running down.
             return;
         }
         if (!vortex.ateDevices) {
@@ -290,6 +308,7 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         tag.putInt("beams", this.beams);
         tag.putBoolean("ateDevices", this.ateDevices);
         tag.putBoolean("collapsing", this.collapsing);
+        tag.putBoolean("cheat", this.cheat);
         ListTag aspectTags = new ListTag();
         for (Map.Entry<AspectId, Integer> entry : this.aspects.entrySet()) {
             CompoundTag aspectTag = new CompoundTag();
@@ -307,6 +326,7 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         this.beams = tag.getInt("beams");
         this.ateDevices = tag.getBoolean("ateDevices");
         this.collapsing = tag.getBoolean("collapsing");
+        this.cheat = tag.getBoolean("cheat");
         this.lastSyncedBeams = this.beams;
         this.aspects.clear();
         ListTag aspectTags = tag.getList("aspects", Tag.TAG_COMPOUND);
