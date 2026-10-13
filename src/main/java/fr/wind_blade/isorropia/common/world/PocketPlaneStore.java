@@ -34,7 +34,62 @@ public class PocketPlaneStore extends SavedData {
 
     /** One pocket plane. {@code returnVortex} is the rift in the world the visitor came from. */
     public record Plane(int id, String name, Map<AspectId, Integer> aspects, List<ResourceLocation> effects,
-            ResourceKey<Level> returnDimension, BlockPos returnVortex, int radius) {
+            ResourceKey<Level> returnDimension, BlockPos returnVortex, int radius,
+            @Nullable BlockPos portalAPos, @Nullable ResourceKey<Level> portalADim,
+            @Nullable BlockPos portalBPos, @Nullable ResourceKey<Level> portalBDim,
+            @Nullable BlockPos portalCPos, @Nullable ResourceKey<Level> portalCDim,
+            @Nullable BlockPos portalDPos, @Nullable ResourceKey<Level> portalDDim) {
+
+        /** TH's four gateway slots per plane: 1..4, or 0 when none is free. */
+        public int firstFreePortal() {
+            if (portalAPos == null) {
+                return 1;
+            }
+            if (portalBPos == null) {
+                return 2;
+            }
+            if (portalCPos == null) {
+                return 3;
+            }
+            return portalDPos == null ? 4 : 0;
+        }
+
+        @Nullable
+        public BlockPos portalPos(int which) {
+            return switch (which) {
+                case 1 -> portalAPos;
+                case 2 -> portalBPos;
+                case 3 -> portalCPos;
+                case 4 -> portalDPos;
+                default -> null;
+            };
+        }
+
+        @Nullable
+        public ResourceKey<Level> portalDim(int which) {
+            return switch (which) {
+                case 1 -> portalADim;
+                case 2 -> portalBDim;
+                case 3 -> portalCDim;
+                case 4 -> portalDDim;
+                default -> null;
+            };
+        }
+
+        /** Fills one of the four slots, or clears it when the position is null. */
+        public Plane withPortal(int which, @Nullable BlockPos pos, @Nullable ResourceKey<Level> dimension) {
+            return switch (which) {
+                case 1 -> new Plane(id, name, aspects, effects, returnDimension, returnVortex, radius, pos, dimension,
+                        portalBPos, portalBDim, portalCPos, portalCDim, portalDPos, portalDDim);
+                case 2 -> new Plane(id, name, aspects, effects, returnDimension, returnVortex, radius, portalAPos,
+                        portalADim, pos, dimension, portalCPos, portalCDim, portalDPos, portalDDim);
+                case 3 -> new Plane(id, name, aspects, effects, returnDimension, returnVortex, radius, portalAPos,
+                        portalADim, portalBPos, portalBDim, pos, dimension, portalDPos, portalDDim);
+                case 4 -> new Plane(id, name, aspects, effects, returnDimension, returnVortex, radius, portalAPos,
+                        portalADim, portalBPos, portalBDim, portalCPos, portalCDim, pos, dimension);
+                default -> this;
+            };
+        }
     }
 
     /** Reserves the next column, matching TH's {@code pocketPlaneMAXID} counter, and records the plane. */
@@ -42,9 +97,18 @@ public class PocketPlaneStore extends SavedData {
             ResourceKey<Level> returnDimension, BlockPos returnVortex, int radius) {
         int id = nextId++;
         planes.put(id, new Plane(id, name, Map.copyOf(aspects), List.copyOf(effects), returnDimension, returnVortex,
-                radius));
+                radius, null, null, null, null, null, null, null, null));
         setDirty();
         return id;
+    }
+
+    /** Records or clears one of a plane's four gateway slots. */
+    public void setPortal(int planeId, int which, @Nullable BlockPos pos, @Nullable ResourceKey<Level> dimension) {
+        Plane plane = planes.get(planeId);
+        if (plane != null) {
+            planes.put(planeId, plane.withPortal(which, pos, dimension));
+            setDirty();
+        }
     }
 
     @Nullable
@@ -81,6 +145,19 @@ public class PocketPlaneStore extends SavedData {
                 effectTags.add(StringTag.valueOf(effect.toString()));
             }
             planeTag.put("effects", effectTags);
+            ListTag portalsTag = new ListTag();
+            for (int which = 1; which <= 4; which++) {
+                BlockPos pos = plane.portalPos(which);
+                ResourceKey<Level> dim = plane.portalDim(which);
+                if (pos != null) {
+                    CompoundTag portalTag = new CompoundTag();
+                    portalTag.putInt("which", which);
+                    portalTag.putLong("pos", pos.asLong());
+                    portalTag.putString("dim", dim == null ? "" : dim.location().toString());
+                    portalsTag.add(portalTag);
+                }
+            }
+            planeTag.put("portals", portalsTag);
             ListTag aspectsTag = new ListTag();
             for (Map.Entry<AspectId, Integer> entry : plane.aspects().entrySet()) {
                 CompoundTag aspectTag = new CompoundTag();
@@ -120,9 +197,24 @@ public class PocketPlaneStore extends SavedData {
             }
             ResourceLocation dimension = ResourceLocation.tryParse(planeTag.getString("returnDim"));
             int id = planeTag.getInt("id");
+            BlockPos[] positions = new BlockPos[5];
+            ResourceKey<?>[] dimensions = new ResourceKey[5];
+            ListTag portalsTag = planeTag.getList("portals", Tag.TAG_COMPOUND);
+            for (int j = 0; j < portalsTag.size(); j++) {
+                CompoundTag portalTag = portalsTag.getCompound(j);
+                int which = portalTag.getInt("which");
+                if (which >= 1 && which <= 4) {
+                    positions[which] = BlockPos.of(portalTag.getLong("pos"));
+                    ResourceLocation portalDim = ResourceLocation.tryParse(portalTag.getString("dim"));
+                    dimensions[which] = portalDim == null ? Level.OVERWORLD
+                            : ResourceKey.create(Registries.DIMENSION, portalDim);
+                }
+            }
             store.planes.put(id, new Plane(id, planeTag.getString("name"), aspects, effects,
                     dimension == null ? Level.OVERWORLD : ResourceKey.create(Registries.DIMENSION, dimension),
-                    BlockPos.of(planeTag.getLong("returnVortex")), planeTag.getInt("radius")));
+                    BlockPos.of(planeTag.getLong("returnVortex")), planeTag.getInt("radius"),
+                    positions[1], dimensions[1], positions[2], dimensions[2], positions[3], dimensions[3],
+                    positions[4], dimensions[4]));
         }
         return store;
     }
