@@ -98,6 +98,7 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> VORTEX_STABILIZER = machineItem("vortex_stabilizer", BlocksIS.VORTEX_STABILIZER);
     /** Drawn by its block entity renderer (clawed pedestal, pearl, lightning ring). */
     public static final RegistryObject<MachineBlockItem> RECOMBINATOR = machineItem("recombinator", BlocksIS.RECOMBINATOR);
+    public static final RegistryObject<MachineBlockItem> BLOOD_INFUSER = machineItem("blood_infuser", BlocksIS.BLOOD_INFUSER);
     /** The rift itself: creative-only, since in play it is made by collapsing an over-amplified node. */
     public static final RegistryObject<BlockItem> VORTEX = blockItem("vortex", BlocksIS.VORTEX);
     /** The pocket plane's shell: creative-only, laid down by the planar generator. */

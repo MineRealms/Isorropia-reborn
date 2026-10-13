@@ -3456,6 +3456,16 @@
           "recipe_ids": []
         },
         {
+          "type": "INFUSION_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:infusion/blood_infuser"
+          ]
+        },
+        {
           "type": "TEXT",
           "value": "isorropia.research_page.essentiaInjection.3",
           "aspects": {},

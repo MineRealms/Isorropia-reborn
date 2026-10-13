@@ -1,0 +1,31 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:essentiaInjection",
+  "central": {
+    "item": "thaumcraft:crucible"
+  },
+  "components": [
+    {
+      "item": "minecraft:comparator"
+    },
+    {
+      "item": "thaumcraft:alchemical_construct"
+    },
+    {
+      "item": "thaumcraft:alchemical_construct"
+    },
+    {
+      "item": "thaumcraft:essentia_buffer"
+    }
+  ],
+  "instability": 4,
+  "aspects": {
+    "humanus": 8,
+    "permutatio": 8,
+    "victus": 16,
+    "praecantatio": 16
+  },
+  "result": {
+    "item": "isorropia:blood_infuser"
+  }
+}

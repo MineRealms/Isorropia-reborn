@@ -57,6 +57,14 @@ public final class IsorropiaAspects {
     public static final AspectId LIMUS = tc("limus");
     public static final AspectId VENENUM = tc("venenum");
     public static final AspectId MESSIS = tc("messis");
+    /** TH's weather aspect (TC6 {@code WEATHER}). */
+    public static final AspectId TEMPESTAS = tc("tempestas");
+    /** TH's mining aspect (TC6 {@code MINE}). */
+    public static final AspectId PERFODIO = tc("perfodio");
+    /** TH's harvest aspect (TC6 {@code HARVEST}). */
+    public static final AspectId METO = tc("meto");
+    /** TH's travel aspect (TC6 {@code TRAVEL}). */
+    public static final AspectId ITER = tc("iter");
 
     /** Hunger. */
     public static final AspectId FAMES = tc("fames");

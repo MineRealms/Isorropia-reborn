@@ -17,6 +17,8 @@ public final class MenusIS {
             "morphic_fingers", () -> new MenuType<>(MorphicFingersMenu::new, FeatureFlags.VANILLA_SET));
     public static final RegistryObject<MenuType<VisDynamoMenu>> VIS_DYNAMO = MENUS.register(
             "vis_dynamo", () -> IForgeMenuType.create(VisDynamoMenu::new));
+    public static final RegistryObject<MenuType<BloodInfuserMenu>> BLOOD_INFUSER = MENUS.register(
+            "blood_infuser", () -> IForgeMenuType.create(BloodInfuserMenu::new));
 
     private MenusIS() {
     }

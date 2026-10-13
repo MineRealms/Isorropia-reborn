@@ -551,7 +551,7 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   `essentiaInjection`/`blastPhial` 研究。TH 把注射与爆裂药瓶放在一个物品里用 damage 区分，本移植分成两个 id；
   TH 的爆裂药瓶配方产出 `itemSyringeHuman` damage 1，而真正被扔出去的是 `ItemSyringeInjection` 的药瓶形态，
   所以配方改为产出可用形态；`stacksTo(1)` 与「一次做 4 个」在现代 codec 下互斥（1.7 允许结果超过堆叠上限），
-  故药瓶可堆叠、注射保持 1。血液注入器与 Seroconverter 是后续模块，故研究缺那一页配方。
+  故药瓶可堆叠、注射保持 1。血液注入器与 Seroconverter 是后续模块，故研究缺那一页配方。（Seroconverter 后已补上，见下。）
 - **B 洞穴与口袋**（`3d20b51`）：`drawCaves`/`drawPockets` 系列；`drawRavines`/`drawClouds`/
   `drawSurfaceFeatures`/`drawUndergroundFeatures`/`drawLeviathanBones` 在 TH 里本来就是空函数。
 - **C 群系与效果**（`adadb0f`）：1.7 的生物群系是逐列的、可按要素动态决定，现代必须静态注册，故定义三个静态位面群系
@@ -606,3 +606,32 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 
 照项目约定，TH 内容的研究文字一律用 TH 原文：照明/分解/活化焦点与魔力发电机原先是改写或自编的，已换回 TH 原文；活化焦点补上了 TH 的第二页。
 
+
+### Seroconverter（TH bloodInfuser，2026-10-14）
+
+TH 的 Seroconverter = `BlockBloodInfuser`/`TileBloodInfuser`（"血夜转化器"）：正面放血注射器，向导在表盘上拨最多
+八单位要素，机器以 suction 128 从除顶面外的任一面逐 tick 各吸 1 单位，凑齐后吃掉注射器、把当前产物装瓶成注射剂
+放进 3×3 输出架。效果照 TH 的 `getCurrentEffects`：每要素把 `amount × 权重` 记到各药水上，每两单位要素出一个最强
+剩余药水，倍率=权重/30、时长=权重×100tick（瞬效 heal/harm 为 1），颜色按要素色加权混合。TH 键在 TC6 要素上的
+权重表按 TC4R 要素重键（cloth→tutamen、tree→herba），TH 独有药水（vis 回复/真空/电击/合成/vis 耗竭/污浊毒）无
+1.20.1 对应，整行弃用。
+
+- **接线**：模式 0/1/2 = 停止/单次/自动，走 `clickMenuButton`（vanilla 的 `sendEnchantPacket`）；负数 id = 把玩家
+  已知排序表的第 `(-id)-1` 个要素 +1，>2 = 删第 `id-3` 个，0–2 = 模式。TH 的排序键是玩家自己的已发现要素表，
+  两端各自对 `PlayerKnowledgeApi.view` 的清单按要素 id 排序保证一致。表盘与吸入量全部走 BE 的 `getUpdateTag`
+  同步（TH 的 GUI 直接读 tile，本移植的屏幕同样通过菜单的 BlockPos 读客户端 tile）。
+- **槽位**：0 号只收血注射器（`SimpleContainer.canPlaceItem` + 菜单 shift 点回 0 号），输出 3×3 是 TH 的列主序
+  `x*3+y+1`。`Block.onRemove` 落包 10 格。
+- **渲染**：TH 的十盒模型（64×64）原 pose 保留，进渲染器时走 TH 的 `translate(0.5,1.5,0.5)+rot180X`；`hasBlood`
+  时按 TH 的 `translate(1.90625,0.75,0.46875)+rotZ90` 叠画移植版 `ModelSyringe`。
+- **资产**：`guibloodinfuser.png` → `textures/gui/`，`bloodinfuser.png` → `textures/entity/blood_infuser.png`；
+  注入研究页 `INFUSION_CRAFTING` 插进 `essentiaInjection` 的 TEXT.2 之后（配方：坩埚居中，比较器×1 +
+  炼金构造×2 + 要素缓冲×1，humanus/permutatio 8、victus/praecantatio 16，不稳 4）。
+- **运行时证据**（探针 `248`/`249`/`251`，DEV 客户端）：罐 8 单位 victus 在机器正下方，拨 2 单位单次模式，手推
+  12 tick：`suctionDown=128`、抽走 2 单位（罐余 6）、注射器消耗、输出注射剂 regen amp0 dur1200（2×权重12→
+  时长 1200）、颜色 `de0005`（victus 色）、其余 8 格空、模式回 0。真包路径右键打开 `BloodInfuserScreen`，
+  网格画出玩家 6 个已发现要素（截图 `blood_infuser_gui.png`，网格区 686 个高亮像素），机身 BER 截图
+  `blood_infuser_block.png`。
+- **探针环境的坑**：用 `setHealth` 强行复活死掉的测试员会让客户端的 OWNER 同步对象状态（TC4R
+  `player_knowledge`）丢失，`PlayerKnowledgeApi.view` 在客户端抛 `IllegalStateException`，菜单打开即被关——
+  重启客户端即恢复正常；屏幕的 `refresh()` 对该异常退化为空网格，避免真机玩家在同步落位前打开菜单炸包。

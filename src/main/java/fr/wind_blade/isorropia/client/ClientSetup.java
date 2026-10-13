@@ -56,6 +56,9 @@ public final class ClientSetup {
         event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
                 fr.wind_blade.isorropia.common.menu.MenusIS.VIS_DYNAMO.get(),
                 fr.wind_blade.isorropia.client.gui.VisDynamoScreen::new));
+        event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
+                fr.wind_blade.isorropia.common.menu.MenusIS.BLOOD_INFUSER.get(),
+                fr.wind_blade.isorropia.client.gui.BloodInfuserScreen::new));
         event.enqueueWork(() -> ItemProperties.register(ItemsIS.FOCUS_ILLUMINATION.get(), Isorropia.id("colour"),
                 (stack, level, entity, seed) -> ItemFocusIllumination.colour(stack) / 100.0F));
         event.enqueueWork(fr.wind_blade.isorropia.client.fx.ContainmentFx::register);
@@ -76,6 +79,8 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.model.RecombinatorModel::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSyringe.LAYER,
                 fr.wind_blade.isorropia.client.model.ModelSyringe::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.BloodInfuserModel.LAYER,
+                fr.wind_blade.isorropia.client.model.BloodInfuserModel::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -154,6 +159,8 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.renderer.tiles.RenderVortex::new);
         event.registerBlockEntityRenderer(TilesIS.PORTAL.get(),
                 fr.wind_blade.isorropia.client.renderer.tiles.RenderPortal::new);
+        event.registerBlockEntityRenderer(TilesIS.BLOOD_INFUSER.get(),
+                fr.wind_blade.isorropia.client.renderer.tiles.RenderBloodInfuser::new);
     }
 
     /** The keystone in a receptacle, and the same keystone as an item, are tinted with the plane they belong to. */

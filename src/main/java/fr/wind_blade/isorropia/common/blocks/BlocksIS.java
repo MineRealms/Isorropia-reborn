@@ -88,6 +88,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockSlot> SLOT = BLOCKS.register("keystone_receptacle",
             () -> new BlockSlot(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(2.5F)
                     .sound(SoundType.STONE).noOcclusion()));
+    /** TH: iron, hardness 1.0, resistance 1.0, not opaque. The blood syringe's dial and output rack. */
+    public static final RegistryObject<BlockBloodInfuser> BLOOD_INFUSER = BLOCKS.register("blood_infuser",
+            () -> new BlockBloodInfuser(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(1.0F, 1.0F)
+                    .sound(SoundType.METAL).noOcclusion().requiresCorrectToolForDrops()));
     /** TH: unbreakable, no collision. The surface of a planar gateway, drawn by its block entity renderer. */
     public static final RegistryObject<BlockPortal> PORTAL = BLOCKS.register("portal",
             () -> new BlockPortal(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 3600000.0F)

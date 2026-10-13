@@ -39,6 +39,8 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileRecombinator::new, BlocksIS.RECOMBINATOR.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileVortex>> VORTEX = TILES.register("vortex",
             () -> BlockEntityType.Builder.of(TileVortex::new, BlocksIS.VORTEX.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileBloodInfuser>> BLOOD_INFUSER = TILES.register("blood_infuser",
+            () -> BlockEntityType.Builder.of(TileBloodInfuser::new, BlocksIS.BLOOD_INFUSER.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
             () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
     /** The gateway surface: the plane-side twin and the world-side opening share one tile type. */
