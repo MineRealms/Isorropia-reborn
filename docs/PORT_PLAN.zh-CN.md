@@ -464,10 +464,63 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 - **抽取状态会同步**：为了让光带颜色跟着**抽走的要素**走，每次成功抽取都发一次方块实体更新（最多 4 次/秒，
   只在有人正抽时发生）；网络存量增长成整点也发更新，确保符标大小和节点读数不会滞后。TH 同样在增加整点存量时更新方块。
 
-### 暂不做的一台
+## 位面线（TH 独有，机器部分已完成）
 
-- **转导放大器**：研究父项是位面线的 `planarTheory`、配方要位面导管；当前公开 `NodeApi` 对充能节点返回
-  `NOT_A_MUTABLE_NODE`，不能直接通过普通节点 CAS 实现「每种要素 +10」。随位面线评估专用 API 或隔离兼容桥，暂缓而非判定不可能。
+来源：TH `common/items/ItemPlanarConduit.java`、`Tile/BlockTransductionAmplifier`、`Tile/BlockVortexStabilizer`、
+`Tile/BlockRecombinator`、`Tile/BlockVortex`，以及 `common/lib/PocketPlaneData` 等。里程碑：
+
+| 内容 | 提交 | 探针 |
+| --- | --- | --- |
+| 位面导管 + 位面理论（`isorropia:planar_conduit` / `planarTheory`） | `c659872` | `200` |
+| 转导放大器（`isorropia:transduction_amplifier`） | 钩子 `02a895f`、机器 `d0a3826` | `202` |
+| 漩涡衰减器（`isorropia:vortex_stabilizer`） | `c9e82e3` | `203` |
+| 重组器（`isorropia:recombinator`） | `daec906` | `204` |
+| 位面漩涡（`isorropia:vortex`） | `541cd4d` | `208` / `209` |
+| 衰减器压制漩涡（TH 的 `beams`） | `831d82a` | `208` |
+| 口袋位面维度骨架 | `33f4b23` | `210` |
+
+- **转导放大器**：TH 的 `recipeTransducer` 用 `blockStoneDevice.11`（节点转导器），不是 `.9`（节点稳定器）——首次提交按名字
+  错用，已修正（`216e6fe`）。充能节点的基础 vis 由结构签名**每 tick 重算**，公开 `NodeApi` 没有 setter，所以加了 Mixin
+  `AuraNodeBlockEntityMixin`（`isorropia.mixins.json`，`required:false`）把「每节点加成表」折进 `calculateEnergizedBase`
+  的 RETURN，桥在 `common/compat/AuraNodeBonus`（反射，Mixin 关掉即 no-op）。有效充能节点需要**正下方稳定器 + 正上方转导器**
+  （`AuraNodeBlock.hasValidEnergizedStructure`），放大器贴在**侧面**不破坏该结构。
+- **四重叠加灾难**：≥4 台放大器时节点被换成漩涡并继承其基础要素。加成必须**先读再撤**——撤销会把派生缓存清空，所以真实底值
+  要用 `energizedBase() - AuraNodeBonus.get(node)` 计算。
+- **重组器**：TH 的 `processCombos` 有四趟回退，但 `AspectApi.combination` 是「双源要素」表，只有第一趟可能命中，其余三趟等价，
+  故只实现一趟并注明。双节点改写走 `NodeApi.replaceLoadedStates`（原子事务、需服务端线程）；`NodeVis` 保留 0 而不允许负值。
+  TH 的注魔配方催化物是**始源珍珠**（`itemEldritchObject` meta 3 = `thaumcraft:primordial_pearl`），材料四个
+  `thaumcraft:essentia_filter`（= `itemResource.8`，TC4 的「Vis Filter」）。
+- **位面漩涡**：不可破坏、亮度 15、无碰撞、不掉落。预热 50 tick 后吞掉自身 5×5×5，然后把 15 格内实体拽入、近身撕咬，并每 tick
+  磨掉最多 3 个硬度 0–10 的方块；`count += max(0, 6-beams)`；超过 2400 塌缩，25 tick 后自毁并爆散咒波。衰减器光束同时接受
+  节点与漩涡（两者都无碰撞箱，步进扫描先查方块实体再判碰撞），漩涡被照中时 `beams ±1`。
+- **TESR 状态必须同步**：原版 `BlockEntity#getUpdateTag()` 返回**空** NBT、`getUpdatePacket()` 返回 null，所以放大器与衰减器
+  上线后逻辑正确但**渲染器永远看不到激活**（`2cda6b2` 修正）。探针 `206` 回读**客户端** `mc.level` 的方块实体，是唯一能证明
+  同步的方式。
+- **TH 放大器档位**：活塞行程与叠加层辉光用 `min(50,count)/137.0`（不是 `/50`），且辉光走**脉动 lightmap** 而非满亮度；
+  写错会得到「活塞飞出方块 + 白色糊块」。参考 TC4R 自己的 `NodeMachineRenderHelper.renderTransducer`。
+
+与 TH 的偏差：
+
+- **口袋位面只做到阶段一**（见下），漩涡的维度交接、虚空合成（虚空油灰 / 水晶法杖 / 傀儡粉）与法杖右键取物**未移植**；
+  因此 `beams ≥ 6` 时漩涡只是停摆，不会开启口袋位面。
+- **漩涡的饥饿粒子**（TH 的 `hungryNodeFX`）与循环音效（`vortex.ogg`）未做；外观由 TESR 提供。
+- **重组器不阻止普通节点欺凌**（照 TH）；供体掉容量的 1/3 概率保留。
+
+### 口袋位面阶段划分
+
+| 阶段 | 内容 | 状态 |
+| --- | --- | --- |
+| 1 | 维度注册（`isorropia:pocket_plane`，虚空 `minecraft:flat`）+ `PocketPlane` 传送助手 + `PocketPlaneStore` 注册表 | 已完成 `33f4b23` |
+| 2 | 地形盖章：TH 的 `drawLayers` / `drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones`，加 `drawRings` 与球壳 | 待做 |
+| 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 待做 |
+| 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
+
+- 布局照 TH：每个位面占 +Z 方向一列 256 格，居中 `(0,128,256·id)`，半径上限 127，出口裂口在锚点正上方。
+- TH 的位面世界本来就是**虚空**，岛屿由 `PocketPlaneData.generatePocketPlane` 直接盖章生成（不是逐区块地形），
+  所以维度用虚空生成器即可；阶段 2 的工作是「盖章」而不是写 `ChunkGenerator`。
+- 阶段 1 暂用 `minecraft:plains` 生物群系与 `minecraft:overworld` 维度特效；TH 的 `BiomeGenPocket`（按要素上色的生物群系）
+  留到阶段 2 一起做。
+
 
 ### 研究文字
 
