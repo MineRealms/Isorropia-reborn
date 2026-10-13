@@ -159,6 +159,7 @@ if (isForge) {
 } else {
     // ---------------------------------------------------------------- 1.21.1 / NeoForge
     apply plugin: 'net.neoforged.moddev'
+    apply from: rootProject.file('gradle/neoforge-resources.gradle')
 
     neoForge {
         version = neo_version
@@ -239,8 +240,10 @@ if (isForge) {
         // 1.21.1 that is fine: NeoForge runs in official mappings, so nothing needs remapping and
         // the ordinary configurations carry mods just as well.
         implementation("dev.tc4port:thaumcraft-neoforge:${thaumcraft_version}") { transitive = false }
-        // TC4R declares both mandatory, and the Somatic Brain is a Curios head item.
-        runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}") { transitive = false }
+        // TC4R declares both mandatory, and the Somatic Brain is a Curios head item - unlike
+        // Technomancy, Isorropia compiles against the Curios API (SomaticBrainCurioRenderer),
+        // so the Curios artifact is on the implementation path here too.
+        implementation("top.theillusivec4.curios:curios-neoforge:${curios_version}") { transitive = false }
         // Pin the official Modrinth file, whose Maven version number is otherwise ambiguous across loaders.
         runtimeOnly("maven.modrinth:terrablender:${terrablender_file}") { transitive = false }
 

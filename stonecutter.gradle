@@ -6,15 +6,15 @@ plugins {
 stonecutter.active('1.20.1-forge')
 
 // A failed node never publishes a partial set of artifacts to the collection directory.
-// S1 extends the dependsOn list with the 1.21.1-neoforge node.
+// Isorropia keeps the single-version jar naming (`isorropia-<mc>-...`, no loader suffix):
+// the MC version already disambiguates the nodes, and the jar-parity gate diffs against
+// the ForgeGradle-6 baseline jar, which used this exact name.
 tasks.register('buildAndCollect', Sync) {
     group = 'build'
     description = 'Builds, tests and verifies every target, then collects the release jars.'
-    dependsOn ':1.20.1-forge:build'
-    // Isorropia keeps the single-version jar naming (`isorropia-1.20.1-...`, no loader suffix):
-    // the MC version already disambiguates the nodes, and the jar-parity gate diffs against the
-    // ForgeGradle-6 baseline jar, which used this exact name.
+    dependsOn ':1.20.1-forge:build', ':1.21.1-neoforge:build'
     from(layout.projectDirectory.dir('versions/1.20.1-forge/build/libs')) { include '*.jar' }
+    from(layout.projectDirectory.dir('versions/1.21.1-neoforge/build/libs')) { include '*.jar' }
     into layout.buildDirectory.dir('distributions')
     duplicatesStrategy = DuplicatesStrategy.FAIL
 }
@@ -41,11 +41,99 @@ stonecutter.parameters {
     }
 
     replacements {
+        // Only the NeoForge target transforms symbols. The Forge target must not reverse
+        // replacements inside inactive NeoForge branches of the canonical source, so the whole
+        // section is behind this guard (plan doc section 10).
         if (!neo) {
             return
         }
-        // S2 fills this in: package moves first with the specific-before-generic order, then class
-        // renames at identifier boundaries, then the vanilla-drift regexes (each with a reverse
-        // pair, since regex replacements demand both directions).
+        // Order matters: the generic `net.minecraftforge.` rule at the bottom must not see a path a
+        // more specific rule already rewrote, or `net.minecraftforge.api.distmarker` would become
+        // `net.neoforged.neoforge.api.distmarker`.
+        string(neo) {
+            replace('net.minecraftforge.eventbus.api.', 'net.neoforged.bus.api.')
+        }
+        string(neo) {
+            replace('net.minecraftforge.api.distmarker.', 'net.neoforged.api.distmarker.')
+        }
+        string(neo) {
+            replace('net.minecraftforge.fml.', 'net.neoforged.fml.')
+        }
+
+        // Class renames where the simple name changed too, so they must precede the generic rule.
+        string(neo) {
+            replace('net.minecraftforge.common.MinecraftForge', 'net.neoforged.neoforge.common.NeoForge')
+        }
+        string(neo) {
+            replace('net.minecraftforge.common.ForgeConfigSpec', 'net.neoforged.neoforge.common.ModConfigSpec')
+        }
+        string(neo) {
+            // Isorropia's MenusIS registers its menus through this factory.
+            replace('net.minecraftforge.common.extensions.IForgeMenuType',
+                    'net.neoforged.neoforge.common.extensions.IMenuTypeExtension')
+        }
+        string(neo) {
+            // Isorropia's shearable animals implement the Forge interface; NeoForge renamed it.
+            replace('net.minecraftforge.common.IForgeShearable', 'net.neoforged.neoforge.common.IShearable')
+        }
+        string(neo) {
+            replace('net.minecraftforge.registries.RegistryObject',
+                    'net.neoforged.neoforge.registries.DeferredHolder')
+        }
+        string(neo) {
+            replace('net.minecraftforge.registries.ForgeRegistries',
+                    'net.neoforged.neoforge.registries.NeoForgeRegistries')
+        }
+        string(neo) {
+            replace('net.minecraftforge.event.entity.living.LivingHurtEvent',
+                    'net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent')
+        }
+        string(neo) {
+            replace('net.minecraftforge.client.event.RegisterGuiOverlaysEvent',
+                    'net.neoforged.neoforge.client.event.RegisterGuiLayersEvent')
+        }
+
+        // NeoForge 1.21.1 moved the capability API out of `common.capabilities` into a top-level
+        // `capabilities` package, and renamed `ForgeCapabilities` to `Capabilities`. The class
+        // rename has to precede the package move (both are expressed in 1.20.1 source terms).
+        // `Capability` itself has no successor - it was split into `BlockCapability` /
+        // `ItemCapability` / `EntityCapability` - so that one stays a structural error.
+        string(neo) {
+            replace('net.minecraftforge.common.capabilities.ForgeCapabilities',
+                    'net.neoforged.neoforge.capabilities.Capabilities')
+        }
+        string(neo) {
+            replace('net.minecraftforge.common.capabilities.', 'net.neoforged.neoforge.capabilities.')
+        }
+
+        // Catch-all for the remaining pure package moves.
+        string(neo) {
+            replace('net.minecraftforge.', 'net.neoforged.neoforge.')
+        }
+
+        string(true) {
+            replace('Mod.EventBusSubscriber', 'net.neoforged.fml.common.EventBusSubscriber')
+        }
+        // Imports and unqualified references must agree. Restrict renames to identifier boundaries.
+        // (regex replacements require the reverse pair even when the rule is neo-only.)
+        [MinecraftForge: 'NeoForge', ForgeConfigSpec: 'ModConfigSpec',
+         IForgeMenuType: 'IMenuTypeExtension', IForgeShearable: 'IShearable',
+         RegistryObject: 'DeferredHolder', ForgeRegistries: 'NeoForgeRegistries',
+         LivingHurtEvent: 'LivingIncomingDamageEvent',
+         RegisterGuiOverlaysEvent: 'RegisterGuiLayersEvent'].each { before, after ->
+            regex(true) {
+                replace('\\b' + before + '\\b', after, '\\b' + after + '\\b', before)
+            }
+        }
+
+        // ---------------------------------------------------------------- vanilla drift
+        // `new ResourceLocation(ns, path)` was replaced by a named factory in 1.20.5. The second
+        // pair is the reverse rule: a `regex` replacement needs both directions spelled out.
+        regex(neo) {
+            replace(
+                    'new ResourceLocation\\(', 'ResourceLocation.fromNamespaceAndPath(',
+                    'ResourceLocation\\.fromNamespaceAndPath\\(', 'new ResourceLocation('
+            )
+        }
     }
 }

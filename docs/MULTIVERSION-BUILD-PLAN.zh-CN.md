@@ -78,15 +78,32 @@
 （无 gson/vanilla 映射漂移类错误——那些在 MDG 下不可能出现，两节点共用 official 映射）。
 门禁：`:1.20.1-forge:build --offline` 在双节点注册后仍然绿。
 
-## S2 — 替换层 + 资源层（计划）
+## S2 — 替换层 + 资源层（已完成）
 
-- `stonecutter.parameters {}` 内的 replacements（包移动 → 类名 → vanilla 漂移正则，
-  正则必须带反向对，特定规则在兜底规则之前）。
-- 资源转换（参照 Technomancy `gradle/neoforge-resources.gradle`）：pack_format 15→34、
-  `neoforge.mods.toml`、forge→neoforge 标签、配方 `result.item`→`result.id`、
-  数据包目录单数化。
-- 门禁：1.20.1 产物回到 0 差异（除 MANIFEST + 13 类）；1.21.1 产物零
-  `net.minecraftforge` 引用。
+- `stonecutter.gradle` 替换表（整个 `replacements {}` 在 `if (!neo) return` 之后，全部只作用
+  于 NeoForge 节点）：eventbus→`net.neoforged.bus.api`、distmarker→`net.neoforged.api.distmarker`、
+  `fml.`→`net.neoforged.fml.`，类改名（MinecraftForge→NeoForge、ForgeConfigSpec→ModConfigSpec、
+  IForgeMenuType→IMenuTypeExtension、IForgeShearable→IShearable、RegistryObject→DeferredHolder、
+  ForgeRegistries→NeoForgeRegistries、LivingHurtEvent→LivingIncomingDamageEvent、
+  RegisterGuiOverlaysEvent→RegisterGuiLayersEvent、ForgeCapabilities→Capabilities +
+  capabilities 包移动），最后 `net.minecraftforge.` → `net.neoforged.neoforge.` 兜底 +
+  `new ResourceLocation(` → `ResourceLocation.fromNamespaceAndPath(` 正则反向对。
+- `gradle/neoforge-resources.gradle`（NeoForge 节点 processResources）：pack_format 15→34、
+  排除 Forge 版 `mods.toml`（节点本地 `versions/1.21.1-neoforge/src/main/resources/META-INF/
+  neoforge.mods.toml` 提供 `[[mixins]]` + neoforge 依赖）、目录单数化（recipe/loot_table/…）、
+  `data/forge/tags` → `data/c/tags` 命名空间迁移、TC4R 配方条件 `forge:conditions`→
+  `neoforge:conditions`、配方 `result.item`→`result.id`。
+- Curios 在 NeoForge 节点改为 `implementation`（与 Technomancy 不同：Isorropia 的
+  SomaticBrainCurioRenderer 编译期引用 Curios API）。
+
+### S2 门禁结果
+
+| 门禁 | 结果 |
+|---|---|
+| 1.20.1 产物 parity（替换表落地后） | 仍为 13 个已论证类差异 + MANIFEST，**零漂移** |
+| 1.21.1 生成树残留 `net.minecraftforge` | **0**（逐文件计数全为 0） |
+| 1.21.1 资源层 | pack_format 34 ✓、neoforge.mods.toml ✓、recipe/loot_table 单数化 ✓、c 命名空间标签 ✓、59/59 配方 `result.id` ✓ |
+| 1.21.1 编译错误 | 1740 → **1272**；剩余全部结构性：TickEvent 拆分(12)、NetworkEvent/SimpleChannel(12)、VanillaGuiOverlay(6)、Capability 拆分、DistExecutor、NetworkHooks、FMLJavaModLoadingContext、ModelData 等符号级错误 |
 
 ## S3 — 结构层（计划）：`//? if` 条件 + 节点独有源码，两节点编译通过。
 
