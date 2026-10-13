@@ -515,8 +515,23 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   实现 `WandInteractionTarget`，`use()` 里把裂口最旧的一件存物弹回。虚空油灰可**修复任意受损的可修复物品**（TH 的
   `RecipeVoidPuttyRepair`，做成 TC4R 的 `CustomRecipe` + `SimpleCraftingRecipeSerializer`）。
   研究条目 `isorropia:wispSpawn` / `voidPutty` / `crystalWand`（父级 `planarRift`，CONCEALED），配方页给水晶法杖。
-- **傀儡粉仍未移植**：TH 同一入口里还走 `handleVoidCrafting` 的傀儡粉分支，但那要 TH 自己的 `EntityGolemTH`（整块未移植），
-  故丢入的傀儡粉原样不动。TH 的「水晶法杖不可充能」在 TC4R 没有对应标志，本移植由裂口一次性充满（该法杖也只能这样获得）。
+- **傀儡粉已做（2026-10-14，`8c95531`）**：TH 同一入口里的傀儡粉分支照搬——丢进被压满的裂口的**傀儡动画粉末**
+  每捏生成一只**永久虚空傀儡**（`PERMANENT=-420`，无核心，主人=投掷者，TH 的 `spawnWisps` 兄弟分支）。
+  TH 的「水晶法杖不可充能」在 TC4R 没有对应标志，本移植由裂口一次性充满（该法杖也只能这样获得）。
+- **工作傀儡系统已做（2026-10-14，`8c95531`）**：TH 的 `EntityGolemTH`（`extends EntityGolemBase`，TC4R 的
+  `ThaumcraftGolemEntity` 是 final 且材质表是封闭枚举，不能挂靠）做成**独立 `PathfinderMob`**：
+  材质表沿用 TH 的 `EnumGolemTHType`（本移植里是 `AnimatedBlockType` 的 `upgrades`/`carry` 扩展列）；
+  渲染沿用本移植已验证的「方块身体」画法（`RenderAnimatedBlock` 同款），虚空傀儡以黑曜石材质顶替 TH 的
+  `golem_void` 人形皮肤；**TC4R 的核心/升级道具右键安装**（核心=定居守卫，升级每种最多 2 个，同步层没有
+  byte[] 序列化器所以按 4bit 一槽打包进 int）。粉末右键方块=TH 的 `onItemUse`（1200 tick 寿命，复用动画焦点
+  的可激发方块判定），死亡时**还原回原方块**（TNT/爆裂则爆炸，还原不下就掉落）。研究 `golemPowder`
+  （坩埚：盐之精华 + humanus/spiritus/motus 各 4，父级 `GOLEMTHAUMIUM`/`ADVANCEDGOLEM`）与 `voidGolem`
+  （隐藏父级 `golemPowder`、父级 `wispSpawn`、warp 1），页面文本照 TH 原文；虚空傀儡的三条警告
+  `thaumichorizons.golemWarning1..3` 原样搬进 lang，最后一次「笑声」后死亡并召唤 `TCEntities.ELDRITCH_GUARDIAN`。
+  TH 的**工作行为**（搬运/挤奶/伐木等 core 任务）留在 TC4R 自己的傀儡系统里，本实体只做伴随/守卫。
+  TH 的傀儡铃（拾取/停用）未移植（TC4R 的铃绑它自己的傀儡类）。
+  实机验证：探针 `238`（粉末→ROCK 傀儡 30 血、跟随主人、装 alchemy 核心、2 个 AIR 升级、第三个被拒、
+  死后还原石头）+ 探针 `247`（裂口吞 3 捏粉末→3 只无核心 VOID 傀儡、归属投掷者、裂口内无存物）。
 - **漩涡的饥饿粒子已做**：`clientTick` 在裂口未被压满时调 TC4R 自己的 `HungryNodeClientEffect.tick`（同 TH 的
   `hungryNodeFX` 拉取方块碎屑）。**循环音效已做**：注册 `isorropia:vortex`，按 `vortex.ogg` 的 27 秒长度每 540 tick
   重放一次（TH 用的是 `MovingSound` 循环）。
