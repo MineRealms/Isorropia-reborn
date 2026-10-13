@@ -20,6 +20,7 @@ import fr.wind_blade.isorropia.common.sounds.SoundsIS;
 import fr.wind_blade.isorropia.common.tiles.TileEssentiaDynamo;
 import fr.wind_blade.isorropia.common.tiles.TileVisDynamo;
 import fr.wind_blade.isorropia.common.tiles.TilesIS;
+import fr.wind_blade.isorropia.common.wand.CrystalWandParts;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -56,6 +57,7 @@ public class Isorropia {
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileEssentiaDynamo::registerProvider));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AlchemiteDispenseBehavior::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(HeldWandTargets::reportHook));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(CrystalWandParts::register));
     }
 
     public static ResourceLocation id(String path) {

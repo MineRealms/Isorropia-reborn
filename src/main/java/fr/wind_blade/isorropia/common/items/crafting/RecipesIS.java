@@ -15,6 +15,10 @@ public final class RecipesIS {
     public static final RegistryObject<SimpleCraftingRecipeSerializer<IlluminationDyeRecipe>> ILLUMINATION_DYE =
             SERIALIZERS.register("illumination_dye", () -> new SimpleCraftingRecipeSerializer<>(IlluminationDyeRecipe::new));
 
+    /** TH's void putty: one damaged item plus putty repairs it, whatever it is. */
+    public static final RegistryObject<SimpleCraftingRecipeSerializer<VoidPuttyRepairRecipe>> VOID_PUTTY_REPAIR =
+            SERIALIZERS.register("void_putty_repair", () -> new SimpleCraftingRecipeSerializer<>(VoidPuttyRepairRecipe::new));
+
     private RecipesIS() {
     }
 }

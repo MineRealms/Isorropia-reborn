@@ -1,8 +1,12 @@
 package fr.wind_blade.isorropia.common.blocks;
 
+import dev.tc4port.thaumcraft.item.WandItem;
+import fr.wind_blade.isorropia.common.compat.ThaumBridge;
 import fr.wind_blade.isorropia.common.tiles.TileVortex;
 import fr.wind_blade.isorropia.common.tiles.TilesIS;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -24,9 +29,10 @@ import javax.annotation.Nullable;
 /**
  * Thaumic Horizons' vortex. An unbreakable, hueless, glowing rift that a node collapses into when an energized node is
  * amplified past its limit or when one is placed by hand. It draws itself entirely with a block entity renderer and has
- * no collision, so entities fall straight through and are then dragged in.
+ * no collision, so entities fall straight through and are then dragged in. Right-clicking it with a wand pulls a
+ * stored void-crafted item back out (TH's {@code IWandable}).
  */
-public class BlockVortex extends Block implements EntityBlock {
+public class BlockVortex extends Block implements EntityBlock, ThaumBridge.WandTarget {
     /** TH gave the rift a 0.3-0.7 target box while leaving its collision empty. */
     private static final VoxelShape SHAPE = Shapes.box(0.3, 0.3, 0.3, 0.7, 0.7, 0.7);
 
@@ -42,6 +48,22 @@ public class BlockVortex extends Block implements EntityBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
+    }
+
+    /**
+     * TH's wand interaction: a wand right-click pulls the rift's oldest stored item back out. TC4R runs this from the
+     * wand item's first-use phase (see {@code WandInteractionTarget}), so a non-wand click is left to ordinary use.
+     */
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+                                 BlockHitResult hit) {
+        if (!(player.getItemInHand(hand).getItem() instanceof WandItem)) {
+            return InteractionResult.PASS;
+        }
+        if (level.getBlockEntity(pos) instanceof TileVortex vortex) {
+            vortex.popStored(player);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     /** A vortex placed by hand swallows a random handful of aspects, as TH's did. */

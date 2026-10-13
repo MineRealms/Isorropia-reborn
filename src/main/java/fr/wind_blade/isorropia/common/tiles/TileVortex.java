@@ -4,11 +4,16 @@ import dev.tc4port.thaumcraft.api.aspect.AspectAmounts;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectContainerView;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
+import dev.tc4port.thaumcraft.api.entity.WispApi;
 import dev.tc4port.thaumcraft.registry.TCItems;
+import dev.tc4port.thaumcraft.registry.TCSounds;
+import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.wand.CrystalWandParts;
 import fr.wind_blade.isorropia.common.world.PocketPlane;
 import fr.wind_blade.isorropia.common.world.PocketPlaneBuilder;
 import fr.wind_blade.isorropia.common.world.PocketPlaneStore;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -18,13 +23,16 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -50,8 +58,10 @@ import java.util.Map;
  * dropped into it seeds a pocket plane ({@link #createdDimension}). The rift then doubles as the doorway into that
  * plane, carrying a traveller standing in it across and back.
  *
- * <p>TH's void crafting (void putty, crystal wand, golem powder) is not ported yet, so the item hopper beside the
- * pearl hand-off is still absent; the machine is otherwise faithful.</p>
+ * <p>While damped, the rift also runs TH's void crafting: matter dropped in is transformed and held inside it. A
+ * void ingot soaks into void putty, salis mundus bursts into wisps, and an inert crystal wand comes back charged to
+ * the brim ({@link #storedItems}). Right-clicking the rift with a wand pulls the oldest stored item back out
+ * ({@link #popStored}). TH also forged golem animation powder here; that waits on the working-golem system.</p>
  */
 public class TileVortex extends BlockEntity implements AspectContainerView {
     /** TH's collapse trigger: the rift tears itself apart once it has eaten this long. */
@@ -307,23 +317,96 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
     }
 
     /**
-     * TH's rift-to-pocket-plane hand-off. Once six beams have fully damped the rift it stops eating, and a primordial
-     * pearl dropped into it erupts into a new pocket plane. TH also ran its void crafting from here (void putty, a
-     * crystal wand, golem powder); those items are a later stage, so only the pearl is consumed for now.
+     * TH's rift-to-pocket-plane hand-off. Once six beams have fully damped the rift it stops eating, and anything
+     * dropped into it is transformed: a primordial pearl erupts into a new pocket plane, while any other matter runs
+     * TH's void crafting.
      */
     private void handlePocketPlaneStuff(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel server)) {
             return;
         }
         for (Entity entity : level.getEntitiesOfClass(Entity.class, new AABB(pos).inflate(1.0))) {
-            if (entity instanceof ItemEntity item && item.getItem().is(TCItems.PRIMORDIAL_PEARL.get())) {
+            if (!(entity instanceof ItemEntity item)) {
+                continue;
+            }
+            if (item.getItem().is(TCItems.PRIMORDIAL_PEARL.get())) {
                 RandomSource random = level.getRandom();
                 level.explode(null, pos.getX() + random.nextFloat(), pos.getY() + random.nextFloat(),
                         pos.getZ() + random.nextFloat(), 1.0F, Level.ExplosionInteraction.NONE);
                 createDimension(server, pos, item);
                 item.discard();
+            } else {
+                handleVoidCrafting(server, pos, item);
             }
         }
+    }
+
+    /**
+     * TH's void crafting. Matter passed through a damped rift is transformed and kept inside it: a void ingot becomes
+     * void putty, salis mundus clumps into wisps, and an inert crystal wand comes back charged to the brim. TH also
+     * forged golem animation powder here, but that needs TH's own golem, so a golem powder drop is left untouched.
+     */
+    private void handleVoidCrafting(ServerLevel level, BlockPos pos, ItemEntity item) {
+        ItemStack stack = item.getItem();
+        if (stack.is(TCItems.VOID_INGOT.get())) {
+            this.items.add(new ItemStack(ItemsIS.VOID_PUTTY.get(), stack.getCount()));
+            item.discard();
+        } else if (stack.is(salisMundus())) {
+            for (int i = 0; i < stack.getCount(); i++) {
+                spawnWisps(level, pos);
+            }
+            item.discard();
+        } else if (stack.is(ItemsIS.CRYSTAL_WAND.get())) {
+            this.items.add(CrystalWandParts.chargedWand());
+            item.discard();
+        }
+    }
+
+    /** TH's {@code spawnWisps}: one to four wisps of a random aspect drawn from the rift. */
+    private void spawnWisps(ServerLevel level, BlockPos pos) {
+        RandomSource random = level.getRandom();
+        AspectId aspect = randomAspect(random);
+        if (aspect == null) {
+            return;
+        }
+        int count = random.nextInt(4) + 1;
+        Vec3 centre = Vec3.atCenterOf(pos);
+        for (int i = 0; i < count; i++) {
+            WispApi.spawn(level, centre, aspect);
+        }
+    }
+
+    /** A random aspect from the rift; TH left a wisp's type unset when the rift carried none, so a primal stands in. */
+    @Nullable
+    private AspectId randomAspect(RandomSource random) {
+        if (!aspects.isEmpty()) {
+            List<AspectId> keys = new ArrayList<>(aspects.keySet());
+            return keys.get(random.nextInt(keys.size()));
+        }
+        List<AspectId> primals = List.copyOf(AspectApi.primals());
+        return primals.isEmpty() ? null : primals.get(random.nextInt(primals.size()));
+    }
+
+    /** TH's {@code itemResource} meta 14, the salis mundus that seeds wisps. */
+    private static Item salisMundus() {
+        return BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath("thaumcraft", "salis_mundus"));
+    }
+
+    /** TH's wand right-click: the oldest stored item is pushed back out of the rift. */
+    public void popStored(Player player) {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        if (!items.isEmpty()) {
+            ItemStack stack = items.remove(0);
+            ItemEntity drop = new ItemEntity(level, worldPosition.getX() + 0.5, worldPosition.getY() + 0.5,
+                    worldPosition.getZ() + 0.5, stack);
+            level.addFreshEntity(drop);
+            setChanged();
+        }
+        // TH played this on every wand click, whether or not anything came out.
+        level.playSound(null, worldPosition, TCSounds.WAND.get(), SoundSource.BLOCKS, 0.5F,
+                0.9F + level.getRandom().nextFloat() * 0.2F);
     }
 
     /** Stamps a fresh plane from the rift's aspects and turns this rift into its doorway (TH's {@code createDimension}). */
@@ -461,6 +544,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
             aspectTags.add(aspectTag);
         }
         tag.put("aspects", aspectTags);
+        ListTag itemTags = new ListTag();
+        for (ItemStack item : this.items) {
+            itemTags.add(item.save(new CompoundTag()));
+        }
+        tag.put("items", itemTags);
     }
 
     @Override
@@ -485,6 +573,14 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
             AspectId id = AspectId.parse(aspectTag.getString("key"));
             if (id != null) {
                 this.aspects.put(id, aspectTag.getInt("amount"));
+            }
+        }
+        this.items.clear();
+        ListTag itemTags = tag.getList("items", Tag.TAG_COMPOUND);
+        for (int i = 0; i < itemTags.size(); i++) {
+            ItemStack stack = ItemStack.of(itemTags.getCompound(i));
+            if (!stack.isEmpty()) {
+                this.items.add(stack);
             }
         }
     }

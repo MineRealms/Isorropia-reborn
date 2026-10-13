@@ -109,6 +109,15 @@ public final class ItemsIS {
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",
             ItemPlanarConduit::new);
 
+    // Void crafting (TH rift hand-off): matter dropped into a fully damped rift is transformed and held inside it,
+    // to be pulled back out with a wand. A void ingot soaks into putty; an inert crystal wand comes back charged.
+    /** TH: 16 to a stack, and it repairs any damaged tool, weapon or armour on the crafting grid. */
+    public static final RegistryObject<Item> VOID_PUTTY = ITEMS.register("void_putty",
+            () -> new Item(new Item.Properties().stacksTo(16)));
+    /** The inert wand; the rift turns it into a crystal rod and cap charged to the brim. */
+    public static final RegistryObject<Item> CRYSTAL_WAND = ITEMS.register("crystal_wand",
+            () -> new Item(new Item.Properties().stacksTo(1)));
+
     // Syringe toolkit (TH blood infusion): the warded syringe draws the blood the Seroconverter later treats.
     public static final RegistryObject<ItemSyringeEmpty> SYRINGE_EMPTY = ITEMS.register("syringe_empty",
             () -> new ItemSyringeEmpty(new Item.Properties()));

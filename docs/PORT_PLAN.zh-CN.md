@@ -478,6 +478,9 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | 位面漩涡（`isorropia:vortex`） | `541cd4d` | `208` / `209` |
 | 衰减器压制漩涡（TH 的 `beams`） | `831d82a` | `208` |
 | 口袋位面维度骨架 | `33f4b23` | `210` |
+| 成对传送门（位面网关） | `8e9c8ec` | `226`/`227`/`228`/`229` |
+| `planarRift` 研究 + 六光束交接 | `ef240cc` | `230`/`231`/`232` |
+| 虚空合成（油灰 / 水晶法杖 / 灵气精灵）+ 法杖取物 | 见提交 | `233` |
 
 - **转导放大器**：TH 的 `recipeTransducer` 用 `blockStoneDevice.11`（节点转导器），不是 `.9`（节点稳定器）——首次提交按名字
   错用，已修正（`216e6fe`）。充能节点的基础 vis 由结构签名**每 tick 重算**，公开 `NodeApi` 没有 setter，所以加了 Mixin
@@ -506,8 +509,14 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   裂口即盖章出一个位面（`PocketPlaneBuilder.create`），裂口随之成为该位面的门（`createdDimension`）。门把站在其中的
   玩家送进位面，位面出口裂口（`cheat` 门，出生即 `createdDimension`）再把人送回来；穿越免疫照 TH 的
   `timeUntilPortal`，进门 200 tick、被门扣住时重置为 10（`transferTravellers`）。一颗珍珠只开一个位面。
-- **虚空合成**（虚空油灰 / 水晶法杖 / 傀儡粉）与**法杖右键取物**仍未移植：`handlePocketPlaneStuff` 里 TH 除珍珠外还
-  走 `handleVoidCrafting`，那几件物品属后续阶段，本移植只消费珍珠。
+- **虚空合成已做（除傀儡粉）**：TH 的 `handleVoidCrafting` 照搬——丢进被压满的裂口的**虚空锭**变成**虚空油灰**（每锭一份，
+  存入裂口内部的 `items` 列表），**盐之精华**迸成 1–4 只（要素取自裂口）**灵气精灵**，**惰性水晶法杖**换出一根
+  充能水晶法杖（水晶杖杆 250 vis + 水晶杖端，用 `WandApi.createFullyCharged`）。**法杖右键取物已做**：`BlockVortex`
+  实现 `WandInteractionTarget`，`use()` 里把裂口最旧的一件存物弹回。虚空油灰可**修复任意受损的可修复物品**（TH 的
+  `RecipeVoidPuttyRepair`，做成 TC4R 的 `CustomRecipe` + `SimpleCraftingRecipeSerializer`）。
+  研究条目 `isorropia:wispSpawn` / `voidPutty` / `crystalWand`（父级 `planarRift`，CONCEALED），配方页给水晶法杖。
+- **傀儡粉仍未移植**：TH 同一入口里还走 `handleVoidCrafting` 的傀儡粉分支，但那要 TH 自己的 `EntityGolemTH`（整块未移植），
+  故丢入的傀儡粉原样不动。TH 的「水晶法杖不可充能」在 TC4R 没有对应标志，本移植由裂口一次性充满（该法杖也只能这样获得）。
 - **漩涡的饥饿粒子已做**：`clientTick` 在裂口未被压满时调 TC4R 自己的 `HungryNodeClientEffect.tick`（同 TH 的
   `hungryNodeFX` 拉取方块碎屑）。**循环音效已做**：注册 `isorropia:vortex`，按 `vortex.ogg` 的 27 秒长度每 540 tick
   重放一次（TH 用的是 `MovingSound` 循环）。

@@ -1,0 +1,28 @@
+{
+  "type": "thaumcraft:arcane_shaped",
+  "research": "isorropia:crystalWand",
+  "pattern": [
+    "  B",
+    " C ",
+    "B  "
+  ],
+  "key": {
+    "B": {
+      "item": "thaumcraft:balanced_shard"
+    },
+    "C": {
+      "item": "thaumcraft:mixed_crystal_cluster"
+    }
+  },
+  "result": {
+    "item": "isorropia:crystal_wand"
+  },
+  "vis": {
+    "aer": 25,
+    "terra": 25,
+    "aqua": 25,
+    "ignis": 25,
+    "ordo": 25,
+    "perditio": 25
+  }
+}
