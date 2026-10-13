@@ -22,7 +22,19 @@ RUN = ROOT / "run-client"
 WORLD = "iso-probe"
 PORT = 48791
 LOG = ROOT / "build" / "client-run.log"
-BRIDGE = ROOT.parent / "RainJava-work" / "RosettaRemoteDebugBridge"
+# The bridge repo is a sibling of the repository that uses it - but a Stonecutter worktree
+# nests the repo one level deeper, so walk up until the sibling shows up.
+def _find_bridge():
+    here = ROOT
+    for _ in range(4):
+        candidate = here / "RainJava-work" / "RosettaRemoteDebugBridge"
+        if candidate.is_dir():
+            return candidate
+        here = here.parent
+    raise SystemExit("RainJava-work/RosettaRemoteDebugBridge not found above " + str(ROOT))
+
+
+BRIDGE = _find_bridge()
 REMOTE = BRIDGE / "legacy" / "tools" / "rosetta_remote.py"
 
 
@@ -66,7 +78,9 @@ def start():
     started = time.time()
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG, "w", encoding="utf-8", errors="replace") as log:
-        subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), "runClient", "-PquickPlay=" + WORLD, "--console=plain"],
+        # Stonecutter: tasks live on the node project, not the root.
+        subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), ":1.20.1-forge:runClient",
+                          "-PquickPlay=" + WORLD, "--console=plain"],
                          cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     print("client launching, log:", LOG, flush=True)
     while time.time() - started < 540:

@@ -1,9 +1,22 @@
-# Disable autocrlf on generated files, they always generate with LF
-# Add any extra files or paths here to make git stop saying they
-# are changed when only line endings change.
-src/generated/**/.cache/cache text eol=lf
-src/generated/**/*.json text eol=lf
-
+# Deterministic line endings. The jar-parity gate diffs every resource byte-for-byte, so a
+# fresh checkout must not depend on the committer's core.autocrlf: a CRLF worktree leaks CRLF
+# into the built jar via processResources' verbatim copies (the S0 gate caught exactly that).
+* text=auto
+*.java text eol=lf
+*.gradle text eol=lf
+*.properties text eol=lf
+*.json text eol=lf
+*.json5 text eol=lf
+*.mcmeta text eol=lf
+*.toml text eol=lf
+*.md text eol=lf
+*.obj text eol=lf
+*.py text eol=lf
 gradlew text eol=lf
 *.sh text eol=lf
+*.ps1 text eol=crlf
 *.bat text eol=crlf
+src/generated/**/.cache/cache text eol=lf
+*.jar binary
+*.png binary
+*.nbt binary

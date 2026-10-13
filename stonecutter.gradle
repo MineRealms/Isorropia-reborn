@@ -1,0 +1,51 @@
+plugins {
+    id 'dev.kikugie.stonecutter'
+}
+
+// The canonical source in `src/` is written in the 1.20.1 dialect (plan doc section 6).
+stonecutter.active('1.20.1-forge')
+
+// A failed node never publishes a partial set of artifacts to the collection directory.
+// S1 extends the dependsOn list with the 1.21.1-neoforge node.
+tasks.register('buildAndCollect', Sync) {
+    group = 'build'
+    description = 'Builds, tests and verifies every target, then collects the release jars.'
+    dependsOn ':1.20.1-forge:build'
+    // Isorropia keeps the single-version jar naming (`isorropia-1.20.1-...`, no loader suffix):
+    // the MC version already disambiguates the nodes, and the jar-parity gate diffs against the
+    // ForgeGradle-6 baseline jar, which used this exact name.
+    from(layout.projectDirectory.dir('versions/1.20.1-forge/build/libs')) { include '*.jar' }
+    into layout.buildDirectory.dir('distributions')
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+}
+
+// Stonecutter's default processed extensions do not include plain `json`/`mcmeta`, so resource
+// replacements would silently do nothing. Reusing the json5 comment configuration registers them
+// (plan doc section 5, layer 1; verified in spike S-1c).
+stonecutter.handlers {
+    inherit('json5', 'json')
+    inherit('json5', 'mcmeta')
+}
+
+// The version test has to be computed INSIDE the `parameters {}` block: the controller replays it
+// once per version project, so `current` there is the node being configured. A value computed at
+// the script's top level runs once on the ROOT with the active version and silently pins every
+// rule to one direction; and inside `constants {}`/`replacements {}` a bare `current` is shadowed
+// by MapProperty.get(String). Both traps are documented in the plan doc (sections 5 and 10, S-1c).
+stonecutter.parameters {
+    def neo = current.project.endsWith('-neoforge')
+
+    constants {
+        put('forge', !neo)
+        put('neoforge', neo)
+    }
+
+    replacements {
+        if (!neo) {
+            return
+        }
+        // S2 fills this in: package moves first with the specific-before-generic order, then class
+        // renames at identifier boundaries, then the vanilla-drift regexes (each with a reverse
+        // pair, since regex replacements demand both directions).
+    }
+}

@@ -1,80 +1,176 @@
+// Stonecutter's shared build script: it runs once per node (plan doc section 6).
+// S0 carries only the 1.20.1/Forge branch; S1 adds the 1.21.1/NeoForge branch beside it.
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '6.0.54'
+    id 'dev.kikugie.stonecutter'
+    // Both loader plugin families come from ModDevGradle. They are declared here (apply false)
+    // so that the per-node branch below can apply exactly one of them.
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148' apply false
+    id 'net.neoforged.moddev' version '2.0.148' apply false
 }
+
+def isForge = mod_loader == 'forge'
 
 version = mod_version
 group = mod_group_id
+// Kept identical to the single-version build ("isorropia-1.20.1"): the MC version already
+// disambiguates the nodes, and the jar-parity gate diffs against the ForgeGradle-6 baseline
+// jar, which used this exact archive name.
 base { archivesName = "${mod_id}-${minecraft_version}" }
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(java_version.toInteger())
 
-def tc4Repository = file(providers.gradleProperty('tc4Repository').getOrElse('local-repo'))
+def tc4Repository = file(providers.gradleProperty('tc4Repository')
+        .getOrElse(rootProject.file('local-repo').absolutePath))
 
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
-    copyIdeResources = true
-    runs {
-        configureEach {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'info'
-            // Dependencies carry refmaps compiled with production mappings.
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            mods { "${mod_id}" { source sourceSets.main } }
-        }
-        client {
-            workingDirectory project.file('run-client')
-            // The Rosetta bridge only listens once a world is joined, so automated client runs quick-play one.
-            if (project.hasProperty('quickPlay')) {
-                args '--quickPlaySingleplayer', project.property('quickPlay')
+// Generated resources are per-node: a shared directory would let the two `runData` outputs
+// overwrite each other (plan risk R8).
+sourceSets.main.resources {
+    srcDir rootProject.file(isForge ? 'src/generated/resources' : 'src/generated/resources-1.21.1')
+}
+
+if (isForge) {
+    // ---------------------------------------------------------------- 1.20.1 / Forge (LegacyForge)
+    apply plugin: 'net.neoforged.moddev.legacyforge'
+
+    legacyForge {
+        version = "${minecraft_version}-${forge_version}"
+
+        runs {
+            configureEach {
+                gameDirectory = rootProject.file('run')
+                systemProperty 'forge.logging.console.level', 'info'
+                // LegacyForge sets `mixin.env.remapRefMap` and `mixin.env.refMapRemappingFile`
+                // itself (pointing at its own `moddev/artifacts/intermediateToNamed.srg`), so the
+                // single-version build's hand-written values must NOT be repeated here - a stale
+                // path silently disables refmap remapping and every SRG-named dependency mixin
+                // fails to apply.
             }
-            // Its own port, so a client and a dedicated server can be probed side by side.
-            property 'rosetta.remote.port', '48791'
+            client {
+                client()
+                gameDirectory = rootProject.file('run-client')
+                // The Rosetta bridge's findMinecraftDirectory falls back to scanning the classpath
+                // for ".minecraft" when neither `minecraft.gameDir` nor `--gameDir` resolves - and
+                // under ModDevGradle every `net.minecraftforge\...` cache entry contains that
+                // substring (from ".minecraftforge"), so the walk hits the drive root and NPEs
+                // (its 1.0.0 jar has no null guard). Point branch 1 at the game dir explicitly;
+                // ForgeGradle 6 resolved the same directory via its own `--gameDir` handling.
+                systemProperty 'minecraft.gameDir', rootProject.file('run-client').absolutePath
+                // Automated client testing needs a loaded world: the RosettaRemoteDebugBridge only
+                // starts listening on ServerStartedEvent, which on a client means "a world was
+                // joined", not "the title screen appeared". tools/client_probe.py passes this.
+                if (project.hasProperty('quickPlay')) {
+                    programArgument '--quickPlaySingleplayer'
+                    programArgument project.property('quickPlay').toString()
+                }
+                // Its own bridge port, so a client and a dedicated server can be probed at once
+                // without one of them failing to bind. Harmless when the bridge is not installed.
+                systemProperty 'rosetta.remote.port', providers.gradleProperty('clientProbePort').getOrElse('48791')
+            }
+            server {
+                server()
+                gameDirectory = rootProject.file('run-server')
+                programArgument '--nogui'
+            }
+            gameTestServer {
+                type = 'gameTestServer'
+                gameDirectory = rootProject.file('run-gametest')
+                systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            }
+            data {
+                data()
+                gameDirectory = rootProject.file('run-data')
+                programArgument '--mod'
+                programArgument mod_id
+                programArgument '--all'
+                programArgument rootProject.file('src/generated/resources/').absolutePath
+                programArgument '--existing'
+                programArgument rootProject.file('src/main/resources/').absolutePath
+            }
         }
-        server {
-            workingDirectory project.file('run-server')
-            args '--nogui'
+
+        mods {
+            isorropia {
+                sourceSet sourceSets.main
+            }
         }
-        gameTestServer {
-            workingDirectory project.file('run-gametest')
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-        data {
-            workingDirectory project.file('run-data')
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'),
-                    '--existing', file('src/main/resources/')
-        }
+
+        // LegacyForge has no `unitTest { }` block (that is NeoForge-only), so the JUnit suite has
+        // to be given the modding classpath explicitly. Without this the `test` source set sees
+        // only `implementation` and none of Minecraft/Forge - `compileTestJava` then fails on
+        // every vanilla import.
+        addModdingDependenciesTo sourceSets.test
     }
-}
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
-repositories {
-    maven {
-        name = 'LocalTC4R'
-        url = uri(tc4Repository)
-        content { includeGroup 'dev.tc4port' }
+    repositories {
+        maven {
+            name = 'LocalTC4R'
+            url = uri(tc4Repository)
+            content { includeGroup 'dev.tc4port' }
+        }
+        maven { url = 'https://maven.theillusivec4.top' }
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
     }
-    maven { url = 'https://maven.theillusivec4.top' }
-    maven { url = 'https://maven.minecraftforge.net' }
-    mavenCentral()
+
+    dependencies {
+        // ModDevGradle's mod* configurations remap SRG -> official and are non-transitive, which
+        // is exactly the semantics ForgeGradle's `fg.deobf(..., { transitive = false })` had.
+        modImplementation("dev.tc4port:thaumcraft-forge:${thaumcraft_version}") { transitive = false }
+        // TC4R declares both mandatory, and the Somatic Brain is a Curios head item.
+        modImplementation("top.theillusivec4.curios:curios-forge:${curios_version}") { transitive = false }
+        modRuntimeOnly("com.github.glitchfiend:TerraBlender-forge:${terrablender_version}") {
+            transitive = false
+        }
+
+        testImplementation(platform("org.junit:junit-bom:${junit_version}"))
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.named('processResources', ProcessResources).configure {
+        def values = [minecraft_version_range: minecraft_version_range,
+                forge_version_range: forge_version_range, loader_version_range: loader_version_range,
+                mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+                mod_authors: mod_authors, mod_description: mod_description,
+                thaumcraft_runtime_version: thaumcraft_runtime_version]
+        inputs.properties values
+        filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand values }
+    }
+
+    tasks.named('jar', Jar).configure {
+        // Forge 1.20.1 reads mixin configs only from the MixinConfigs manifest attribute. Dev runs
+        // load the exploded resources directory, which carries the same attribute in
+        // META-INF/MANIFEST.MF; the jar gets a generated one instead.
+        exclude 'META-INF/MANIFEST.MF'
+        manifest {
+            attributes('Specification-Title': mod_name, 'Specification-Vendor': mod_authors,
+                    'Specification-Version': '1',
+                    // `project.name` is the Stonecutter node name (e.g. `1.20.1-forge`), so build
+                    // the human-facing title from the root project name plus the logical MC
+                    // version; this reproduces the single-version build's `Isorropia-1.20.1`.
+                    'Implementation-Title': "${rootProject.name}-${sc.current.version}",
+                    'Implementation-Version': project.version, 'Implementation-Vendor': mod_authors,
+                    'MixinConfigs': "${mod_id}.mixins.json")
+        }
+        // ModDevGradle performs the SRG reobf itself; a hand-rolled `finalizedBy 'reobfJar'`
+        // would double-run (or fail on a missing task).
+    }
+} else {
+    // S1 adds the 1.21.1 / NeoForge branch here (core ModDevGradle, plain `implementation` for
+    // mods, `gradle/neoforge-resources.gradle` for the S2 resource transforms).
+    throw new GradleException("Unknown mod_loader '${mod_loader}' for node ${sc.current.project}")
 }
 
-dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation(fg.deobf("dev.tc4port:thaumcraft-forge:${thaumcraft_version}", { transitive = false }))
-    // TC4R declares both mandatory, and the Somatic Brain is a Curios head item.
-    implementation(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}", { transitive = false }))
-    runtimeOnly(fg.deobf("com.github.glitchfiend:TerraBlender-forge:${terrablender_version}", { transitive = false }))
+// Process test sources using the same target rules as production sources.
+stonecutter.tasks.configureSource(sourceSets.test)
 
-    testImplementation(platform("org.junit:junit-bom:${junit_version}"))
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
+// ---------------------------------------------------------------- shared by all nodes
 tasks.named('test', Test).configure {
     useJUnitPlatform()
+    // The single-version build ran tests with the repo root as working directory (project dir ==
+    // root); the node project now lives in versions/<node>, so pin it back.
+    workingDir = rootProject.projectDir
     testLogging { events 'failed'; exceptionFormat 'full' }
 }
 
@@ -82,42 +178,36 @@ tasks.register('verifyLocalDependencies') {
     group = 'verification'
     description = 'Checks supplied TC4R artifacts against the recorded SHA-256 hashes.'
     doLast {
-        def manifest = new groovy.json.JsonSlurper().parse(file('local-repo/DEPENDENCIES.json'))
+        // Each node has its own artifact set. `DEPENDENCIES.json` is the 1.20.1 manifest the
+        // existing bootstrap references, so it keeps its name; a node-qualified file takes
+        // precedence when one exists (S1 adds DEPENDENCIES.1.21.1-neoforge.json).
+        def nodeManifest = rootProject.file("local-repo/DEPENDENCIES.${sc.current.project}.json")
+        def manifestFile = nodeManifest.isFile() ? nodeManifest
+                : rootProject.file('local-repo/DEPENDENCIES.json')
+        def manifest = new groovy.json.JsonSlurper().parse(manifestFile)
         manifest.artifacts.each { artifact ->
             def target = new File(tc4Repository, artifact.path)
             if (!target.isFile()) {
-                throw new GradleException("Missing ${target}. Copy it from ../Technomancy-1.20.1/local-repo; see local-repo/README.md.")
+                throw new GradleException("Missing ${target}. See local-repo/README.md.")
             }
             def digest = java.security.MessageDigest.getInstance('SHA-256').digest(target.bytes).encodeHex().toString()
             if (digest != artifact.sha256) {
                 throw new GradleException("TC4R checksum mismatch: ${target.name}. Keep the version and manifest in sync.")
             }
         }
-        logger.lifecycle("Verified ${manifest.artifacts.size()} TC4R artifacts in ${tc4Repository}")
+        logger.lifecycle("Verified ${manifest.artifacts.size()} TC4R artifacts for ${sc.current.project} via ${manifestFile.name}")
     }
 }
 tasks.named('compileJava').configure { dependsOn 'verifyLocalDependencies' }
+tasks.named('check').configure { dependsOn 'verifyLocalDependencies' }
 
-tasks.named('processResources', ProcessResources).configure {
-    def values = [minecraft_version_range: minecraft_version_range,
-            forge_version_range: forge_version_range, loader_version_range: loader_version_range,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
-            thaumcraft_runtime_version: thaumcraft_runtime_version]
-    inputs.properties values
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand values }
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
-
-tasks.named('jar', Jar).configure {
-    // Forge 1.20.1 reads mixin configs only from the MixinConfigs manifest attribute. Dev runs load the exploded
-    // resources directory, which carries the same attribute in META-INF/MANIFEST.MF; the jar gets a generated one.
-    exclude 'META-INF/MANIFEST.MF'
-    manifest {
-        attributes('Specification-Title': mod_name, 'Specification-Vendor': mod_authors,
-                'Specification-Version': '1', 'Implementation-Title': project.name,
-                'Implementation-Version': project.version, 'Implementation-Vendor': mod_authors,
-                'MixinConfigs': "${mod_id}.mixins.json")
-    }
-    finalizedBy 'reobfJar'
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Surface the whole error list when the S1 node switch lands: the first compile of the
+    // 1.21.1 dialect is measured, not iterated one error at a time.
+    options.compilerArgs.addAll(['-Xmaxerrs', '2000'])
 }
-tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
