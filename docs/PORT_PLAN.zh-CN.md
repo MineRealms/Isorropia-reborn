@@ -511,7 +511,8 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | 阶段 | 内容 | 状态 |
 | --- | --- | --- |
 | 1 | 维度注册（`isorropia:pocket_plane`，虚空 `minecraft:flat`）+ `PocketPlane` 传送助手 + `PocketPlaneStore` 注册表 | 已完成 `33f4b23` |
-| 2 | 地形盖章：TH 的 `drawLayers` / `drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones`，加 `drawRings` 与球壳 | 待做 |
+| 2a | 框架盖章：球壳、要素环、着陆台、出口裂口（`PocketPlaneBuilder`，探针 `211` / `212`） | 已完成 `baeed1a` |
+| 2b | 地形盖章：TH 的 `drawLayers` / `drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones` | 待做 |
 | 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 待做 |
 | 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
 
@@ -520,6 +521,10 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   所以维度用虚空生成器即可；阶段 2 的工作是「盖章」而不是写 `ChunkGenerator`。
 - 阶段 1 暂用 `minecraft:plains` 生物群系与 `minecraft:overworld` 维度特效；TH 的 `BiomeGenPocket`（按要素上色的生物群系）
   留到阶段 2 一起做。
+- 阶段 2a 的探针注意：**截图/探针在口袋位面里运行时，harness 的 `PLACE` 步骤会抛 NPE**——它固定用主世界的
+  `ChunkSource` 去 `move(player)`，而玩家此时在另一个维度。截图本身仍会落地（报错发生在抓帧之前）。
+- 出口裂口是 TH 的 `cheat` 裂口：`PocketPlaneBuilder` 会给它补上本平面的要素，否则照 TH 原样（不设要素）它
+  因为渲染器要求要素非空而**完全不可见**，玩家会找不到回家的路。
 
 
 ### 研究文字
