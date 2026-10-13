@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.Map;
 
@@ -40,6 +39,10 @@ public final class PocketPlaneBuilder {
         int id = store.nextId();
         BlockPos centre = PocketPlane.anchor(id);
         int radius = radiusFor(aspects);
+        boolean coldBiome = pocket.getBiome(centre).value().getBaseTemperature() < 0.15F;
+
+        // TH's order: terrain first, then the aspect rings cut into it, then the bubble over everything.
+        PocketPlaneTerrain.drawLayers(pocket, radius, centre, aspects, coldBiome);
 
         // TH laid one shell per "resonant" aspect inside the bubble, deepest first.
         int rings = 0;
@@ -194,10 +197,6 @@ public final class PocketPlaneBuilder {
 
     /** Writes straight into the chunk, as TH did, so a whole shell costs no block updates. */
     private static void setFast(ServerLevel level, int x, int y, int z, BlockState state) {
-        if (y < level.getMinBuildHeight() || y >= level.getMaxBuildHeight()) {
-            return;
-        }
-        LevelChunk chunk = level.getChunk(x >> 4, z >> 4);
-        chunk.setBlockState(new BlockPos(x, y, z), state, false);
+        PocketPlaneTerrain.setFast(level, x, y, z, state);
     }
 }

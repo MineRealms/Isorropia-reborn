@@ -76,6 +76,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockVoid> VOID = BLOCKS.register("void",
             () -> new BlockVoid(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 60000.0F)
                     .sound(SoundType.WOOL).lightLevel(state -> 15).noLootTable()));
+    /** TH: sand material, hardness 0.5. The default ground of a pocket plane. */
+    public static final RegistryObject<BlockDust> DUST = BLOCKS.register("dust",
+            () -> new BlockDust(BlockBehaviour.Properties.of().mapColor(MapColor.SAND).strength(0.5F)
+                    .sound(SoundType.SAND)));
 
     private BlocksIS() {
     }

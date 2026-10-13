@@ -512,7 +512,8 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | --- | --- | --- |
 | 1 | 维度注册（`isorropia:pocket_plane`，虚空 `minecraft:flat`）+ `PocketPlane` 传送助手 + `PocketPlaneStore` 注册表 | 已完成 `33f4b23` |
 | 2a | 框架盖章：球壳、要素环、着陆台、出口裂口（`PocketPlaneBuilder`，探针 `211` / `212`） | 已完成 `baeed1a` |
-| 2b | 地形盖章：TH 的 `drawLayers` / `drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones` | 待做 |
+| 2b | 分层地形 `drawLayers` / `drawLayer`（含地表装饰、作物、树木、生物、虚空/奥术石/注魔台点缀），加 TH 的 `dust` 默认层方块 | 已完成（探针 `214`） |
+| 2c | 其余地形：`drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones`，加 `addEffects`（按要素给状态效果）与 `BiomeGenPocket` | 待做 |
 | 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 待做 |
 | 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
 
@@ -523,6 +524,14 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   留到阶段 2 一起做。
 - 阶段 2a 的探针注意：**截图/探针在口袋位面里运行时，harness 的 `PLACE` 步骤会抛 NPE**——它固定用主世界的
   `ChunkSource` 去 `move(player)`，而玩家此时在另一个维度。截图本身仍会落地（报错发生在抓帧之前）。
+- **分层地形的两条关键发现**（阶段 2b）：其一，TH 在层与层之间把 `level` 逐层下调，但 `drawLayer` 里这个值在柱体的顶和底
+  都被**抵消**（加进球面方程的偏移又原样减了回来），所以层**不会**叠成带状：每个命中的层都会重画整个球，最终看到的是顺序
+  里**最后一个**命中要素的材质。本移植保留该行为。其二，每次 `drawLayer` 都新建一个 `NoiseGeneratorOctaves`（用
+  `world.rand`），所以 EARTH 层的泥土与「level−5 的石头」用的是**两份不同的噪声**，结果是两者互相穿插而不是上下分层。
+- **噪声实现**：TC4 的 `NoiseGeneratorOctaves` 无法复现（置换表不同），改用自带的 10 阶 Perlin（振幅折半、相同的尺度参数），
+  地形轮廓会与 TC4 不同，但阶数与衰减一致。
+- **未移植的点缀**：TH 的 `blockBrain`（肉块脑）与 `EntityMercurialSlime` / `EntityMeatSlime` / `EntityTaintacle` /
+  `EntityTaintSporeSwarmer` 等本模组没有的实体；凡 `red_flower` 超出身位（TC4 只有 9 种）的掷骰折回这 9 种。
 - 出口裂口是 TH 的 `cheat` 裂口：`PocketPlaneBuilder` 会给它补上本平面的要素，否则照 TH 原样（不设要素）它
   因为渲染器要求要素非空而**完全不可见**，玩家会找不到回家的路。
 

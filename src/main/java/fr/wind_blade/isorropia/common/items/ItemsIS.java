@@ -98,6 +98,8 @@ public final class ItemsIS {
     public static final RegistryObject<BlockItem> VORTEX = blockItem("vortex", BlocksIS.VORTEX);
     /** The pocket plane's shell: creative-only, laid down by the planar generator. */
     public static final RegistryObject<BlockItem> VOID = blockItem("void", BlocksIS.VOID);
+    /** The pocket plane's default ground. */
+    public static final RegistryObject<BlockItem> DUST = blockItem("dust", BlocksIS.DUST);
 
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",
