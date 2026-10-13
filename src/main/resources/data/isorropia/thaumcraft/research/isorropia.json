@@ -3210,6 +3210,135 @@
           "recipe_ids": []
         }
       ]
+    },
+    {
+      "key": "isorropia:essentiaInjection",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "victus": 4,
+        "humanus": 2,
+        "permutatio": 2,
+        "praecantatio": 2
+      },
+      "display_column": 6,
+      "display_row": 1,
+      "complexity": 3,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:syringe_blood"
+        }
+      },
+      "flags": [
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:growth"
+      ],
+      "hidden_parents": [
+        "THAUMATORIUM",
+        "INFUSION"
+      ],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 1,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiaInjection.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "ARCANE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:arcane/syringe_empty"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiaInjection.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiaInjection.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.essentiaInjection.4",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
+      "key": "isorropia:blastPhial",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "victus": 2,
+        "ignis": 2,
+        "perditio": 2
+      },
+      "display_column": 6,
+      "display_row": 3,
+      "complexity": 1,
+      "icon": {
+        "type": "STACK",
+        "stack": {
+          "id": "isorropia:blast_phial"
+        }
+      },
+      "flags": [
+        "SECONDARY",
+        "CONCEALED"
+      ],
+      "parents": [
+        "isorropia:essentiaInjection"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 0,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.blastPhial.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "ARCANE_CRAFTING",
+          "value": "",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "COMPLETED_SINGLE",
+          "recipe_ids": [
+            "isorropia:arcane/blast_phial"
+          ]
+        }
+      ]
     }
   ]
 }

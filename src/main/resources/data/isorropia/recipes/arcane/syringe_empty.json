@@ -1,0 +1,23 @@
+{
+  "type": "thaumcraft:arcane_shaped",
+  "research": "isorropia:essentiaInjection",
+  "pattern": [
+    "P",
+    "N"
+  ],
+  "key": {
+    "P": {
+      "item": "thaumcraft:essence_phial"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "result": {
+    "item": "isorropia:syringe_empty"
+  },
+  "vis": {
+    "aqua": 1,
+    "ordo": 1
+  }
+}
