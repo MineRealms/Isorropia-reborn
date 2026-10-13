@@ -46,7 +46,7 @@ public class TileVortexStabilizer extends BlockEntity {
     public void setRedstoned(boolean value) {
         if (this.redstoned != value) {
             this.redstoned = value;
-            setChanged();
+            syncToClients();
         }
     }
 
@@ -119,11 +119,11 @@ public class TileVortexStabilizer extends BlockEntity {
                 stabilizer.target = null;
             }
             stabilizer.targetPos = hitPos;
-            stabilizer.setChanged();
+            stabilizer.syncToClients();
         } else if (hitPos == null && stabilizer.hasTarget) {
             stabilizer.reHungrifyTarget();
             stabilizer.hasTarget = false;
-            stabilizer.setChanged();
+            stabilizer.syncToClients();
         }
     }
 
@@ -167,6 +167,41 @@ public class TileVortexStabilizer extends BlockEntity {
         return false;
     }
 
+    /** Pushes the power state and beam landing point to clients so the beam can be drawn in the world. */
+    private void syncToClients() {
+        setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(),
+                    net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.Connection connection,
+            net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet) {
+        if (packet.getTag() != null) {
+            handleUpdateTag(packet.getTag());
+        }
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
@@ -187,7 +222,8 @@ public class TileVortexStabilizer extends BlockEntity {
         this.hasTarget = tag.getBoolean("hasTarget");
         this.targetPos = tag.contains("targetPos") ? BlockPos.of(tag.getLong("targetPos")) : null;
         this.previousType = tag.contains("prevType") ? NodeTypeId.parse(tag.getString("prevType")) : null;
-        this.fireOnce = true;
+        // A freshly loaded attenuator re-reads the live redstone state on its first tick, as TH did.
+        this.fireOnce = false;
         this.scannedOnce = false;
     }
 }

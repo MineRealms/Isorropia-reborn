@@ -101,8 +101,12 @@ public class TileTransductionAmplifier extends BlockEntity {
         }
         AuraNodeBlockEntity node = amplifier.nodeFor(level, pos);
         if (node == null) {
-            // TH killMe: the node is gone, so the amplifier falls away too.
-            level.destroyBlock(pos, true);
+            // TH killMe: the node is gone, so the amplifier falls away too. Only once the node's own chunk is loaded,
+            // though: the node sits across a possible chunk border, and an unloaded neighbour must not cost us the
+            // machine.
+            if (amplifier.facing == null || level.hasChunkAt(pos.relative(amplifier.facing))) {
+                level.destroyBlock(pos, true);
+            }
             return;
         }
         if (amplifier.activated) {
@@ -114,43 +118,19 @@ public class TileTransductionAmplifier extends BlockEntity {
             amplifier.count--;
         }
         if (amplifier.shouldActivate && !amplifier.activated) {
-            if (amplifier.facing == null) {
-                amplifier.facing = state.getValue(BlockTransductionAmplifier.FACING);
-            }
-            AuraNodeBlockEntity target = amplifier.nodeFor(level, pos);
-            if (target != null) {
-                amplifier.boostNode(target);
-                amplifier.activated = true;
-                amplifier.setChanged();
-            } else {
-                level.destroyBlock(pos, true);
-                return;
-            }
+            amplifier.boostNode(node);
+            amplifier.activated = true;
+            amplifier.syncToClients();
         } else if (!amplifier.shouldActivate && amplifier.activated) {
-            if (amplifier.facing == null) {
-                amplifier.facing = state.getValue(BlockTransductionAmplifier.FACING);
-            }
-            AuraNodeBlockEntity target = amplifier.nodeFor(level, pos);
-            if (target != null) {
-                amplifier.unboostNode(target);
-                amplifier.activated = false;
-                amplifier.setChanged();
-            }
+            amplifier.unboostNode(node);
+            amplifier.activated = false;
+            amplifier.syncToClients();
         }
         if (!amplifier.activated || amplifier.count % 10 != 0) {
             return;
         }
         // Multi-amplifier effects, every ten ticks while running, as TH's updateEntity did.
-        Direction direction = amplifier.facing != null ? amplifier.facing : state.getValue(BlockTransductionAmplifier.FACING);
-        BlockPos nodePos = pos.relative(direction);
-        AuraNodeBlockEntity centre = amplifier.nodeFor(level, pos);
-        if (centre == null) {
-            if (amplifier.activated) {
-                amplifier.activated = false;
-                amplifier.setChanged();
-            }
-            return;
-        }
+        BlockPos nodePos = pos.relative(amplifier.facing);
         int transducers = 0;
         for (Direction horizontal : HORIZONTAL) {
             BlockEntity neighbour = level.getBlockEntity(nodePos.relative(horizontal));
@@ -187,6 +167,11 @@ public class TileTransductionAmplifier extends BlockEntity {
         }
         amplifier.animationTicks++;
         if (amplifier.activated) {
+            // Advance our own copy of the ramp so the pistons keep extending between syncs (the server end of the
+            // count only reaches the client when the amplifier is switched on or off).
+            if (amplifier.count < 50) {
+                amplifier.count++;
+            }
             // Count how many neighbouring amplifiers around our node are also running; TH's renderer keyed the
             // overcharge colour off this.
             int transducers = 0;
@@ -217,6 +202,41 @@ public class TileTransductionAmplifier extends BlockEntity {
 
     private static net.minecraft.world.phys.Vec3 Vec3atCenter(BlockPos pos) {
         return net.minecraft.world.phys.Vec3.atCenterOf(pos);
+    }
+
+    /** Pushes the on/off and ramp state to clients so the renderer can light up and extend the pistons. */
+    private void syncToClients() {
+        setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(),
+                    net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        load(tag);
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(net.minecraft.network.Connection connection,
+            net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet) {
+        if (packet.getTag() != null) {
+            handleUpdateTag(packet.getTag());
+        }
     }
 
     @Override
