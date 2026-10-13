@@ -58,6 +58,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
      * each island keeps its doorway (and TH's creative-only variant was one too).
      */
     private boolean cheat;
+    /**
+     * The pocket plane this rift is the doorway of, or -1 for a rift in the world. TH's exit rift carried the plane's
+     * number so a keystone could be imprinted on it; a rift born of a collapsing node carries none.
+     */
+    private int planeId = -1;
     private final Map<AspectId, Integer> aspects = new LinkedHashMap<>();
     private final List<net.minecraft.world.item.ItemStack> items = new ArrayList<>();
     /** Last beam count pushed to clients, so a same-tick change cannot send two packets. */
@@ -85,6 +90,16 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
 
     public void setCheat(boolean value) {
         this.cheat = value;
+        syncToClients();
+    }
+
+    /** The pocket plane this rift is the doorway of, or -1 when it stands in the world. */
+    public int planeId() {
+        return planeId;
+    }
+
+    public void setPlaneId(int value) {
+        this.planeId = value;
         syncToClients();
     }
 
@@ -309,6 +324,7 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         tag.putBoolean("ateDevices", this.ateDevices);
         tag.putBoolean("collapsing", this.collapsing);
         tag.putBoolean("cheat", this.cheat);
+        tag.putInt("planeId", this.planeId);
         ListTag aspectTags = new ListTag();
         for (Map.Entry<AspectId, Integer> entry : this.aspects.entrySet()) {
             CompoundTag aspectTag = new CompoundTag();
@@ -327,6 +343,7 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         this.ateDevices = tag.getBoolean("ateDevices");
         this.collapsing = tag.getBoolean("collapsing");
         this.cheat = tag.getBoolean("cheat");
+        this.planeId = tag.getInt("planeId");
         this.lastSyncedBeams = this.beams;
         this.aspects.clear();
         ListTag aspectTags = tag.getList("aspects", Tag.TAG_COMPOUND);

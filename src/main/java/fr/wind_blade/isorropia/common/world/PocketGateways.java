@@ -101,23 +101,37 @@ public final class PocketGateways {
     private static void carvePlanePortal(ServerLevel pocket, int planeId, int radius, int which, BlockPos arrival,
             ResourceKey<Level> returnDimension) {
         BlockPos centre = PocketPlane.anchor(planeId);
-        BlockPos twin = twinPos(planeId, radius, which);
+        BlockPos portal = twinPos(planeId, radius, which);
         Direction outward = outwardOf(which);
-        BlockState portal = BlocksIS.PORTAL.get().defaultBlockState();
+        BlockState portalState = BlocksIS.PORTAL.get().defaultBlockState();
         BlockState shell = BlocksIS.VOID.get().defaultBlockState();
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                BlockPos cell = twin.offset(perpendicular(which, dx), dy, perpendicular(which, -dx));
-                PocketPlaneTerrain.setFast(pocket, cell.getX(), cell.getY(), cell.getZ(), portal);
+                BlockPos cell = portal.offset(perpX(which, dx), dy, perpZ(which, dx));
+                PocketPlaneTerrain.setFast(pocket, cell.getX(), cell.getY(), cell.getZ(), portalState);
                 PocketPlaneTerrain.setFast(pocket, cell.getX() + outward.getStepX(), cell.getY() + outward.getStepY(),
                         cell.getZ() + outward.getStepZ(), shell);
             }
         }
         for (int dx = -1; dx <= 1; dx++) {
             for (int dy = -1; dy <= 1; dy++) {
-                BlockPos cell = twin.offset(perpendicular(which, dx), dy, perpendicular(which, -dx));
+                BlockPos cell = portal.offset(perpX(which, dx), dy, perpZ(which, dx));
                 if (pocket.getBlockEntity(cell) instanceof TilePortal tile) {
+                    tile.setPlane(planeId, which);
                     tile.link(returnDimension, arrival);
+                }
+            }
+        }
+        // TH carved only the face and the shell behind it, which left the plane's own rim burying the opening - the
+        // island is solid right up to its edge. Cut a short pocket inward so the gateway stands open and its visitor
+        // has somewhere to step out onto.
+        Direction inward = outward.getOpposite();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int depth = 1; depth <= 2; depth++) {
+                    BlockPos cell = portal.offset(perpX(which, dx), dy, perpZ(which, dx));
+                    PocketPlaneTerrain.setFast(pocket, cell.getX() + inward.getStepX() * depth, cell.getY(),
+                            cell.getZ() + inward.getStepZ() * depth, Blocks.AIR.defaultBlockState());
                 }
             }
         }
@@ -135,11 +149,12 @@ public final class PocketGateways {
         };
     }
 
-    /** The in-plane offset for one step across the portal, perpendicular to its outward direction. */
-    private static BlockPos perpendicular(int which, int step) {
-        return switch (which) {
-            case 1, 2 -> new BlockPos(step, 0, 0);
-            default -> new BlockPos(0, 0, step);
-        };
+    /** The portal face spans the horizontal axis the outward direction does not use. */
+    private static int perpX(int which, int step) {
+        return which == 1 || which == 2 ? step : 0;
+    }
+
+    private static int perpZ(int which, int step) {
+        return which == 3 || which == 4 ? step : 0;
     }
 }

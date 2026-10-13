@@ -150,11 +150,29 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.renderer.tiles.RenderRecombinator::new);
         event.registerBlockEntityRenderer(TilesIS.VORTEX.get(),
                 fr.wind_blade.isorropia.client.renderer.tiles.RenderVortex::new);
+        event.registerBlockEntityRenderer(TilesIS.PORTAL.get(),
+                fr.wind_blade.isorropia.client.renderer.tiles.RenderPortal::new);
+    }
+
+    /** The keystone in a receptacle, and the same keystone as an item, are tinted with the plane they belong to. */
+    @SubscribeEvent
+    public static void onBlockColors(RegisterColorHandlersEvent.Block event) {
+        event.register((state, level, pos, tintIndex) -> {
+            if (level != null && pos != null
+                    && level.getBlockEntity(pos) instanceof fr.wind_blade.isorropia.common.tiles.TileSlot slot
+                    && slot.hasKeystone()) {
+                return 0xFF000000 | slot.planeColour();
+            }
+            return -1;
+        }, fr.wind_blade.isorropia.common.blocks.BlocksIS.SLOT.get());
     }
 
     @SubscribeEvent
     public static void onItemColors(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> tintIndex == 0 ? 0xFF000000 | JellyColors.of(ItemJelly.getAspect(stack)) : -1,
                 ItemsIS.JELLY.get());
+        event.register((stack, tintIndex) -> tintIndex == 0
+                ? 0xFF000000 | fr.wind_blade.isorropia.common.items.ItemKeystone.boundColour(stack) : -1,
+                ItemsIS.KEYSTONE.get());
     }
 }

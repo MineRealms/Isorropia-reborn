@@ -1,0 +1,109 @@
+{
+  "variants": {
+    "variant=0,aligned=false": {
+      "model": "isorropia:block/gateway_0"
+    },
+    "variant=0,aligned=true": {
+      "model": "isorropia:block/gateway_0",
+      "y": 90
+    },
+    "variant=1,aligned=false": {
+      "model": "isorropia:block/gateway_1"
+    },
+    "variant=1,aligned=true": {
+      "model": "isorropia:block/gateway_1",
+      "y": 90
+    },
+    "variant=2,aligned=false": {
+      "model": "isorropia:block/gateway_2"
+    },
+    "variant=2,aligned=true": {
+      "model": "isorropia:block/gateway_2",
+      "y": 90
+    },
+    "variant=3,aligned=false": {
+      "model": "isorropia:block/gateway_3"
+    },
+    "variant=3,aligned=true": {
+      "model": "isorropia:block/gateway_3",
+      "y": 90
+    },
+    "variant=4,aligned=false": {
+      "model": "isorropia:block/gateway_4"
+    },
+    "variant=4,aligned=true": {
+      "model": "isorropia:block/gateway_4",
+      "y": 90
+    },
+    "variant=5,aligned=false": {
+      "model": "isorropia:block/gateway_5"
+    },
+    "variant=5,aligned=true": {
+      "model": "isorropia:block/gateway_5",
+      "y": 90
+    },
+    "variant=6,aligned=false": {
+      "model": "isorropia:block/gateway_6"
+    },
+    "variant=6,aligned=true": {
+      "model": "isorropia:block/gateway_6",
+      "y": 90
+    },
+    "variant=7,aligned=false": {
+      "model": "isorropia:block/gateway_7"
+    },
+    "variant=7,aligned=true": {
+      "model": "isorropia:block/gateway_7",
+      "y": 90
+    },
+    "variant=8,aligned=false": {
+      "model": "isorropia:block/gateway_8"
+    },
+    "variant=8,aligned=true": {
+      "model": "isorropia:block/gateway_8",
+      "y": 90
+    },
+    "variant=9,aligned=false": {
+      "model": "isorropia:block/gateway_9"
+    },
+    "variant=9,aligned=true": {
+      "model": "isorropia:block/gateway_9",
+      "y": 90
+    },
+    "variant=10,aligned=false": {
+      "model": "isorropia:block/gateway_10"
+    },
+    "variant=10,aligned=true": {
+      "model": "isorropia:block/gateway_10",
+      "y": 90
+    },
+    "variant=11,aligned=false": {
+      "model": "isorropia:block/gateway_11"
+    },
+    "variant=11,aligned=true": {
+      "model": "isorropia:block/gateway_11",
+      "y": 90
+    },
+    "variant=12,aligned=false": {
+      "model": "isorropia:block/gateway_12"
+    },
+    "variant=12,aligned=true": {
+      "model": "isorropia:block/gateway_12",
+      "y": 90
+    },
+    "variant=13,aligned=false": {
+      "model": "isorropia:block/gateway_13"
+    },
+    "variant=13,aligned=true": {
+      "model": "isorropia:block/gateway_13",
+      "y": 90
+    },
+    "variant=14,aligned=false": {
+      "model": "isorropia:block/gateway_14"
+    },
+    "variant=14,aligned=true": {
+      "model": "isorropia:block/gateway_14",
+      "y": 90
+    }
+  }
+}

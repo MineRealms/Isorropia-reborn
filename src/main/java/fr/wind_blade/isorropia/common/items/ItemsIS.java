@@ -128,6 +128,17 @@ public final class ItemsIS {
     public static final RegistryObject<ItemSyringeInjection> BLAST_PHIAL = ITEMS.register("blast_phial",
             () -> new ItemSyringeInjection(new Item.Properties(), true));
 
+    // Planar gateway (TH planar keystone): the key to one pocket plane, and the gateway's own blocks.
+    /** TH: one keystone per plane, and it never stacks. */
+    public static final RegistryObject<ItemKeystone> KEYSTONE = ITEMS.register("keystone",
+            () -> new ItemKeystone(new Item.Properties().stacksTo(1)));
+    /** The keystone receptacle: the block the player builds into the top of the gateway wall. */
+    public static final RegistryObject<BlockItem> KEYSTONE_RECEPTACLE = blockItem("keystone_receptacle", BlocksIS.SLOT);
+    /** The gateway frame: creative-only, since in play the receptacle turns the player's wall into it. */
+    public static final RegistryObject<BlockItem> GATEWAY = blockItem("gateway", BlocksIS.GATEWAY);
+    /** The gateway surface: creative-only, since in play it is cut by the receptacle. */
+    public static final RegistryObject<BlockItem> PORTAL = blockItem("portal", BlocksIS.PORTAL);
+
     private ItemsIS() {
     }
 

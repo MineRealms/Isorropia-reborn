@@ -1,0 +1,30 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:planarKeystone",
+  "central": {
+    "item": "minecraft:diamond"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:quicksilver"
+    },
+    {
+      "item": "thaumcraft:balanced_shard"
+    },
+    {
+      "item": "thaumcraft:quicksilver"
+    },
+    {
+      "item": "thaumcraft:balanced_shard"
+    }
+  ],
+  "instability": 6,
+  "aspects": {
+    "iter": 24,
+    "vacuos": 24,
+    "alienis": 12
+  },
+  "result": {
+    "item": "isorropia:keystone"
+  }
+}

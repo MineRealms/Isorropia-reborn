@@ -41,6 +41,12 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileVortex::new, BlocksIS.VORTEX.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
             () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
+    /** The gateway surface: the plane-side twin and the world-side opening share one tile type. */
+    public static final RegistryObject<BlockEntityType<TilePortal>> PORTAL = TILES.register("portal",
+            () -> BlockEntityType.Builder.of(TilePortal::new, BlocksIS.PORTAL.get()).build(null));
+    /** The keystone receptacle at the top of a gateway. */
+    public static final RegistryObject<BlockEntityType<TileSlot>> GATEWAY_SLOT = TILES.register("keystone_receptacle",
+            () -> BlockEntityType.Builder.of(TileSlot::new, BlocksIS.SLOT.get()).build(null));
 
     private TilesIS() {
     }

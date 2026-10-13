@@ -198,7 +198,7 @@ public class PocketPlaneStore extends SavedData {
             ResourceLocation dimension = ResourceLocation.tryParse(planeTag.getString("returnDim"));
             int id = planeTag.getInt("id");
             BlockPos[] positions = new BlockPos[5];
-            ResourceKey<?>[] dimensions = new ResourceKey[5];
+            ResourceKey<Level>[] dimensions = new ResourceKey[5];
             ListTag portalsTag = planeTag.getList("portals", Tag.TAG_COMPOUND);
             for (int j = 0; j < portalsTag.size(); j++) {
                 CompoundTag portalTag = portalsTag.getCompound(j);

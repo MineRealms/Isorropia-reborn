@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "filled=false": {
+      "model": "isorropia:block/keystone_receptacle"
+    },
+    "filled=true": {
+      "model": "isorropia:block/keystone_receptacle_full"
+    }
+  }
+}

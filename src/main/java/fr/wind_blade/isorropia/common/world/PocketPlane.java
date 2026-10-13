@@ -11,12 +11,9 @@ import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.ITeleporter;
 
 import javax.annotation.Nullable;
-import java.util.function.Function;
 
 /**
  * Thaumic Horizons' pocket plane, reduced to the parts that do not depend on terrain generation. The dimension itself
@@ -32,6 +29,8 @@ public final class PocketPlane {
             ResourceKey.create(Registries.DIMENSION, Isorropia.id("pocket_plane"));
     public static final int COLUMN_SPACING = 256;
     public static final int CENTER_Y = 128;
+    /** TH's {@code timeUntilPortal}: how long a crossing leaves the traveller unable to cross again. */
+    public static final int PORTAL_IMMUNITY_TICKS = 50;
 
     private PocketPlane() {
     }
@@ -54,22 +53,18 @@ public final class PocketPlane {
     /** Moves an entity any distance, keeping it loaded for a moment on arrival. Copied from TC4R's eldritch portal. */
     @Nullable
     public static Entity sendTo(Entity entity, ServerLevel destination, Vec3 arrival) {
-        Entity moved = entity.changeDimension(destination, new ITeleporter() {
-            @Override
-            public PortalInfo getPortalInfo(Entity traveller, ServerLevel level,
-                    Function<ServerLevel, PortalInfo> defaultPortalInfo) {
-                return new PortalInfo(arrival, Vec3.ZERO, traveller.getYRot(), traveller.getXRot());
-            }
+        return sendTo(entity, destination, arrival, entity.getYRot());
+    }
 
-            @Override
-            public Entity placeEntity(Entity traveller, ServerLevel oldLevel, ServerLevel newLevel, float yaw,
-                    Function<Boolean, Entity> repositionEntity) {
-                Entity placed = repositionEntity.apply(false);
-                placed.moveTo(arrival.x, arrival.y, arrival.z, yaw, traveller.getXRot());
-                return placed;
-            }
-        });
+    /** As above, but facing a given way, which is what a gateway wants its visitor to do. */
+    @Nullable
+    public static Entity sendTo(Entity entity, ServerLevel destination, Vec3 arrival, float yaw) {
+        Entity moved = entity.changeDimension(destination, new GatewayTeleporter(arrival, yaw));
         if (moved != null) {
+            // A gateway lands its visitor in the middle of the far opening, which is itself a portal surface, so TH
+            // gave the traveller fifty ticks of immunity on every crossing; without it the arrival is bounced
+            // straight back. Set here rather than at the call sites, so every crossing is covered.
+            moved.setPortalCooldown(PORTAL_IMMUNITY_TICKS);
             destination.getChunkSource().addRegionTicket(TicketType.PORTAL, new ChunkPos(BlockPos.containing(arrival)), 3,
                     BlockPos.containing(arrival));
         }

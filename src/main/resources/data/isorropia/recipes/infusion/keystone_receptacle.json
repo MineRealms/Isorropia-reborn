@@ -1,0 +1,43 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:planarKeystone",
+  "central": {
+    "item": "isorropia:planar_conduit"
+  },
+  "components": [
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "thaumcraft:void_ingot"
+    }
+  ],
+  "instability": 8,
+  "aspects": {
+    "vacuos": 32,
+    "iter": 24,
+    "machina": 24,
+    "alienis": 24
+  },
+  "result": {
+    "item": "isorropia:keystone_receptacle"
+  }
+}

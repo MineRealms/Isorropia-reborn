@@ -535,7 +535,7 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | 2b' | 洞穴与口袋 `drawCaves` / `drawACave` / `drawPockets` / `drawAPocket`，加入口 `drawCavesAndPockets` | 已完成 `3d20b51`（探针 `221`） |
 | 2c | 生物群系与效果：TH 的 `setBiome`（三个静态位面群系 + 按要素选）与 `addEffects` | 已完成 `adadb0f`（探针 `222`） |
 | 2d | 整合：`PocketPlaneBuilder.create` 按 TH 顺序跑完整链路，维度生成器改用 `isorropia:pocket_plane` | 已完成 `7ce9fab`（探针 `223`/`224`） |
-| 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 待做 |
+| 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 已完成（探针 `226`/`227`/`228`/`229`） |
 | 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
 
 - 布局照 TH：每个位面占 +Z 方向一列 256 格，居中 `(0,128,256·id)`，半径上限 127，出口裂口在锚点正上方。
@@ -555,6 +555,18 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
   `EntityTaintSporeSwarmer` 等本模组没有的实体；凡 `red_flower` 超出身位（TC4 只有 9 种）的掷骰折回这 9 种。
 - 出口裂口是 TH 的 `cheat` 裂口：`PocketPlaneBuilder` 会给它补上本平面的要素，否则照 TH 原样（不设要素）它
   因为渲染器要求要素非空而**完全不可见**，玩家会找不到回家的路。
+- **成对传送门（阶段 3）的几处要点**：
+  - TH 的 `checkBlocksX` / `destroyPortal` **都跳过插槽自身那一格**（5×5 环的 `(0,0)`）。本移植起初把它当成环格，
+    于是 `checkRing` 永远返回 false、`destroyPortal` 还会把插槽本身覆盖成奥术石。用 `isRingCell` 排掉该格。
+  - `consumeVisFromWand(..., SIMULATE, ...)` 成功时返回的是 `AVAILABLE`（`consumed()==false`），不是 `CONSUMED`；
+    开门前的可支付性检查必须用 `affordable()`。TH 的 `consumeAllVisCrafting(..., false)` 就是这个语义。
+  - TH 的 `TilePortalTH` 从未被任何方块创建（`BlockPortalTH` 不覆写 `createNewTileEntity`），所以它那套漩涡渲染器、
+    环境音和 `timeUntilPortal` 全是死代码。本移植保留 tile（目的地必须存下来），并把它那套渲染器真正用起来。
+  - 传送落点正好在对面开口的portal方块里，所以每次穿越都要给 `setPortalCooldown(50)`（TH 的 `timeUntilPortal`）。
+    免疫计时器必须**自然衰减**：在 `entityInside` 里每 tick 重刷会让玩家永久卡在传送门面上。
+  - 九格表面各画一块四边形：TH 的相机朝向 billboard 会让九块浮离墙面、且视线以下的几块着色异常；改成沿墙面的平面四边形，
+    朝向由「哪条水平轴上有相邻 portal 方块」判定（开口只有一格厚，所以必是单轴）。
+  - 位面侧的开口刻在位面边缘，而岛屿一直实到边缘，所以 TH 只刻了门面和背后虚空、把开口埋住了；本移植额外向内侧掏两格口袋。
 
 
 ### 研究文字

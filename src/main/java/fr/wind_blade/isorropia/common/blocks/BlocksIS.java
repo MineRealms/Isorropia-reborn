@@ -80,6 +80,18 @@ public final class BlocksIS {
     public static final RegistryObject<BlockDust> DUST = BLOCKS.register("dust",
             () -> new BlockDust(BlockBehaviour.Properties.of().mapColor(MapColor.SAND).strength(0.5F)
                     .sound(SoundType.SAND)));
+    /** TH: rock, hardness 2.5, resistance 2.5, no drops. The ornate frame of a planar gateway. */
+    public static final RegistryObject<BlockGatewayPortal> GATEWAY = BLOCKS.register("gateway",
+            () -> new BlockGatewayPortal(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(2.5F)
+                    .sound(SoundType.STONE).noLootTable()));
+    /** TH: rock, hardness 2.5, resistance 2.5. The keystone receptacle at the top of a gateway. */
+    public static final RegistryObject<BlockSlot> SLOT = BLOCKS.register("keystone_receptacle",
+            () -> new BlockSlot(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(2.5F)
+                    .sound(SoundType.STONE).noOcclusion()));
+    /** TH: unbreakable, no collision. The surface of a planar gateway, drawn by its block entity renderer. */
+    public static final RegistryObject<BlockPortal> PORTAL = BLOCKS.register("portal",
+            () -> new BlockPortal(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 3600000.0F)
+                    .sound(SoundType.WOOL).noCollission().noOcclusion().noLootTable()));
 
     private BlocksIS() {
     }

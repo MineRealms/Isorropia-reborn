@@ -97,6 +97,7 @@ public final class PocketPlaneBuilder {
             // TH's exit rift is a cheat rift: it shows the way home instead of eating the island.
             vortex.setCheat(true);
             vortex.setAspects(aspects);
+            vortex.setPlaneId(id);
         }
 
         store.reserve(name, aspects, effects, returnDimension, returnVortex, radius);
