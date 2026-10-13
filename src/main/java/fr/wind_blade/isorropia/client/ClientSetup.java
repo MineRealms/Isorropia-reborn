@@ -142,6 +142,8 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(TilesIS.VORTEX_STABILIZER.get(), RenderVortexStabilizer::new);
         event.registerBlockEntityRenderer(TilesIS.RECOMBINATOR.get(),
                 fr.wind_blade.isorropia.client.renderer.tiles.RenderRecombinator::new);
+        event.registerBlockEntityRenderer(TilesIS.VORTEX.get(),
+                fr.wind_blade.isorropia.client.renderer.tiles.RenderVortex::new);
     }
 
     @SubscribeEvent

@@ -68,6 +68,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockRecombinator> RECOMBINATOR = BLOCKS.register("recombinator",
             () -> new BlockRecombinator(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(0.7F, 1.0F)
                     .sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
+    /** TH: cloth sound, hardness -1 (unbreakable), resistance 20000, light 15, no collision, drops nothing. */
+    public static final RegistryObject<BlockVortex> VORTEX = BLOCKS.register("vortex",
+            () -> new BlockVortex(BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(-1.0F, 20000.0F)
+                    .sound(SoundType.WOOL).lightLevel(state -> 15).noCollission().noOcclusion().noLootTable()));
 
     private BlocksIS() {
     }

@@ -19,7 +19,9 @@ import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Thaumic Horizons' transduction amplifier, ported to TC4R. While a redstone signal feeds it ({@link #shouldActivate})
@@ -140,7 +142,21 @@ public class TileTransductionAmplifier extends BlockEntity {
         }
         ServerLevel server = (ServerLevel) level;
         if (transducers > 3 && amplifier.count % 50 == 0) {
-            // Vortex catastrophe: deferred. The planar-vortex task adds the TC4R vortex block this would convert to.
+            // Four amplifiers tear the node open: TH swapped the node for a vortex carrying the node's base aspects.
+            // The bonus has to come off the reading first, because pulling it back empties the derived base cache.
+            Map<AspectId, Integer> bonus = AuraNodeBonus.get(node);
+            Map<AspectId, Integer> collapsed = new LinkedHashMap<>();
+            for (Map.Entry<AspectId, Integer> entry : node.energizedBase().entrySet()) {
+                int base = entry.getValue() - bonus.getOrDefault(entry.getKey(), 0);
+                if (base > 0) {
+                    collapsed.put(entry.getKey(), base);
+                }
+            }
+            amplifier.unboostNode(node);
+            level.setBlock(nodePos, fr.wind_blade.isorropia.common.blocks.BlocksIS.VORTEX.get().defaultBlockState(), 3);
+            if (level.getBlockEntity(nodePos) instanceof TileVortex vortex) {
+                vortex.setAspects(collapsed);
+            }
         }
         if (transducers > 2 && level.getRandom().nextInt(4) == 2 && amplifier.count % 50 == 0) {
             int dx = level.random.nextInt(16) - 8;

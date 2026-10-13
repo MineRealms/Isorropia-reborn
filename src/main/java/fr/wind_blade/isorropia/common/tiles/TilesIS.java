@@ -37,6 +37,8 @@ public final class TilesIS {
             () -> BlockEntityType.Builder.of(TileVortexStabilizer::new, BlocksIS.VORTEX_STABILIZER.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileRecombinator>> RECOMBINATOR = TILES.register("recombinator",
             () -> BlockEntityType.Builder.of(TileRecombinator::new, BlocksIS.RECOMBINATOR.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileVortex>> VORTEX = TILES.register("vortex",
+            () -> BlockEntityType.Builder.of(TileVortex::new, BlocksIS.VORTEX.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
             () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
 

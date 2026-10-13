@@ -94,6 +94,8 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> VORTEX_STABILIZER = machineItem("vortex_stabilizer", BlocksIS.VORTEX_STABILIZER);
     /** Drawn by its block entity renderer (clawed pedestal, pearl, lightning ring). */
     public static final RegistryObject<MachineBlockItem> RECOMBINATOR = machineItem("recombinator", BlocksIS.RECOMBINATOR);
+    /** The rift itself: creative-only, since in play it is made by collapsing an over-amplified node. */
+    public static final RegistryObject<BlockItem> VORTEX = blockItem("vortex", BlocksIS.VORTEX);
 
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",
