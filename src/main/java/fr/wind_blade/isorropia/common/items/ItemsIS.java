@@ -148,6 +148,11 @@ public final class ItemsIS {
     /** The gateway surface: creative-only, since in play it is cut by the receptacle. */
     public static final RegistryObject<BlockItem> PORTAL = blockItem("portal", BlocksIS.PORTAL);
 
+    // Working golems (TH golem powder): sprinkled on plain matter the powder raises it into a working golem.
+    /** TH: 64 to a stack, one pinch per golem. */
+    public static final RegistryObject<ItemGolemPowder> GOLEM_POWDER = ITEMS.register("golem_powder",
+            () -> new ItemGolemPowder(new Item.Properties()));
+
     private ItemsIS() {
     }
 

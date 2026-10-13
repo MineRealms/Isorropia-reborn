@@ -70,6 +70,9 @@ public final class EntitiesIS {
     public static final RegistryObject<EntityType<EntityBlastPhial>> BLAST_PHIAL = register("blast_phial",
             EntityType.Builder.<EntityBlastPhial>of(EntityBlastPhial::new, MobCategory.MISC).sized(0.5F, 0.5F)
                     .clientTrackingRange(4).updateInterval(10));
+    /** TH's working golem: a block raised into a construct that keeps its maker's material. */
+    public static final RegistryObject<EntityType<EntityGolemTH>> GOLEM_TH = register("golem_th",
+            EntityType.Builder.of(EntityGolemTH::new, MobCategory.CREATURE).sized(0.75F, 1.4F).clientTrackingRange(10));
 
     private EntitiesIS() {
     }
@@ -91,6 +94,7 @@ public final class EntitiesIS {
         event.put(GUARDIAN_PANTHER.get(), guardianPanther());
         event.put(NETHER_HOUND.get(), Wolf.createAttributes().build());
         event.put(ANIMATED_BLOCK.get(), EntityAnimatedBlock.createAttributes().build());
+        event.put(GOLEM_TH.get(), EntityGolemTH.createAttributes().build());
     }
 
     private static AttributeSupplier guardianPanther() {

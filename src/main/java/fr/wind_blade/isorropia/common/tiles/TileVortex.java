@@ -7,6 +7,8 @@ import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import dev.tc4port.thaumcraft.api.entity.WispApi;
 import dev.tc4port.thaumcraft.registry.TCItems;
 import dev.tc4port.thaumcraft.registry.TCSounds;
+import fr.wind_blade.isorropia.common.entities.EntitiesIS;
+import fr.wind_blade.isorropia.common.entities.EntityGolemTH;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.wand.CrystalWandParts;
 import fr.wind_blade.isorropia.common.world.PocketPlane;
@@ -61,7 +63,8 @@ import java.util.Map;
  * <p>While damped, the rift also runs TH's void crafting: matter dropped in is transformed and held inside it. A
  * void ingot soaks into void putty, salis mundus bursts into wisps, and an inert crystal wand comes back charged to
  * the brim ({@link #storedItems}). Right-clicking the rift with a wand pulls the oldest stored item back out
- * ({@link #popStored}). TH also forged golem animation powder here; that waits on the working-golem system.</p>
+ * ({@link #popStored}). TH also forged golem animation powder here: powder tossed in is raised from the void itself
+ * as permanent voidling golems ({@link #spawnVoidGolems}).</p>
  */
 public class TileVortex extends BlockEntity implements AspectContainerView {
     /** TH's collapse trigger: the rift tears itself apart once it has eaten this long. */
@@ -343,8 +346,8 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
 
     /**
      * TH's void crafting. Matter passed through a damped rift is transformed and kept inside it: a void ingot becomes
-     * void putty, salis mundus clumps into wisps, and an inert crystal wand comes back charged to the brim. TH also
-     * forged golem animation powder here, but that needs TH's own golem, so a golem powder drop is left untouched.
+     * void putty, salis mundus clumps into wisps, and an inert crystal wand comes back charged to the brim. Golem
+     * animation powder is not transformed but raised: it comes out as permanent voidling golems owned by the thrower.
      */
     private void handleVoidCrafting(ServerLevel level, BlockPos pos, ItemEntity item) {
         ItemStack stack = item.getItem();
@@ -359,7 +362,32 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         } else if (stack.is(ItemsIS.CRYSTAL_WAND.get())) {
             this.items.add(CrystalWandParts.chargedWand());
             item.discard();
+        } else if (stack.is(ItemsIS.GOLEM_POWDER.get())) {
+            this.spawnVoidGolems(level, pos, item);
         }
+    }
+
+    /**
+     * TH's voidling golems: golem animation powder tossed through the damped rift comes out raised from the void
+     * itself, one golem per pinch. A voidling obeys forever and never needs a core, but it counts the thrower as its
+     * maker — and coreless constructs of the void do not stay golems forever.
+     */
+    private void spawnVoidGolems(ServerLevel level, BlockPos pos, ItemEntity item) {
+        Entity thrower = item.getOwner();
+        for (int i = 0; i < item.getItem().getCount(); i++) {
+            EntityGolemTH golem = EntitiesIS.GOLEM_TH.get().create(level);
+            if (golem == null) {
+                continue;
+            }
+            golem.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D,
+                    thrower == null ? 0.0F : thrower.getYRot(), 0.0F);
+            golem.loadGolem(null, EntityGolemTH.PERMANENT, false, false,
+                    thrower instanceof Player player ? player : null);
+            golem.restrictTo(golem.blockPosition(), 32);
+            level.addFreshEntity(golem);
+        }
+        level.playSound(null, pos, TCSounds.WAND.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        item.discard();
     }
 
     /** TH's {@code spawnWisps}: one to four wisps of a random aspect drawn from the rift. */

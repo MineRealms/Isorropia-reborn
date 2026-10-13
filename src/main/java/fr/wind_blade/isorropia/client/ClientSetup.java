@@ -98,6 +98,8 @@ public final class ClientSetup {
         event.registerEntityRenderer(EntitiesIS.EMBER.get(), RenderEmber::new);
         event.registerEntityRenderer(EntitiesIS.ANIMATED_BLOCK.get(),
                 fr.wind_blade.isorropia.client.renderer.entities.RenderAnimatedBlock::new);
+        event.registerEntityRenderer(EntitiesIS.GOLEM_TH.get(),
+                fr.wind_blade.isorropia.client.renderer.entities.RenderGolemTH::new);
         event.registerEntityRenderer(EntitiesIS.ALCHEMITE_PRIMED.get(),
                 fr.wind_blade.isorropia.client.renderer.entities.RenderAlchemitePrimed::new);
         event.registerEntityRenderer(EntitiesIS.SYRINGE.get(),
