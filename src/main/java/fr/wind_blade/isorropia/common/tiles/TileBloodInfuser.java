@@ -494,6 +494,36 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
         }
     }
 
+    /**
+     * The ten slots with explicit indices — {@link net.minecraft.world.SimpleContainer#createTag} would save a
+     * compact list, and its {@code fromTag} refills by list position, so empty slots would collapse and shift
+     * everything left of the first gap.
+     */
+    private ListTag saveItems() {
+        ListTag list = new ListTag();
+        for (int i = 0; i < 10; i++) {
+            ItemStack stack = this.items.getItem(i);
+            if (!stack.isEmpty()) {
+                CompoundTag entry = stack.save(new CompoundTag());
+                entry.putByte("Slot", (byte) i);
+                list.add(entry);
+            }
+        }
+        return list;
+    }
+
+    private void loadItems(ListTag list) {
+        for (int i = 0; i < 10; i++) {
+            this.items.setItem(i, ItemStack.EMPTY);
+        }
+        for (Tag entry : list) {
+            int slot = ((CompoundTag) entry).getByte("Slot") & 0xFF;
+            if (slot < 10) {
+                this.items.setItem(slot, ItemStack.of((CompoundTag) entry));
+            }
+        }
+    }
+
     private ListTag writeSelected() {
         ListTag selected = new ListTag();
         for (AspectId aspect : this.selected) {
@@ -537,7 +567,7 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
     public CompoundTag getUpdateTag() {
         CompoundTag tag = new CompoundTag();
         tag.putInt("Mode", this.mode);
-        tag.put("Items", this.items.createTag());
+        tag.put("Items", this.saveItems());
         tag.put("Selected", this.writeSelected());
         tag.put("Acquired", this.writeAcquired());
         if (this.currentlySucking != null) {
@@ -549,7 +579,7 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
     @Override
     public void handleUpdateTag(CompoundTag tag) {
         this.mode = tag.getInt("Mode");
-        this.items.fromTag(tag.getList("Items", Tag.TAG_COMPOUND));
+        this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND));
         this.readDial(tag);
         this.currentlySucking = tag.contains("Sucking") ? AspectId.parse(tag.getString("Sucking")) : null;
     }
@@ -570,7 +600,7 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Mode", this.mode);
-        tag.put("Items", this.items.createTag());
+        tag.put("Items", this.saveItems());
         tag.put("Selected", this.writeSelected());
         tag.put("Acquired", this.writeAcquired());
     }
@@ -579,7 +609,7 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
     public void load(CompoundTag tag) {
         super.load(tag);
         this.mode = tag.getInt("Mode");
-        this.items.fromTag(tag.getList("Items", Tag.TAG_COMPOUND));
+        this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND));
         this.readDial(tag);
         this.currentlySucking = null;
     }

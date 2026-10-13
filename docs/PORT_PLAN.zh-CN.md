@@ -635,3 +635,21 @@ TH 的 Seroconverter = `BlockBloodInfuser`/`TileBloodInfuser`（"血夜转化器
 - **探针环境的坑**：用 `setHealth` 强行复活死掉的测试员会让客户端的 OWNER 同步对象状态（TC4R
   `player_knowledge`）丢失，`PlayerKnowledgeApi.view` 在客户端抛 `IllegalStateException`，菜单打开即被关——
   重启客户端即恢复正常；屏幕的 `refresh()` 对该异常退化为空网格，避免真机玩家在同步落位前打开菜单炸包。
+#### 遗留审计补测（同日）
+
+交卷后对 Seroconverter 做了一轮遗留审计，补齐八条此前未覆盖的路径（探针 `263`/`266`）：
+
+- **运行时配方**：`isorropia:infusion/blood_infuser` 在 RecipeManager 里就位（类型 `thaumcraft:infusion`）。
+- **按钮协议（服务端真菜单驱动）**：负数 id 加拨已知表第 `(-id)-1` 个、`3+idx` 删、0–2 切模式，语义与 TH 一致。
+- **自动模式**：同一表盘连做两支注射剂，模式保持 2；逐 tick 观察为「吸满→下一 tick 产出→acquired 清空→继续等下一支」。
+- **输出满闸**：3×3 放满时完全不吸（currentlySucking=null、acquired 不动、注射器原样保留）。
+- **推入路径**：管道直接 `addEssentia` 进机器（EXECUTE，非顶面）也计入 acquired。
+- **shift 移动**：输出架→背包、热键栏注射器→0 号槽、圆石拒入（quickMoveStack 返回空）。
+- **破坏掉落**：`onRemove` 把容器里的东西全部落地，BE 移除。
+- **NBT 往返**：审计抓到**唯一真 bug**——tile 存档用 `SimpleContainer.createTag()`（紧凑列表、无 Slot 索引），
+  而 `fromTag` 按列表位置回填，空槽塌缩会让 0 号之后的物品整体左移（探针里 2 号槽的注射剂漂到 1 号）。
+  改成手写带 `Slot` 字节的存取（`saveItems`/`loadItems`），存档与 `getUpdateTag` 同步两路都换；修复后往返
+  逐槽相等，248 探针回归无变化。
+
+界面内的鼠标命中几何（网格格位、圆点、抽屉悬停）仍只有像素级证据，没有模拟点击的探针——坐标是从 TH 原版
+1:1 抄的，风险低，留给下次开服顺手人眼复核。
