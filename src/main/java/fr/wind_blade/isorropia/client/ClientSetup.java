@@ -74,6 +74,8 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.model.ModelSomaticBrain::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.RecombinatorModel.LAYER,
                 fr.wind_blade.isorropia.client.model.RecombinatorModel::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSyringe.LAYER,
+                fr.wind_blade.isorropia.client.model.ModelSyringe::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -98,6 +100,10 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.renderer.entities.RenderAnimatedBlock::new);
         event.registerEntityRenderer(EntitiesIS.ALCHEMITE_PRIMED.get(),
                 fr.wind_blade.isorropia.client.renderer.entities.RenderAlchemitePrimed::new);
+        event.registerEntityRenderer(EntitiesIS.SYRINGE.get(),
+                fr.wind_blade.isorropia.client.renderer.entities.RenderSyringe::new);
+        // TH drew the thrown blast phial as its own item icon, tinted by the potion it carries.
+        event.registerEntityRenderer(EntitiesIS.BLAST_PHIAL.get(), ThrownItemRenderer::new);
     }
 
     @SubscribeEvent

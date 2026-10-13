@@ -10,6 +10,10 @@ import fr.wind_blade.isorropia.common.items.misc.ItemIncubatedEgg;
 import fr.wind_blade.isorropia.common.items.misc.ItemJelly;
 import fr.wind_blade.isorropia.common.items.misc.ItemPlanarConduit;
 import fr.wind_blade.isorropia.common.items.misc.ItemLens;
+import fr.wind_blade.isorropia.common.items.misc.ItemSyringeBlood;
+import fr.wind_blade.isorropia.common.items.misc.ItemSyringeBloodSample;
+import fr.wind_blade.isorropia.common.items.misc.ItemSyringeEmpty;
+import fr.wind_blade.isorropia.common.items.misc.ItemSyringeInjection;
 import fr.wind_blade.isorropia.common.lenses.Lenses;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -104,6 +108,21 @@ public final class ItemsIS {
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",
             ItemPlanarConduit::new);
+
+    // Syringe toolkit (TH blood infusion): the warded syringe draws the blood the Seroconverter later treats.
+    public static final RegistryObject<ItemSyringeEmpty> SYRINGE_EMPTY = ITEMS.register("syringe_empty",
+            () -> new ItemSyringeEmpty(new Item.Properties()));
+    /** The wizard's own blood, and the blast phial's reagent. */
+    public static final RegistryObject<ItemSyringeBlood> SYRINGE_BLOOD = ITEMS.register("syringe_blood",
+            () -> new ItemSyringeBlood(new Item.Properties()));
+    public static final RegistryObject<ItemSyringeBloodSample> SYRINGE_BLOOD_SAMPLE = ITEMS.register(
+            "syringe_blood_sample", () -> new ItemSyringeBloodSample(new Item.Properties()));
+    /** One injection, as TH held only a single syringe: an injection carries its own essences. */
+    public static final RegistryObject<ItemSyringeInjection> SYRINGE_INJECTION = ITEMS.register("syringe_injection",
+            () -> new ItemSyringeInjection(new Item.Properties().stacksTo(1), false));
+    /** TH's phial form of the same item, told apart by damage there and by its own id here. */
+    public static final RegistryObject<ItemSyringeInjection> BLAST_PHIAL = ITEMS.register("blast_phial",
+            () -> new ItemSyringeInjection(new Item.Properties().stacksTo(1), true));
 
     private ItemsIS() {
     }

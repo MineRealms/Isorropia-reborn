@@ -1,0 +1,33 @@
+{
+  "type": "thaumcraft:arcane_shapeless",
+  "research": "isorropia:blastPhial",
+  "ingredients": [
+    {
+      "item": "thaumcraft:essence_phial"
+    },
+    {
+      "item": "thaumcraft:essence_phial"
+    },
+    {
+      "item": "minecraft:gunpowder"
+    },
+    {
+      "item": "thaumcraft:essence_phial"
+    },
+    {
+      "item": "thaumcraft:essence_phial"
+    },
+    {
+      "item": "isorropia:syringe_blood"
+    }
+  ],
+  "result": {
+    "item": "isorropia:blast_phial",
+    "count": 4
+  },
+  "vis": {
+    "ignis": 1,
+    "aqua": 1,
+    "perditio": 1
+  }
+}

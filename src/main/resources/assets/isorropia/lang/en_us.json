@@ -374,5 +374,20 @@
   "isorropia.research_page.recombinator.3": "By supplying your node with proper fodder it should be possible to create any desired aspect.<BR>Oddly, the device's behavior seems to bolster certain philosophical theories - namely that under the right circumstances the universe will naturally progress from base elements to more complex structures. But why do there seem to be limits on which aspects can be fused? What force has held back the cosmos from reaching a final point of infinite complexity?<IMG>isorropia:textures/misc/recombinatortext.png:0:128:255:128:0.5</IMG>",
   "block.isorropia.vortex": "Planar Vortex",
   "block.isorropia.void": "Void",
-  "block.isorropia.dust": "Dust"
+  "block.isorropia.dust": "Dust",
+  "item.isorropia.syringe_empty": "Warded Syringe",
+  "item.isorropia.syringe_blood_sample": "Blood Sample",
+  "item.isorropia.syringe_blood_sample.named": "Blood Sample: %s",
+  "item.isorropia.syringe_blood": "Blood Syringe",
+  "item.isorropia.syringe_injection": "Injection",
+  "item.isorropia.blast_phial": "Blast Phial",
+  "tc.research_name.isorropia:essentiaInjection": "Blood Alchemy",
+  "tc.research_text.isorropia:essentiaInjection": "Not for the faint of heart",
+  "tc.research_name.isorropia:blastPhial": "Blast Phials",
+  "tc.research_text.isorropia:blastPhial": "A literal bloodbath",
+  "isorropia.research_page.essentiaInjection.1": "The art of potion-making has been practiced for centuries, but its need for esoteric reagents limits its scalability. What if you could achieve the same ends using essentia?<BR>Of course, the idea of drinking essentia makes thaumaturges wince, and for good reason - the human stomach was not built to process raw magical energies. On the other hand, alchemically treating a sample of your own blood and injecting it back into yourself has proven to be a reliable method of applying temporary magical effects.",
+  "isorropia.research_page.essentiaInjection.2": "Alchemical injections can be created with a blood syringe and up to eight units of essentia in any combination, selected via the Seroconverter's interface. The injection's effects depend on the aspects chosen and can be somewhat unpredictable, but you have noticed a few patterns.<BR>Each aspect seems to have an affinity for several potion effects, but an injection can only provide one effect per two essentia used. It appears that only the effects with the highest cumulative affinity are actually manifested.<BR>Since an individual aspect's affinities often include both positive and negative effects, it would be wise to experiment with different combinations in order to dilute unwanted effects.",
+  "isorropia.research_page.essentiaInjection.3": "For example, §5Lux§0 essentia has a strong affinity for night vision and a weak affinity for blindness. You can create a short-lived injection of night vision with two §5Lux§0, but adding a third will also apply a blindness effect. If the fourth unit of essentia is §5Perfodio§0, which has a very strong affinity for haste, the resulting injection will instead apply night vision and haste.<BR>The Seroconverter can operate in either automatic or single mode. The former will continue to produce injections as long as the device is provided with blood and essentia (and has free output slots), while the latter will stop after one successful treatment.",
+  "isorropia.research_page.essentiaInjection.4": "Drawing your blood with warded syringes can be performed with a simple right-click. Should you have a need for it, you can also draw blood from any living creature by right-clicking it with an empty syringe. It should be noted that animal blood is not suited for alchemical processing.<BR>Injections can be applied to yourself by right-clicking or applied to another creature by striking it with the syringe. For sanitary reasons, warded syringes should be discarded after a single use.",
+  "isorropia.research_page.blastPhial.1": "Having already obsoleted the classic potion, it was a simple matter to do the same for splash potions. Simply fill an essentia phial with a mixture of blood and gunpowder, then treat it as you would a warded syringe. The resulting phial explodes on impact, showering any nearby creatures in magically-charged blood.<BR>This may not be particularly sanitary, but it is certainly effective."
 }

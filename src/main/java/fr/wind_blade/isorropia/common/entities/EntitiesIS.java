@@ -3,6 +3,8 @@ package fr.wind_blade.isorropia.common.entities;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.entities.projectile.EntityEmber;
 import fr.wind_blade.isorropia.common.entities.projectile.EntityIncubatedEgg;
+import fr.wind_blade.isorropia.common.entities.projectile.EntityBlastPhial;
+import fr.wind_blade.isorropia.common.entities.projectile.EntitySyringe;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -60,6 +62,14 @@ public final class EntitiesIS {
     public static final RegistryObject<EntityType<EntityAlchemitePrimed>> ALCHEMITE_PRIMED = register("alchemite_primed",
             EntityType.Builder.<EntityAlchemitePrimed>of(EntityAlchemitePrimed::new, MobCategory.MISC).sized(0.98F, 0.98F)
                     .clientTrackingRange(10).updateInterval(10));
+    /** TH's thrown syringe, flown like an arrow. */
+    public static final RegistryObject<EntityType<EntitySyringe>> SYRINGE = register("syringe",
+            EntityType.Builder.<EntitySyringe>of(EntitySyringe::new, MobCategory.MISC).sized(0.5F, 0.5F)
+                    .clientTrackingRange(4).updateInterval(20));
+    /** TH's thrown blast phial, a splash potion in all but name. */
+    public static final RegistryObject<EntityType<EntityBlastPhial>> BLAST_PHIAL = register("blast_phial",
+            EntityType.Builder.<EntityBlastPhial>of(EntityBlastPhial::new, MobCategory.MISC).sized(0.5F, 0.5F)
+                    .clientTrackingRange(4).updateInterval(10));
 
     private EntitiesIS() {
     }
