@@ -56,14 +56,27 @@
   `probes/client/270_s0_boot.java` 在 MDG 编译产物的运行时里确认
   22 blocks / 61 items / 16 BE types / 19 entity types 注册齐全。
 
-## S1 — 接入 1.21.1-neoforge 节点（计划）
+## S1 — 接入 1.21.1-neoforge 节点（已完成）
 
-- `settings.gradle` 加 `versions(['1.21.1-neoforge': '1.21.1'])`；`build.gradle` 加
-  NeoForge 分支（核心 MDG：mod 依赖用普通 `implementation`；`unitTest { enable() }`）。
-- TC4R neoforge 0.1.0-20736 从 Technomancy 的 `local-repo` 装配 +
-  `local-repo/DEPENDENCIES.1.21.1-neoforge.json`；Curios 9.5.1+1.21.1；TerraBlender 用
-  Modrinth 文件 id 钉死。
-- 测量 1.21.1 编译错误面（44 个触碰 `net.minecraftforge` 的文件，~26 个 import 族）。
+- `settings.gradle` 加 `versions(['1.21.1-neoforge': '1.21.1'])`；`build.gradle` 加 NeoForge
+  分支（核心 MDG：mod 依赖用普通 `implementation`；`unitTest { enable(); testedMod }`）。
+- TC4R neoforge `0.1.0-20736` jar+pom 从 Technomancy 的 local-repo 装配，SHA-256 与
+  `local-repo/DEPENDENCIES.1.21.1-neoforge.json` 核对一致；Curios `9.5.1+1.21.1`；
+  TerraBlender 用 Modrinth 文件 id `6e8GCrLb` 钉死。
+- client run 指向 `run-client-1.21.1`、bridge 端口 48792（两节点不共端口）；数据生成输出到
+  `src/generated/resources-1.21.1/`（防两节点 runData 互相覆盖）。
+
+### S1 误差面测量（`:1.21.1-neoforge:compileJava --offline`，未做任何源码改动）
+
+| 指标 | 值 |
+|---|---|
+| 报错文件 | **126 / 217** |
+| 错误行 | 1740（其中"找不到符号" 892） |
+| 最大缺失族 | `net.minecraftforge.registries`(54) / `Mod`(24+18) / `net.minecraftforge.network`(24+2) / `eventbus.api`(22) / `fml.common`(22) / `api.distmarker`(16) / `net.minecraftforge.event*`(14+10+8+…) / `ForgeRegistries`(14) / `TickEvent`(12) / `ForgeConfigSpec`(10) / `NetworkEvent`(10) / `PacketDistributor`(8) / Curios API(12) / 客户端事件与渲染事件(12+6+4+…) |
+
+全部是预期中的 Forge→NeoForge API 迁移面，与 Technomancy S1 的家族一致；没有结构性意外
+（无 gson/vanilla 映射漂移类错误——那些在 MDG 下不可能出现，两节点共用 official 映射）。
+门禁：`:1.20.1-forge:build --offline` 在双节点注册后仍然绿。
 
 ## S2 — 替换层 + 资源层（计划）
 

@@ -157,9 +157,97 @@ if (isForge) {
         // would double-run (or fail on a missing task).
     }
 } else {
-    // S1 adds the 1.21.1 / NeoForge branch here (core ModDevGradle, plain `implementation` for
-    // mods, `gradle/neoforge-resources.gradle` for the S2 resource transforms).
-    throw new GradleException("Unknown mod_loader '${mod_loader}' for node ${sc.current.project}")
+    // ---------------------------------------------------------------- 1.21.1 / NeoForge
+    apply plugin: 'net.neoforged.moddev'
+
+    neoForge {
+        version = neo_version
+
+        runs {
+            configureEach {
+                gameDirectory = rootProject.file('run')
+                systemProperty 'forge.logging.console.level', 'info'
+            }
+            client {
+                client()
+                gameDirectory = rootProject.file('run-client-1.21.1')
+                // Same bridge-resolution fix as the Forge node: without it the bridge 1.0.0 jar
+                // falls into its guardless ".minecraft" classpath walk and NPEs at construct.
+                systemProperty 'minecraft.gameDir', rootProject.file('run-client-1.21.1').absolutePath
+                if (project.hasProperty('quickPlay')) {
+                    programArgument '--quickPlaySingleplayer'
+                    programArgument project.property('quickPlay').toString()
+                }
+                // R9: the two nodes must not share a bridge port. 1.20.1 owns 48791.
+                systemProperty 'rosetta.remote.port', providers.gradleProperty('clientProbePort').getOrElse('48792')
+            }
+            server {
+                server()
+                gameDirectory = rootProject.file('run-server-1.21.1')
+                programArgument '--nogui'
+            }
+            gameTestServer {
+                // MDG's RunModel has no `gameTestServer()` helper; the type is set by name.
+                type = 'gameTestServer'
+                gameDirectory = rootProject.file('run-gametest-1.21.1')
+                // NeoForge renamed the Forge `forge.*` system properties to `neoforge.*`.
+                systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+            }
+            data {
+                data()
+                gameDirectory = rootProject.file('run-data-1.21.1')
+                programArgument '--mod'
+                programArgument mod_id
+                programArgument '--all'
+                programArgument rootProject.file('src/generated/resources-1.21.1/').absolutePath
+                programArgument '--existing'
+                programArgument rootProject.file('src/main/resources/').absolutePath
+            }
+        }
+
+        mods {
+            isorropia {
+                sourceSet sourceSets.main
+            }
+        }
+
+        // Unlike legacyforge, the NeoForge extension does have `unitTest`: it wires the modding
+        // classpath and the mod's own test resources into the `test` source set for us.
+        unitTest {
+            enable()
+            testedMod = mods.isorropia
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'LocalTC4R'
+            url = uri(tc4Repository)
+            content { includeGroup 'dev.tc4port' }
+        }
+        maven { url = 'https://maven.neoforged.net/releases' }
+        maven { url = 'https://maven.theillusivec4.top' }
+        maven {
+            url = 'https://api.modrinth.com/maven'
+            content { includeGroup 'maven.modrinth' }
+        }
+        mavenCentral()
+    }
+
+    dependencies {
+        // Core ModDevGradle has no `mod*` configurations - those are a legacyforge addition. On
+        // 1.21.1 that is fine: NeoForge runs in official mappings, so nothing needs remapping and
+        // the ordinary configurations carry mods just as well.
+        implementation("dev.tc4port:thaumcraft-neoforge:${thaumcraft_version}") { transitive = false }
+        // TC4R declares both mandatory, and the Somatic Brain is a Curios head item.
+        runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}") { transitive = false }
+        // Pin the official Modrinth file, whose Maven version number is otherwise ambiguous across loaders.
+        runtimeOnly("maven.modrinth:terrablender:${terrablender_file}") { transitive = false }
+
+        testImplementation(platform("org.junit:junit-bom:${junit_version}"))
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
 }
 
 // Process test sources using the same target rules as production sources.

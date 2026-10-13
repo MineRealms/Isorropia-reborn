@@ -20,8 +20,8 @@ plugins {
 stonecutter {
     create(rootProject) {
         // Node directory name -> logical version used by `//? if` conditions.
-        // S1 adds the 1.21.1-neoforge node here.
         versions(['1.20.1-forge': '1.20.1'])
+        versions(['1.21.1-neoforge': '1.21.1'])
     }
 }
 
