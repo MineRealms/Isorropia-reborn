@@ -506,6 +506,25 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 - **漩涡的饥饿粒子**（TH 的 `hungryNodeFX`）与循环音效（`vortex.ogg`）未做；外观由 TESR 提供。
 - **重组器不阻止普通节点欺凌**（照 TH）；供体掉容量的 1/3 概率保留。
 
+### 并行一轮：三个独立模块（2026-10-14）
+
+用户要求用 workflow + subagent 并行做多个互不依赖的模块，最后由主循环亲自验收。做法：三个 agent 各自在
+**独立 git worktree** 里实现（worktree 里没有 git 忽略的 `local-repo`/`reference`，每个 agent 第一步补拷），
+**共享文件零重叠**（注射器动 `ItemsIS`/`EntitiesIS`/`lang`/`research`；地形动 `PocketPlaneTerrain`；群系只加新文件；
+`PocketPlaneBuilder.create` 由主循环保留），因此合并**零冲突**。三个模块各自提交后合并，再补接线，最后在 DEV 客户端
+一次性跑完四个探针并截图。
+
+- **A 注射器线**（`bafd7e0`）：4 种注射器 + `EntitySyringe`/`EntityBlastPhial` + 两条奥术配方 +
+  `essentiaInjection`/`blastPhial` 研究。TH 把注射与爆裂药瓶放在一个物品里用 damage 区分，本移植分成两个 id；
+  TH 的爆裂药瓶配方产出 `itemSyringeHuman` damage 1，而真正被扔出去的是 `ItemSyringeInjection` 的药瓶形态，
+  所以配方改为产出可用形态；`stacksTo(1)` 与「一次做 4 个」在现代 codec 下互斥（1.7 允许结果超过堆叠上限），
+  故药瓶可堆叠、注射保持 1。血液注入器与 Seroconverter 是后续模块，故研究缺那一页配方。
+- **B 洞穴与口袋**（`3d20b51`）：`drawCaves`/`drawPockets` 系列；`drawRavines`/`drawClouds`/
+  `drawSurfaceFeatures`/`drawUndergroundFeatures`/`drawLeviathanBones` 在 TH 里本来就是空函数。
+- **C 群系与效果**（`adadb0f`）：1.7 的生物群系是逐列的、可按要素动态决定，现代必须静态注册，故定义三个静态位面群系
+  + 按要素选择，再用 `ChunkAccess` 的 4×4×4 单元格写入已盖章的区块。TH 的 `addEffects` 只填 `data.potionEffects`
+  而全代码无人读取（与「扔不出去的爆裂药瓶」同类的 TH 死端点），本移植把清单存进位面记录并持久化。
+
 ### 口袋位面阶段划分
 
 | 阶段 | 内容 | 状态 |
@@ -513,7 +532,9 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | 1 | 维度注册（`isorropia:pocket_plane`，虚空 `minecraft:flat`）+ `PocketPlane` 传送助手 + `PocketPlaneStore` 注册表 | 已完成 `33f4b23` |
 | 2a | 框架盖章：球壳、要素环、着陆台、出口裂口（`PocketPlaneBuilder`，探针 `211` / `212`） | 已完成 `baeed1a` |
 | 2b | 分层地形 `drawLayers` / `drawLayer`（含地表装饰、作物、树木、生物、虚空/奥术石/注魔台点缀），加 TH 的 `dust` 默认层方块 | 已完成（探针 `214`） |
-| 2c | 其余地形：`drawCaves` / `drawPockets` / `drawRavines` / `drawClouds` / `drawSurfaceFeatures` / `drawUndergroundFeatures` / `drawLeviathanBones`，加 `addEffects`（按要素给状态效果）与 `BiomeGenPocket` | 待做 |
+| 2b' | 洞穴与口袋 `drawCaves` / `drawACave` / `drawPockets` / `drawAPocket`，加入口 `drawCavesAndPockets` | 已完成 `3d20b51`（探针 `221`） |
+| 2c | 生物群系与效果：TH 的 `setBiome`（三个静态位面群系 + 按要素选）与 `addEffects` | 已完成 `adadb0f`（探针 `222`） |
+| 2d | 整合：`PocketPlaneBuilder.create` 按 TH 顺序跑完整链路，维度生成器改用 `isorropia:pocket_plane` | 已完成 `7ce9fab`（探针 `223`/`224`） |
 | 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 待做 |
 | 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
 
