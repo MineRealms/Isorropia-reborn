@@ -94,10 +94,12 @@ public final class PocketPlaneBuilder {
         BlockPos doorway = PocketPlane.exit(id);
         setFast(pocket, doorway.getX(), doorway.getY(), doorway.getZ(), BlocksIS.VORTEX.get().defaultBlockState());
         if (pocket.getBlockEntity(doorway) instanceof TileVortex vortex) {
-            // TH's exit rift is a cheat rift: it shows the way home instead of eating the island.
+            // TH's exit rift is a cheat rift: it shows the way home instead of eating the island, and it is born as a
+            // finished doorway so a traveller stepping into it is carried back to the world it was made from.
             vortex.setCheat(true);
             vortex.setAspects(aspects);
             vortex.setPlaneId(id);
+            vortex.markCreated(returnDimension);
         }
 
         store.reserve(name, aspects, effects, returnDimension, returnVortex, radius);

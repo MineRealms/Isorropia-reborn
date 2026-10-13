@@ -18,6 +18,8 @@ public final class SoundsIS {
     public static final RegistryObject<SoundEvent> CURATIVE_EXPUNGE_FLUX_START = register("curative_expunge_flux_start");
     public static final RegistryObject<SoundEvent> CURATIVE_EXPUNGE_FLUX_LOOP = register("curative_expunge_flux_loop");
     public static final RegistryObject<SoundEvent> CURATIVE_EXPUNGE_FLUX_END = register("curative_expunge_flux_end");
+    /** TH's ambient rift hum, looped on the vortex by replaying the file at its own length. */
+    public static final RegistryObject<SoundEvent> VORTEX = register("vortex");
 
     private SoundsIS() {
     }

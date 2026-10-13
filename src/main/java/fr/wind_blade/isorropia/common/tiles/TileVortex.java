@@ -4,19 +4,28 @@ import dev.tc4port.thaumcraft.api.aspect.AspectAmounts;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectContainerView;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
+import dev.tc4port.thaumcraft.registry.TCItems;
+import fr.wind_blade.isorropia.common.world.PocketPlane;
+import fr.wind_blade.isorropia.common.world.PocketPlaneBuilder;
+import fr.wind_blade.isorropia.common.world.PocketPlaneStore;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,16 +46,22 @@ import java.util.Map;
  * Thaumic Horizons' vortex, ported to TC4R. It warms up for fifty ticks, then swallows the 5x5x5 around itself and
  * turns on the surrounding world: anything alive within fifteen blocks is dragged toward the rift and torn apart at
  * point-blank range, and up to three nearby soft blocks a tick are ground away. An attenuator's beam damps all of this
- * ({@link #beams} up to six); TH opened a pocket plane once fully damped, which waits on the dimension port.
+ * ({@link #beams} up to six); once six beams hold the rift open it stops eating and, as TH had it, a primordial pearl
+ * dropped into it seeds a pocket plane ({@link #createdDimension}). The rift then doubles as the doorway into that
+ * plane, carrying a traveller standing in it across and back.
  *
- * <p>TH's void crafting (void putty, crystal wand, golem powder), the pocket plane and its teleporters are not ported
- * yet, so the item hopper and the dimensional hand-off are absent; the machine is otherwise faithful.</p>
+ * <p>TH's void crafting (void putty, crystal wand, golem powder) is not ported yet, so the item hopper beside the
+ * pearl hand-off is still absent; the machine is otherwise faithful.</p>
  */
 public class TileVortex extends BlockEntity implements AspectContainerView {
     /** TH's collapse trigger: the rift tears itself apart once it has eaten this long. */
     private static final int MAX_COUNT = 2400;
     /** Past this many beams the rift stops eating entirely. */
     private static final int MAX_BEAMS = 6;
+    /** TH's {@code timeUntilPortal} for a rift crossing: longer than a gateway's, as the arrival rift is a doorway too. */
+    private static final int VORTEX_PORTAL_COOLDOWN = 200;
+    /** TH looped a ~27-second rift hum; replaying it at its own length keeps the ambience continuous. */
+    private static final int VORTEX_SOUND_INTERVAL = 540;
 
     private int count;
     /** How many vortex attenuators are currently holding this rift open. */
@@ -63,6 +78,13 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
      * number so a keystone could be imprinted on it; a rift born of a collapsing node carries none.
      */
     private int planeId = -1;
+    /**
+     * True once a pearl has seeded a pocket plane from this rift (TH's {@code createdDimension}), after which the rift
+     * is a doorway rather than a predator. A plane's exit rift is born with it set.
+     */
+    private boolean createdDimension;
+    /** The world a traveller is carried back to when leaving the plane. Only read on a plane's exit rift. */
+    private ResourceKey<Level> returnDimension = Level.OVERWORLD;
     private final Map<AspectId, Integer> aspects = new LinkedHashMap<>();
     private final List<net.minecraft.world.item.ItemStack> items = new ArrayList<>();
     /** Last beam count pushed to clients, so a same-tick change cannot send two packets. */
@@ -100,6 +122,18 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
 
     public void setPlaneId(int value) {
         this.planeId = value;
+        syncToClients();
+    }
+
+    /** Whether a pearl has already seeded a plane from this rift; it cannot seed a second. */
+    public boolean createdDimension() {
+        return createdDimension;
+    }
+
+    /** Marks a plane's exit rift as a finished doorway (TH set this when it placed the rift). */
+    public void markCreated(ResourceKey<Level> returnDimension) {
+        this.createdDimension = true;
+        this.returnDimension = returnDimension;
         syncToClients();
     }
 
@@ -159,38 +193,51 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
             vortex.count++;
             return;
         }
-        if (vortex.cheat) {
-            // A doorway, not a predator: nothing to eat, nothing to grind, no clock running down.
-            return;
+        if (level.getGameTime() % VORTEX_SOUND_INTERVAL == 0) {
+            // TH hummed this for every mature rift, doorway or not; replaying at the file's length loops it.
+            level.playSound(null, pos, fr.wind_blade.isorropia.common.sounds.SoundsIS.VORTEX.get(),
+                    net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
         }
-        if (!vortex.ateDevices) {
-            // TH cleared the whole neighbourhood the moment the rift matured.
-            for (int dx = -2; dx <= 2; dx++) {
-                for (int dy = -2; dy <= 2; dy++) {
-                    for (int dz = -2; dz <= 2; dz++) {
-                        if (dx != 0 || dy != 0 || dz != 0) {
-                            level.removeBlock(pos.offset(dx, dy, dz), false);
+        if (!vortex.cheat) {
+            if (!vortex.ateDevices) {
+                // TH cleared the whole neighbourhood the moment the rift matured.
+                for (int dx = -2; dx <= 2; dx++) {
+                    for (int dy = -2; dy <= 2; dy++) {
+                        for (int dz = -2; dz <= 2; dz++) {
+                            if (dx != 0 || dy != 0 || dz != 0) {
+                                level.removeBlock(pos.offset(dx, dy, dz), false);
+                            }
                         }
                     }
                 }
+                vortex.ateDevices = true;
             }
-            vortex.ateDevices = true;
+            if (vortex.beams < MAX_BEAMS) {
+                vortex.pullEntities(level, pos);
+                vortex.grindBlocks(level, pos);
+            } else if (!vortex.createdDimension) {
+                // Six beams fully damp the rift: it stops eating and, as TH had it, a pearl can seed a pocket plane.
+                vortex.handlePocketPlaneStuff(level, pos);
+            }
+            vortex.count += Math.max(0, MAX_BEAMS - vortex.beams);
+            if (vortex.count > MAX_COUNT && !level.dimension().equals(PocketPlane.LEVEL)) {
+                vortex.collapsing = true;
+                vortex.count = 0;
+                vortex.syncToClients();
+            }
         }
-        if (vortex.beams < MAX_BEAMS) {
-            vortex.pullEntities(level, pos);
-            vortex.grindBlocks(level, pos);
-        }
-        // (TH opened the pocket plane once fully damped; that half waits on the dimension port.)
-        vortex.count += Math.max(0, MAX_BEAMS - vortex.beams);
-        if (vortex.count > MAX_COUNT) {
-            vortex.collapsing = true;
-            vortex.count = 0;
-            vortex.syncToClients();
+        if (vortex.createdDimension) {
+            // A doorway, not a predator: a traveller standing in the rift is carried across.
+            vortex.transferTravellers(level, pos);
         }
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, TileVortex vortex) {
-        // Nothing to advance; the renderer works off the synced fields and the wall clock.
+        // TH's handleHungryNode client half: while the rift is undamped it flings the blocks around it inward, exactly
+        // as an ordinary hungry node does. TC4R keeps that effect for its aura nodes, so reuse it rather than redraw.
+        if (!vortex.cheat && vortex.beams < MAX_BEAMS) {
+            dev.tc4port.thaumcraft.client.HungryNodeClientEffect.tick(level, pos);
+        }
     }
 
     /** TH's handleHungryNode entity half: drag in everything within fifteen blocks and maul what gets close. */
@@ -256,6 +303,85 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
             if (hardness >= 0.0F && hardness < 10.0F) {
                 level.destroyBlock(target, true);
             }
+        }
+    }
+
+    /**
+     * TH's rift-to-pocket-plane hand-off. Once six beams have fully damped the rift it stops eating, and a primordial
+     * pearl dropped into it erupts into a new pocket plane. TH also ran its void crafting from here (void putty, a
+     * crystal wand, golem powder); those items are a later stage, so only the pearl is consumed for now.
+     */
+    private void handlePocketPlaneStuff(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel server)) {
+            return;
+        }
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, new AABB(pos).inflate(1.0))) {
+            if (entity instanceof ItemEntity item && item.getItem().is(TCItems.PRIMORDIAL_PEARL.get())) {
+                RandomSource random = level.getRandom();
+                level.explode(null, pos.getX() + random.nextFloat(), pos.getY() + random.nextFloat(),
+                        pos.getZ() + random.nextFloat(), 1.0F, Level.ExplosionInteraction.NONE);
+                createDimension(server, pos, item);
+                item.discard();
+            }
+        }
+    }
+
+    /** Stamps a fresh plane from the rift's aspects and turns this rift into its doorway (TH's {@code createDimension}). */
+    private void createDimension(ServerLevel server, BlockPos pos, ItemEntity pearl) {
+        var mcServer = server.getServer();
+        ServerLevel pocket = PocketPlane.level(mcServer);
+        if (pocket == null) {
+            return;
+        }
+        ItemStack stack = pearl.getItem();
+        String name;
+        if (stack.hasCustomHoverName()) {
+            name = stack.getHoverName().getString();
+        } else {
+            String owner = ownerName(pearl);
+            name = (owner == null ? "" : owner) + Component.translatable("isorropia.pocketplane").getString();
+        }
+        int id = PocketPlaneBuilder.create(pocket, PocketPlaneStore.get(mcServer), name, Map.copyOf(aspects),
+                server.dimension(), pos);
+        this.planeId = id;
+        this.returnDimension = server.dimension();
+        this.createdDimension = true;
+        syncToClients();
+    }
+
+    /** The name of whoever threw the pearl, as TH's default plane name was built from it. */
+    @Nullable
+    private static String ownerName(ItemEntity pearl) {
+        Entity owner = pearl.getOwner();
+        return owner == null ? null : owner.getName().getString();
+    }
+
+    /** TH's doorway: a traveller standing in the rift is carried into the plane, and home again from its exit rift. */
+    private void transferTravellers(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel server)) {
+            return;
+        }
+        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, new AABB(pos))) {
+            if (player.isPassenger() || player.isVehicle()) {
+                continue;
+            }
+            if (player.getPortalCooldown() > 0) {
+                // Mirror TH's reset-to-ten: a traveller held in the rift never bounces straight back.
+                player.setPortalCooldown(Math.min(player.getPortalCooldown(), 10));
+                continue;
+            }
+            if (!level.dimension().equals(PocketPlane.LEVEL)) {
+                PocketPlane.enterPlane(player, this.planeId);
+            } else {
+                PocketPlaneStore.Plane plane = PocketPlaneStore.get(server.getServer()).plane(this.planeId);
+                ServerLevel home = plane == null ? null : server.getServer().getLevel(plane.returnDimension());
+                if (home == null) {
+                    continue;
+                }
+                BlockPos spot = plane.returnVortex();
+                PocketPlane.sendTo(player, home, new Vec3(spot.getX() + 0.5, spot.getY(), spot.getZ() + 0.5));
+            }
+            player.setPortalCooldown(VORTEX_PORTAL_COOLDOWN);
         }
     }
 
@@ -325,6 +451,8 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         tag.putBoolean("collapsing", this.collapsing);
         tag.putBoolean("cheat", this.cheat);
         tag.putInt("planeId", this.planeId);
+        tag.putBoolean("createdDimension", this.createdDimension);
+        tag.putString("returnDimension", this.returnDimension.location().toString());
         ListTag aspectTags = new ListTag();
         for (Map.Entry<AspectId, Integer> entry : this.aspects.entrySet()) {
             CompoundTag aspectTag = new CompoundTag();
@@ -344,6 +472,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         this.collapsing = tag.getBoolean("collapsing");
         this.cheat = tag.getBoolean("cheat");
         this.planeId = tag.getInt("planeId");
+        this.createdDimension = tag.getBoolean("createdDimension");
+        this.returnDimension = tag.contains("returnDimension")
+                ? ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
+                        net.minecraft.resources.ResourceLocation.parse(tag.getString("returnDimension")))
+                : Level.OVERWORLD;
         this.lastSyncedBeams = this.beams;
         this.aspects.clear();
         ListTag aspectTags = tag.getList("aspects", Tag.TAG_COMPOUND);

@@ -501,10 +501,18 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 
 与 TH 的偏差：
 
-- **漩涡的六光束交接未做（阶段 4）**：TH 在 `beams ≥ 6` 时由漩涡开启口袋位面，本移植的位面本体、地形与成对传送门
-  都已就位，只差 `planarRift` 研究条目与这条交接。在此之前 `beams ≥ 6` 时漩涡只是停摆。
-- **虚空合成**（虚空油灰 / 水晶法杖 / 傀儡粉）与**法杖右键取物**仍未移植。
-- **漩涡的饥饿粒子**（TH 的 `hungryNodeFX`）与循环音效（`vortex.ogg`）未做；外观由 TESR 提供。
+- **漩涡的六光束交接已做（阶段 4）**：TH 在 `beams ≥ 6` 时由漩涡开启口袋位面。本移植补上 `planarRift` 研究条目，
+  并在 `TileVortex.serverTick` 里照 TH 的 `handlePocketPlaneStuff` → `createDimension`：一颗原始珍珠丢进被压满的
+  裂口即盖章出一个位面（`PocketPlaneBuilder.create`），裂口随之成为该位面的门（`createdDimension`）。门把站在其中的
+  玩家送进位面，位面出口裂口（`cheat` 门，出生即 `createdDimension`）再把人送回来；穿越免疫照 TH 的
+  `timeUntilPortal`，进门 200 tick、被门扣住时重置为 10（`transferTravellers`）。一颗珍珠只开一个位面。
+- **虚空合成**（虚空油灰 / 水晶法杖 / 傀儡粉）与**法杖右键取物**仍未移植：`handlePocketPlaneStuff` 里 TH 除珍珠外还
+  走 `handleVoidCrafting`，那几件物品属后续阶段，本移植只消费珍珠。
+- **漩涡的饥饿粒子已做**：`clientTick` 在裂口未被压满时调 TC4R 自己的 `HungryNodeClientEffect.tick`（同 TH 的
+  `hungryNodeFX` 拉取方块碎屑）。**循环音效已做**：注册 `isorropia:vortex`，按 `vortex.ogg` 的 27 秒长度每 540 tick
+  重放一次（TH 用的是 `MovingSound` 循环）。
+- **FXSonic 未做**：TH 的 `FXSonic` 是画 `hexagon.obj` + 15 帧 `ripple*.png` 的自定义粒子，只在衰减器命中处冒三圈；
+  本移植的衰减器已有 `RenderVortexStabilizer` 的光束带，故暂不重写一个模型粒子。
 - **重组器不阻止普通节点欺凌**（照 TH）；供体掉容量的 1/3 概率保留。
 
 ### 并行一轮：三个独立模块（2026-10-14）
@@ -537,7 +545,7 @@ TH 的模型贴图放在 `textures/entity/machines/`（TC4R 会把所有命名�
 | 2c | 生物群系与效果：TH 的 `setBiome`（三个静态位面群系 + 按要素选）与 `addEffects` | 已完成 `adadb0f`（探针 `222`） |
 | 2d | 整合：`PocketPlaneBuilder.create` 按 TH 顺序跑完整链路，维度生成器改用 `isorropia:pocket_plane` | 已完成 `7ce9fab`（探针 `223`/`224`） |
 | 3 | 传送门：`BlockGatewayPortal`、`GatewayTeleporter`，以及 `PocketPlaneData.makePortal` / `destroyPortal` 的成对传送门 | 已完成（探针 `226`/`227`/`228`/`229`） |
-| 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 待做 |
+| 4 | 研究 `planarRift`（TH 的 SPECIAL 研究，父级 `vortexStabilizer` + `transductionAmplifier`，warp 3）与漩涡六光束交接 | 已完成（探针 `230`） |
 
 - 布局照 TH：每个位面占 +Z 方向一列 256 格，居中 `(0,128,256·id)`，半径上限 127，出口裂口在锚点正上方。
 - TH 的位面世界本来就是**虚空**，岛屿由 `PocketPlaneData.generatePocketPlane` 直接盖章生成（不是逐区块地形），

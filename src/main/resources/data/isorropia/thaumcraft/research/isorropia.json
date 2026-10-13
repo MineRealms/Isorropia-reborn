@@ -3145,6 +3145,62 @@
       ]
     },
     {
+      "key": "isorropia:planarRift",
+      "category": "isorropia:isorropia",
+      "aspects": {
+        "vacuos": 4,
+        "praecantatio": 4,
+        "alienis": 2
+      },
+      "display_column": 14,
+      "display_row": 8,
+      "complexity": 2,
+      "icon": {
+        "type": "TEXTURE",
+        "texture": "isorropia:textures/misc/rift.png"
+      },
+      "flags": [
+        "CONCEALED",
+        "SPECIAL"
+      ],
+      "parents": [
+        "isorropia:vortexStabilizer",
+        "isorropia:transductionAmplifier"
+      ],
+      "hidden_parents": [],
+      "siblings": [],
+      "object_triggers": [],
+      "entity_triggers": [],
+      "aspect_triggers": [],
+      "warp": 3,
+      "pages": [
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.planarRift.1",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.planarRift.2",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        },
+        {
+          "type": "TEXT",
+          "value": "isorropia.research_page.planarRift.3",
+          "aspects": {},
+          "compound_blueprint": "",
+          "recipe_link_policy": "DISABLED",
+          "recipe_ids": []
+        }
+      ]
+    },
+    {
       "key": "isorropia:recombinator",
       "category": "isorropia:isorropia",
       "aspects": {
@@ -3350,7 +3406,7 @@
         "alienis": 6,
         "praecantatio": 3
       },
-      "display_column": 14,
+      "display_column": 16,
       "display_row": 8,
       "complexity": 4,
       "icon": {
@@ -3363,7 +3419,8 @@
         "CONCEALED"
       ],
       "parents": [
-        "isorropia:planarTheory"
+        "isorropia:planarRift",
+        "PRIMPEARL"
       ],
       "hidden_parents": [],
       "siblings": [],

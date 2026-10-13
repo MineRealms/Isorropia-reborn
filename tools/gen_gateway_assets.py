@@ -231,6 +231,8 @@ def main():
             "y": 90,
         }
     write("blockstates/gateway.json", {"variants": variants})
+    # The item model parents a single frame cell, so the plain "gateway" model must exist (there are only gateway_N).
+    write("models/block/gateway.json", {"parent": "isorropia:block/gateway_0"})
 
     write("models/block/keystone_receptacle.json", receptacle_model(False))
     write("models/block/keystone_receptacle_full.json", receptacle_model(True))

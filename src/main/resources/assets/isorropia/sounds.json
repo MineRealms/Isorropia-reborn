@@ -47,5 +47,15 @@
 	            "stream": false
 	        }
 	    ]
+	},
+
+	"vortex": {
+	    "category": "block",
+	    "sounds": [
+	        {
+	            "name": "isorropia:vortex",
+	            "stream": true
+	        }
+	    ]
 	}
 }
