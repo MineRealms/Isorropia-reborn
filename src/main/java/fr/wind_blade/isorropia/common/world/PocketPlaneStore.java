@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,7 +14,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,15 +33,16 @@ public class PocketPlaneStore extends SavedData {
     private final Map<Integer, Plane> planes = new LinkedHashMap<>();
 
     /** One pocket plane. {@code returnVortex} is the rift in the world the visitor came from. */
-    public record Plane(int id, String name, Map<AspectId, Integer> aspects,
+    public record Plane(int id, String name, Map<AspectId, Integer> aspects, List<ResourceLocation> effects,
             ResourceKey<Level> returnDimension, BlockPos returnVortex, int radius) {
     }
 
     /** Reserves the next column, matching TH's {@code pocketPlaneMAXID} counter, and records the plane. */
-    public int reserve(String name, Map<AspectId, Integer> aspects, ResourceKey<Level> returnDimension,
-            BlockPos returnVortex, int radius) {
+    public int reserve(String name, Map<AspectId, Integer> aspects, List<ResourceLocation> effects,
+            ResourceKey<Level> returnDimension, BlockPos returnVortex, int radius) {
         int id = nextId++;
-        planes.put(id, new Plane(id, name, Map.copyOf(aspects), returnDimension, returnVortex, radius));
+        planes.put(id, new Plane(id, name, Map.copyOf(aspects), List.copyOf(effects), returnDimension, returnVortex,
+                radius));
         setDirty();
         return id;
     }
@@ -72,6 +76,11 @@ public class PocketPlaneStore extends SavedData {
             planeTag.putInt("radius", plane.radius());
             planeTag.putString("returnDim", plane.returnDimension().location().toString());
             planeTag.putLong("returnVortex", plane.returnVortex().asLong());
+            ListTag effectTags = new ListTag();
+            for (ResourceLocation effect : plane.effects()) {
+                effectTags.add(StringTag.valueOf(effect.toString()));
+            }
+            planeTag.put("effects", effectTags);
             ListTag aspectsTag = new ListTag();
             for (Map.Entry<AspectId, Integer> entry : plane.aspects().entrySet()) {
                 CompoundTag aspectTag = new CompoundTag();
@@ -101,9 +110,17 @@ public class PocketPlaneStore extends SavedData {
                     aspects.put(id, aspectTag.getInt("amount"));
                 }
             }
+            List<ResourceLocation> effects = new ArrayList<>();
+            ListTag effectTags = planeTag.getList("effects", Tag.TAG_STRING);
+            for (int j = 0; j < effectTags.size(); j++) {
+                ResourceLocation effect = ResourceLocation.tryParse(effectTags.getString(j));
+                if (effect != null) {
+                    effects.add(effect);
+                }
+            }
             ResourceLocation dimension = ResourceLocation.tryParse(planeTag.getString("returnDim"));
             int id = planeTag.getInt("id");
-            store.planes.put(id, new Plane(id, planeTag.getString("name"), aspects,
+            store.planes.put(id, new Plane(id, planeTag.getString("name"), aspects, effects,
                     dimension == null ? Level.OVERWORLD : ResourceKey.create(Registries.DIMENSION, dimension),
                     BlockPos.of(planeTag.getLong("returnVortex")), planeTag.getInt("radius")));
         }

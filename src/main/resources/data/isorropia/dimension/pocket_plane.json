@@ -3,7 +3,7 @@
   "generator": {
     "type": "minecraft:flat",
     "settings": {
-      "biome": "minecraft:plains",
+      "biome": "isorropia:pocket_plane",
       "features": false,
       "lakes": false,
       "layers": [

@@ -5,13 +5,17 @@ import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.tiles.TileVortex;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,16 +37,28 @@ public final class PocketPlaneBuilder {
 
     /**
      * Creates a plane for the given aspects and records it. Returns its id, which is also its column along +Z.
+     *
+     * <p>The order is TH's {@code generatePocketPlane}: pick the biome (the terrain dressing reads it), lay the
+     * layers, carve the caves and pockets, fill the plane's effect list, cut the aspect rings into the terrain, wrap
+     * the whole thing in the void bubble, write the biome over the chunks that were stamped, then carve the landing
+     * pad and plant the exit rift.</p>
      */
     public static int create(ServerLevel pocket, PocketPlaneStore store, String name, Map<AspectId, Integer> aspects,
             ResourceKey<Level> returnDimension, BlockPos returnVortex) {
         int id = store.nextId();
         BlockPos centre = PocketPlane.anchor(id);
         int radius = radiusFor(aspects);
-        boolean coldBiome = pocket.getBiome(centre).value().getBaseTemperature() < 0.15F;
 
-        // TH's order: terrain first, then the aspect rings cut into it, then the bubble over everything.
+        // TH chose the biome before anything else, because the terrain dressing reads it.
+        ResourceKey<Biome> biome = PocketPlaneBiomes.choose(aspects);
+        boolean coldBiome = PocketPlaneBiomes.isCold(aspects);
+
         PocketPlaneTerrain.drawLayers(pocket, radius, centre, aspects, coldBiome);
+        PocketPlaneTerrain.drawCavesAndPockets(pocket, radius, centre, aspects);
+
+        // TH filled the plane's effect list here and never read it back anywhere; the list is kept on the plane.
+        List<ResourceLocation> effects = PocketPlaneEffects.forAspects(aspects).stream()
+                .map(BuiltInRegistries.MOB_EFFECT::getKey).filter(java.util.Objects::nonNull).toList();
 
         // TH laid one shell per "resonant" aspect inside the bubble, deepest first.
         int rings = 0;
@@ -63,6 +79,9 @@ public final class PocketPlaneBuilder {
         }
         shell(pocket, centre, radius, BlocksIS.VOID.get().defaultBlockState());
 
+        // The biome goes over the chunks the terrain actually stamped, so a plane reads as its own climate.
+        PocketPlaneBiomes.apply(pocket, centre, radius, biome);
+
         // A five-by-five arcane-stone landing pad with the doorway above it, exactly as TH carved out.
         BlockState pad = tc("arcane_stone");
         for (int dx = -2; dx <= 2; dx++) {
@@ -80,7 +99,7 @@ public final class PocketPlaneBuilder {
             vortex.setAspects(aspects);
         }
 
-        store.reserve(name, aspects, returnDimension, returnVortex, radius);
+        store.reserve(name, aspects, effects, returnDimension, returnVortex, radius);
         return id;
     }
 

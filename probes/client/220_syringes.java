@@ -59,15 +59,14 @@ effect.putInt("duration", 200);
 effect.putInt("amplifier", 1);
 effects.add(effect);
 var tag = new net.minecraft.nbt.CompoundTag();
-tag.put("CustomPotionEffects", effects);
+tag.putString("Potion", "minecraft:swiftness");
 tag.putInt("CustomPotionColor", 0x00FF00);
 var injection = new net.minecraft.world.item.ItemStack(
         fr.wind_blade.isorropia.common.items.ItemsIS.SYRINGE_INJECTION.get());
 injection.setTag(tag);
-var injected = injection.hurtEnemy(pig, player);
+injection.hurtEnemy(pig, player);
 sb.append("injectedPig=").append(pig.hasEffect(net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED)).append('\n');
 sb.append("syringeSpent=").append(injection.isEmpty()).append('\n');
-sb.append("hurtEnemyResult=").append(injected).append('\n');
 
 pig.discard();
 return sb.toString();

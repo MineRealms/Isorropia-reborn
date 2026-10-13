@@ -120,9 +120,13 @@ public final class ItemsIS {
     /** One injection, as TH held only a single syringe: an injection carries its own essences. */
     public static final RegistryObject<ItemSyringeInjection> SYRINGE_INJECTION = ITEMS.register("syringe_injection",
             () -> new ItemSyringeInjection(new Item.Properties().stacksTo(1), false));
-    /** TH's phial form of the same item, told apart by damage there and by its own id here. */
+    /**
+     * TH's phial form of the same item, told apart by damage there and by its own id here. Unlike the injection it
+     * stacks: TH set a stack size of one on the shared class yet had its recipe yield four phials, which 1.7
+     * tolerated and the modern recipe codec rejects, so the phial - the thrown ammunition - is the form that stacks.
+     */
     public static final RegistryObject<ItemSyringeInjection> BLAST_PHIAL = ITEMS.register("blast_phial",
-            () -> new ItemSyringeInjection(new Item.Properties().stacksTo(1), true));
+            () -> new ItemSyringeInjection(new Item.Properties(), true));
 
     private ItemsIS() {
     }
