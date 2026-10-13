@@ -155,7 +155,41 @@ sb.append("collapsedAway=").append(
         .append("\n");
 sb.append("collapsedInto=").append(level.getBlockState(boomPos).getBlock()).append("\n");
 
+// --- an attenuator pins the rift: the beam adds a "beam" of suppression while it holds ---
+var pinPos = new net.minecraft.core.BlockPos(490, 300, 490);
+var pinVortexPos = pinPos.relative(net.minecraft.core.Direction.SOUTH, 4);
+for (int dx = -2; dx <= 6; dx++) {
+    for (int dz = -2; dz <= 6; dz++) {
+        level.setBlock(pinPos.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+    }
+}
+level.setBlock(pinVortexPos, fr.wind_blade.isorropia.common.blocks.BlocksIS.VORTEX.get().defaultBlockState(), 3);
+var pinned = (fr.wind_blade.isorropia.common.tiles.TileVortex) level.getBlockEntity(pinVortexPos);
+pinned.setAspects(java.util.Map.of(aer, 20));
+
+var pinFacing = net.minecraft.core.Direction.SOUTH;
+level.setBlock(pinPos, fr.wind_blade.isorropia.common.blocks.BlocksIS.VORTEX_STABILIZER.get().defaultBlockState()
+        .setValue(fr.wind_blade.isorropia.common.blocks.BlockVortexStabilizer.FACING, pinFacing), 3);
+level.setBlock(pinPos.above(), net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK.defaultBlockState(), 3);
+var attenuator = (fr.wind_blade.isorropia.common.tiles.TileVortexStabilizer) level.getBlockEntity(pinPos);
+var pinState = level.getBlockState(pinPos);
+for (int i = 0; i < 5; i++) {
+    fr.wind_blade.isorropia.common.tiles.TileVortexStabilizer.serverTick(level, pinPos, pinState, attenuator);
+}
+sb.append("pinnedTargetIsVortex=").append(attenuator.target()
+        instanceof fr.wind_blade.isorropia.common.tiles.TileVortex).append("\n");
+sb.append("pinnedBeams=").append(pinned.beams()).append("\n");
+
+level.removeBlock(pinPos.above(), false);
+attenuator.setRedstoned(level.hasNeighborSignal(pinPos));
+for (int i = 0; i < 5; i++) {
+    fr.wind_blade.isorropia.common.tiles.TileVortexStabilizer.serverTick(level, pinPos, pinState, attenuator);
+}
+sb.append("releasedBeams=").append(pinned.beams()).append("\n");
+
 // clean up
+level.removeBlock(pinPos, false);
+level.removeBlock(pinVortexPos, false);
 level.removeBlock(vPos, false);
 level.removeBlock(dampedPos, false);
 level.removeBlock(dampedPos.above(), false);

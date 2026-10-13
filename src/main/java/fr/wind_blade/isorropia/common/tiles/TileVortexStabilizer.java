@@ -15,8 +15,8 @@ import javax.annotation.Nullable;
  * Thaumic Horizons' vortex attenuator, ported to TC4R. Once every five ticks, while a redstone signal feeds it, it
  * casts a beam up to ten blocks along its facing. The first aura node the beam lands on is switched to a normal node,
  * so a hungry node stops pulling in and eating nearby matter; when the beam is broken or switched off (and no other
- * attenuator still holds that node) the node is returned to the type it had. TH also used this to hold open planar
- * vortexes; that half waits on the planar-vortex task, so only aura nodes are handled here.
+ * attenuator still holds that node) the node is returned to the type it had. A planar vortex in the beam instead gains
+ * a beam of suppression: six of them pin a rift so it stops eating, which is what TH's pocket-plane hand-off waited on.
  */
 public class TileVortexStabilizer extends BlockEntity {
     /** How far the beam reaches, and how often the target is re-acquired. */
@@ -32,9 +32,9 @@ public class TileVortexStabilizer extends BlockEntity {
     /** The type the targeted node had before we normalised it, to restore on release. */
     @Nullable
     private NodeTypeId previousType;
-    /** The node the beam is holding, or null. */
+    /** The node or vortex the beam is holding, or null. */
     @Nullable
-    private AuraNodeBlockEntity target;
+    private BlockEntity target;
     /** Where the beam currently lands, kept in sync for the renderer (client) and the other-stabilizer scan. */
     @Nullable
     private BlockPos targetPos;
@@ -63,9 +63,10 @@ public class TileVortexStabilizer extends BlockEntity {
         return targetPos;
     }
 
+    /** The beam's target, whichever kind it is. */
     @Nullable
-    private AuraNodeBlockEntity nodeAt(Level level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof AuraNodeBlockEntity node ? node : null;
+    public BlockEntity target() {
+        return target;
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, TileVortexStabilizer stabilizer) {
@@ -82,16 +83,16 @@ public class TileVortexStabilizer extends BlockEntity {
         stabilizer.scannedOnce = true;
         stabilizer.lastScanRedstoned = stabilizer.redstoned;
         Direction facing = state.getValue(fr.wind_blade.isorropia.common.blocks.BlockVortexStabilizer.FACING);
-        // Walk the beam outward one block at a time: a node is taken as the target even though it has no collision
-        // shape, and any block that does have one stops the beam.
-        AuraNodeBlockEntity found = null;
+        // Walk the beam outward one block at a time: a node or a vortex is taken as the target even though neither has
+        // a collision shape, and any block that does have one stops the beam.
+        BlockEntity found = null;
         BlockPos hitPos = null;
         if (stabilizer.redstoned) {
             for (int step = 1; step <= RANGE; step++) {
                 BlockPos stepPos = pos.relative(facing, step);
-                AuraNodeBlockEntity node = stabilizer.nodeAt(level, stepPos);
-                if (node != null) {
-                    found = node;
+                BlockEntity entity = level.getBlockEntity(stepPos);
+                if (entity instanceof AuraNodeBlockEntity || entity instanceof TileVortex) {
+                    found = entity;
                     hitPos = stepPos;
                     break;
                 }
@@ -105,7 +106,7 @@ public class TileVortexStabilizer extends BlockEntity {
             }
         }
         if (hitPos != null && !hitPos.equals(stabilizer.targetPos)) {
-            // The beam moved: release the old node, then take the new one in the same tick.
+            // The beam moved: release the old target, then take the new one in the same tick.
             if (stabilizer.hasTarget) {
                 stabilizer.reHungrifyTarget();
                 stabilizer.hasTarget = false;
@@ -113,7 +114,9 @@ public class TileVortexStabilizer extends BlockEntity {
             if (found != null) {
                 stabilizer.hasTarget = true;
                 stabilizer.target = found;
-                stabilizer.previousType = found.nodeState().type();
+                if (found instanceof AuraNodeBlockEntity node) {
+                    stabilizer.previousType = node.nodeState().type();
+                }
                 stabilizer.deHungrifyTarget();
             } else {
                 stabilizer.target = null;
@@ -131,22 +134,25 @@ public class TileVortexStabilizer extends BlockEntity {
         // Nothing to advance; the renderer reads isRedstoned()/beamEnd() straight off the synced fields.
     }
 
-    /** Suppress the targeted node's hungry behaviour by switching it to a normal node. */
+    /** Suppress the target: a node becomes a normal node, a vortex gains a beam of suppression. */
     private void deHungrifyTarget() {
-        if (target != null) {
-            target.setNodeState(target.nodeState().withType(NodeTypeId.NORMAL));
-            target.setChanged();
+        if (target instanceof AuraNodeBlockEntity node) {
+            node.setNodeState(node.nodeState().withType(NodeTypeId.NORMAL));
+            node.setChanged();
+        } else if (target instanceof TileVortex vortex) {
+            vortex.setBeams(vortex.beams() + 1);
         }
     }
 
-    /** Restore the node's original type, unless another attenuator is still holding it. */
+    /** Release the target: restore the node's original type unless another attenuator holds it, or drop our beam. */
     public void reHungrifyTarget() {
-        if (target == null) {
-            return;
-        }
-        if (previousType != null && !isNodeTargetedByOtherStabilizer()) {
-            target.setNodeState(target.nodeState().withType(previousType));
-            target.setChanged();
+        if (target instanceof AuraNodeBlockEntity node) {
+            if (previousType != null && !isNodeTargetedByOtherStabilizer()) {
+                node.setNodeState(node.nodeState().withType(previousType));
+                node.setChanged();
+            }
+        } else if (target instanceof TileVortex vortex) {
+            vortex.setBeams(Math.max(0, vortex.beams() - 1));
         }
     }
 
