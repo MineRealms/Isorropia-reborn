@@ -72,6 +72,8 @@ public final class ClientSetup {
                 fr.wind_blade.isorropia.client.model.DynamoBaseModel::createBodyLayer);
         event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.ModelSomaticBrain.LAYER,
                 fr.wind_blade.isorropia.client.model.ModelSomaticBrain::createBodyLayer);
+        event.registerLayerDefinition(fr.wind_blade.isorropia.client.model.RecombinatorModel.LAYER,
+                fr.wind_blade.isorropia.client.model.RecombinatorModel::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -138,6 +140,8 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(TilesIS.ETHEREAL_SHARD.get(), RenderEtherealShard::new);
         event.registerBlockEntityRenderer(TilesIS.TRANSDUCTION_AMPLIFIER.get(), RenderTransductionAmplifier::new);
         event.registerBlockEntityRenderer(TilesIS.VORTEX_STABILIZER.get(), RenderVortexStabilizer::new);
+        event.registerBlockEntityRenderer(TilesIS.RECOMBINATOR.get(),
+                fr.wind_blade.isorropia.client.renderer.tiles.RenderRecombinator::new);
     }
 
     @SubscribeEvent

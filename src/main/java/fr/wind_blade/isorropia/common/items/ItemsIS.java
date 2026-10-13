@@ -92,6 +92,8 @@ public final class ItemsIS {
     public static final RegistryObject<MachineBlockItem> TRANSDUCTION_AMPLIFIER = machineItem("transduction_amplifier", BlocksIS.TRANSDUCTION_AMPLIFIER);
     /** Drawn by its block entity renderer (emitter head + beam). */
     public static final RegistryObject<MachineBlockItem> VORTEX_STABILIZER = machineItem("vortex_stabilizer", BlocksIS.VORTEX_STABILIZER);
+    /** Drawn by its block entity renderer (clawed pedestal, pearl, lightning ring). */
+    public static final RegistryObject<MachineBlockItem> RECOMBINATOR = machineItem("recombinator", BlocksIS.RECOMBINATOR);
 
     // Planar line (TH planar conduit): ingredient for the transduction amplifier, vortex stabiliser, recombinator, ...
     public static final RegistryObject<ItemPlanarConduit> PLANAR_CONDUIT = ITEMS.register("planar_conduit",

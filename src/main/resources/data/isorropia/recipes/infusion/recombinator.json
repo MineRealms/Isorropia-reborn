@@ -1,0 +1,43 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:recombinator",
+  "central": {
+    "item": "thaumcraft:primordial_pearl"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:essentia_filter"
+    },
+    {
+      "item": "isorropia:planar_conduit"
+    },
+    {
+      "item": "thaumcraft:essentia_filter"
+    },
+    {
+      "item": "thaumcraft:node_transducer"
+    },
+    {
+      "item": "thaumcraft:essentia_filter"
+    },
+    {
+      "item": "isorropia:planar_conduit"
+    },
+    {
+      "item": "thaumcraft:essentia_filter"
+    },
+    {
+      "item": "thaumcraft:node_stabilizer"
+    }
+  ],
+  "instability": 9,
+  "aspects": {
+    "permutatio": 32,
+    "auram": 20,
+    "fabrico": 32,
+    "potentia": 32
+  },
+  "result": {
+    "item": "isorropia:recombinator"
+  }
+}

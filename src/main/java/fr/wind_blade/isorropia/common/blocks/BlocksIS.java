@@ -64,6 +64,10 @@ public final class BlocksIS {
     public static final RegistryObject<BlockVortexStabilizer> VORTEX_STABILIZER = BLOCKS.register("vortex_stabilizer",
             () -> new BlockVortexStabilizer(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(10.0F)
                     .sound(SoundType.METAL).lightLevel(state -> 7).noOcclusion().requiresCorrectToolForDrops()));
+    /** TH: rock with no explicit hardness or resistance, so we give it the same as its sibling amplifier. */
+    public static final RegistryObject<BlockRecombinator> RECOMBINATOR = BLOCKS.register("recombinator",
+            () -> new BlockRecombinator(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(0.7F, 1.0F)
+                    .sound(SoundType.STONE).noOcclusion().requiresCorrectToolForDrops()));
 
     private BlocksIS() {
     }
