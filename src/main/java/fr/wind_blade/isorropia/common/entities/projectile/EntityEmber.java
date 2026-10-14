@@ -4,6 +4,7 @@ import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -49,14 +50,28 @@ public class EntityEmber extends ThrowableProjectile {
         this.duration = duration;
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    }
+    *///?}
 
+    // 1.21 made Entity.getGravity final; the override point is getDefaultGravity now.
+    //? if forge {
     @Override
     protected float getGravity() {
         return 0.0F;
     }
+    //?} else {
+    /*@Override
+    protected double getDefaultGravity() {
+        return 0.0D;
+    }
+    *///?}
 
     @Override
     public void tick() {

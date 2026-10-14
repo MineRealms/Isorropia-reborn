@@ -57,8 +57,15 @@ public final class PocketPlaneBuilder {
         PocketPlaneTerrain.drawCavesAndPockets(pocket, radius, centre, aspects);
 
         // TH filled the plane's effect list here and never read it back anywhere; the list is kept on the plane.
+        //? if forge {
         List<ResourceLocation> effects = PocketPlaneEffects.forAspects(aspects).stream()
                 .map(BuiltInRegistries.MOB_EFFECT::getKey).filter(java.util.Objects::nonNull).toList();
+        //?} else {
+        /*List<ResourceLocation> effects = fr.wind_blade.isorropia.common.world.PocketPlaneEffects
+                .forAspects(aspects).stream()
+                .map(effect -> effect.unwrapKey().map(key -> key.location()).orElse(null))
+                .filter(java.util.Objects::nonNull).toList();
+        *///?}
 
         // TH laid one shell per "resonant" aspect inside the bubble, deepest first.
         int rings = 0;

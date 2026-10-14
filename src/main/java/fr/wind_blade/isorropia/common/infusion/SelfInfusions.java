@@ -74,25 +74,49 @@ public final class SelfInfusions {
         }
     }
 
+    //? if forge {
     private static void hold(Player player, MobEffect effect, int amplifier) {
         MobEffectInstance current = player.getEffect(effect);
         if (current == null || current.getDuration() < 40 || current.getAmplifier() != amplifier) {
             player.addEffect(new MobEffectInstance(effect, 100, amplifier, true, false, false));
         }
     }
+    //?} else {
+    /*private static void hold(Player player, net.minecraft.core.Holder<MobEffect> effect, int amplifier) {
+        MobEffectInstance current = player.getEffect(effect);
+        if (current == null || current.getDuration() < 40 || current.getAmplifier() != amplifier) {
+            player.addEffect(new MobEffectInstance(effect, 100, amplifier, true, false, false));
+        }
+    }
+    *///?}
 
     /** The silver heart burns off anything that would wear the body down. */
     private static void decayHarmfulEffects(Player player) {
         for (MobEffectInstance instance : java.util.List.copyOf(player.getActiveEffects())) {
+            //? if forge {
             if (instance.getEffect().isBeneficial() || instance.getDuration() <= 2) {
                 continue;
             }
+            //?} else {
+            /*if (instance.getEffect().value().isBeneficial() || instance.getDuration() <= 2) {
+                continue;
+            }
+            *///?}
             // Shortening the instance is not exposed; re-adding it with a shorter duration is.
+            // 1.21's MobEffectInstance#getEffect hands back a Holder.
+            //? if forge {
             MobEffect effect = instance.getEffect();
             int shortened = instance.getDuration() - 2;
             player.removeEffectNoUpdate(effect);
             player.addEffect(new MobEffectInstance(effect, shortened, instance.getAmplifier(),
                     instance.isAmbient(), instance.isVisible(), instance.showIcon()));
+            //?} else {
+            /*net.minecraft.core.Holder<MobEffect> effect = instance.getEffect();
+            int shortened = instance.getDuration() - 2;
+            player.removeEffectNoUpdate(effect);
+            player.addEffect(new MobEffectInstance(effect, shortened, instance.getAmplifier(),
+                    instance.isAmbient(), instance.isVisible(), instance.showIcon()));
+            *///?}
         }
     }
 

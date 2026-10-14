@@ -58,19 +58,20 @@ public class RenderTransductionAmplifier implements BlockEntityRenderer<TileTran
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
         orient(facing, poseStack);
 
-        VertexConsumer base = buffers.getBuffer(RenderType.entityCutoutNoCull(CONVERTER));
-        VertexConsumer glow = buffers.getBuffer(RenderType.entityTranslucent(CONVERTER_OVERLAY));
-        mesh.render("lock", poseStack, base, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-        mesh.render("lock", poseStack, glow, pulseLight(strength, Mth.sin(ticks / 3.0F) * 0.1F + 0.9F), overlay,
-                red, green, blue, 1.0F);
+        mesh.render("lock", poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(CONVERTER)), light, overlay,
+                1.0F, 1.0F, 1.0F, 1.0F);
+        mesh.render("lock", poseStack, buffers.getBuffer(RenderType.entityTranslucent(CONVERTER_OVERLAY)),
+                pulseLight(strength, Mth.sin(ticks / 3.0F) * 0.1F + 0.9F), overlay, red, green, blue, 1.0F);
         // Four pistons, each pushed out from the core by how hard the node is being amplified.
         for (int arm = 0; arm < 4; arm++) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F * arm));
             poseStack.mulPose(Axis.YP.rotationDegrees(45.0F));
             poseStack.translate(0.0F, 0.0F, ramp);
-            mesh.render("piston", poseStack, base, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-            mesh.render("piston", poseStack, glow, pulseLight(strength, Mth.sin((ticks + arm * 5.0F) / 3.0F) * 0.1F + 0.9F),
+            mesh.render("piston", poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(CONVERTER)), light,
+                    overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+            mesh.render("piston", poseStack, buffers.getBuffer(RenderType.entityTranslucent(CONVERTER_OVERLAY)),
+                    pulseLight(strength, Mth.sin((ticks + arm * 5.0F) / 3.0F) * 0.1F + 0.9F),
                     overlay, red, green, blue, 1.0F);
             poseStack.popPose();
         }

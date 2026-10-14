@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.common.tiles.TilePortal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -116,8 +117,7 @@ public class RenderPortal implements BlockEntityRenderer<TilePortal> {
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, float x, float y, int red, int green,
             int blue, float u, float v) {
-        vertices.vertex(pose.pose(), x, y, 0.0F).color(red, green, blue, 255).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(vertices, pose, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT,
+                red, green, blue, 255, 0.0F, 0.0F, 1.0F);
     }
 }

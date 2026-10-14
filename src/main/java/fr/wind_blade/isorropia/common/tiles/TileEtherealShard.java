@@ -406,10 +406,12 @@ public class TileEtherealShard extends BlockEntity implements AuraNodeView {
         return this.drainColour;
     }
 
+    //? if forge {
     @Override
     public net.minecraft.world.phys.AABB getRenderBoundingBox() {
         return new net.minecraft.world.phys.AABB(this.worldPosition).inflate(REACH);
     }
+    //?}
 
     public boolean draining(Level level) {
         return this.drainPlayer != null && this.drainAspect != null && level.getGameTime() <= this.drainUntil;
@@ -434,10 +436,19 @@ public class TileEtherealShard extends BlockEntity implements AuraNodeView {
         }
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
+        //? if forge {
         saveAdditional(tag);
+        //?} else {
+        /*saveAdditional(tag, registries);
+        *///?}
         if (this.drainPlayer != null) {
             tag.putUUID("drainPlayer", this.drainPlayer);
         }
@@ -448,9 +459,18 @@ public class TileEtherealShard extends BlockEntity implements AuraNodeView {
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
         load(tag);
+        //?} else {
+        /*loadAdditional(tag, registries);
+        *///?}
     }
 
     @Nullable
@@ -459,24 +479,49 @@ public class TileEtherealShard extends BlockEntity implements AuraNodeView {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             handleUpdateTag(packet.getTag());
+            //?} else {
+            /*handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.put("capacity", writeAspects(this.capacity));
         tag.put("stored", writeAspects(this.stored));
         tag.put("fractional", writeAspects(this.fractional));
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         readAspects(tag.getList("capacity", Tag.TAG_COMPOUND), this.capacity);
         readAspects(tag.getList("stored", Tag.TAG_COMPOUND), this.stored);
         readAspects(tag.getList("fractional", Tag.TAG_COMPOUND), this.fractional);

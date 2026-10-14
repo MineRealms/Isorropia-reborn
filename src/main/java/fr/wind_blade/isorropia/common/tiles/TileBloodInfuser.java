@@ -11,6 +11,7 @@ import fr.wind_blade.isorropia.common.IsorropiaAspects;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.items.misc.ItemSyringeBlood;
 import fr.wind_blade.isorropia.common.menu.BloodInfuserMenu;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -29,7 +30,9 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
+//? if forge {
 import net.minecraft.world.item.alchemy.PotionUtils;
+//?}
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -193,7 +196,11 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
     private static Map<MobEffect, Integer> w(Object... pairs) {
         Map<MobEffect, Integer> map = new LinkedHashMap<>();
         for (int i = 0; i + 1 < pairs.length; i += 2) {
+            //? if forge {
             map.put((MobEffect) pairs[i], (Integer) pairs[i + 1]);
+            //?} else {
+            /*map.put((MobEffect) ((net.minecraft.core.Holder<?>) pairs[i]).value(), (Integer) pairs[i + 1]);
+            *///?}
         }
         return map;
     }
@@ -224,8 +231,18 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
                 this.items.removeItem(0, 1);
                 ItemStack injection = new ItemStack(ItemsIS.SYRINGE_INJECTION.get());
                 List<MobEffectInstance> effects = this.getCurrentEffects();
+                //? if forge {
                 PotionUtils.setCustomEffects(injection, effects);
-                injection.getOrCreateTag().putInt("color", this.colour);
+                //?} else {
+                /*net.minecraft.nbt.ListTag saved = new net.minecraft.nbt.ListTag();
+                for (net.minecraft.world.effect.MobEffectInstance instance : effects) {
+                    if (instance.save() instanceof net.minecraft.nbt.CompoundTag compound) {
+                        saved.add(compound);
+                    }
+                }
+                StackData.update(injection, tag -> tag.put("effects", saved));
+                *///?}
+                StackData.update(injection, tag -> tag.putInt("color", this.colour));
                 for (int i = 1; i <= 9; i++) {
                     if (this.items.getItem(i).isEmpty()) {
                         this.items.setItem(i, injection);
@@ -337,8 +354,16 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
             if (largest == null) {
                 break;
             }
+            //? if forge {
             boolean instant = largest == MobEffects.HEAL || largest == MobEffects.HARM;
+            //?} else {
+            /*boolean instant = largest == MobEffects.HEAL.value() || largest == MobEffects.HARM.value();
+            *///?}
+            //? if forge {
             effects.add(new MobEffectInstance(largest, instant ? 1 : 100 * largestWeight, largestWeight / 30));
+            //?} else {
+            /*effects.add(new MobEffectInstance(net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(largest), instant ? 1 : 100 * largestWeight, largestWeight / 30));
+            *///?}
             weights.remove(largest);
         }
         return effects;
@@ -499,12 +524,20 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
      * compact list, and its {@code fromTag} refills by list position, so empty slots would collapse and shift
      * everything left of the first gap.
      */
+    //? if forge {
     private ListTag saveItems() {
+    //?} else {
+    /*private ListTag saveItems(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         ListTag list = new ListTag();
         for (int i = 0; i < 10; i++) {
             ItemStack stack = this.items.getItem(i);
             if (!stack.isEmpty()) {
+                //? if forge {
                 CompoundTag entry = stack.save(new CompoundTag());
+                //?} else {
+                /*CompoundTag entry = (CompoundTag) stack.save(registries);
+                *///?}
                 entry.putByte("Slot", (byte) i);
                 list.add(entry);
             }
@@ -512,14 +545,22 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
         return list;
     }
 
+    //? if forge {
     private void loadItems(ListTag list) {
+    //?} else {
+    /*private void loadItems(ListTag list, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         for (int i = 0; i < 10; i++) {
             this.items.setItem(i, ItemStack.EMPTY);
         }
         for (Tag entry : list) {
             int slot = ((CompoundTag) entry).getByte("Slot") & 0xFF;
             if (slot < 10) {
+                //? if forge {
                 this.items.setItem(slot, ItemStack.of((CompoundTag) entry));
+                //?} else {
+                /*this.items.setItem(slot, ItemStack.parseOptional(registries, (CompoundTag) entry));
+                *///?}
             }
         }
     }
@@ -563,11 +604,20 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
         }
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
         tag.putInt("Mode", this.mode);
+        //? if forge {
         tag.put("Items", this.saveItems());
+        //?} else {
+        /*tag.put("Items", this.saveItems(registries));
+        *///?}
         tag.put("Selected", this.writeSelected());
         tag.put("Acquired", this.writeAcquired());
         if (this.currentlySucking != null) {
@@ -576,10 +626,19 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         this.mode = tag.getInt("Mode");
+        //? if forge {
         this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND));
+        //?} else {
+        /*this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND), registries);
+        *///?}
         this.readDial(tag);
         this.currentlySucking = tag.contains("Sucking") ? AspectId.parse(tag.getString("Sucking")) : null;
     }
@@ -589,27 +648,60 @@ public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, 
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             this.handleUpdateTag(packet.getTag());
+            //?} else {
+            /*this.handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putInt("Mode", this.mode);
+        //? if forge {
         tag.put("Items", this.saveItems());
+        //?} else {
+        /*tag.put("Items", this.saveItems(registries));
+        *///?}
         tag.put("Selected", this.writeSelected());
         tag.put("Acquired", this.writeAcquired());
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         this.mode = tag.getInt("Mode");
+        //? if forge {
         this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND));
+        //?} else {
+        /*this.loadItems(tag.getList("Items", Tag.TAG_COMPOUND), registries);
+        *///?}
         this.readDial(tag);
         this.currentlySucking = null;
     }

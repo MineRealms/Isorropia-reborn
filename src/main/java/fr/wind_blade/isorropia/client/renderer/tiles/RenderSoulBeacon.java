@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.client.renderer.tiles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.common.tiles.TileSoulBeacon;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
@@ -35,8 +36,14 @@ public class RenderSoulBeacon implements BlockEntityRenderer<TileSoulBeacon> {
         }
         // Upstream scaled the beam's length, not its texture, so it grows out of the beacon.
         int height = Math.round(BEAM_HEIGHT * scale);
+        //? if forge {
         BeaconRenderer.renderBeaconBeam(poseStack, buffers, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0F,
                 beacon.getLevel().getGameTime(), 0, height, COLOUR, RADIUS, GLOW_RADIUS);
+        //?} else {
+        /*BeaconRenderer.renderBeaconBeam(poseStack, buffers, BeaconRenderer.BEAM_LOCATION, partialTick, 1.0F,
+                beacon.getLevel().getGameTime(), 0, height, RenderColors.pack(1.0F, 1.0F, 1.0F, 1.0F), RADIUS,
+                GLOW_RADIUS);
+        *///?}
     }
 
     /** The beam is visible from far away, and it reaches past the beacon's own chunk. */

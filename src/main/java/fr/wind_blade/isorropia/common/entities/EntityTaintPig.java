@@ -23,6 +23,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistries;
+//? if neoforge {
+/*import net.minecraft.core.registries.BuiltInRegistries;
+*///?}
 
 import java.util.List;
 import java.util.Set;
@@ -58,6 +61,8 @@ public class EntityTaintPig extends Pig {
         return !isCured(effect.getEffect()) && super.canBeAffected(effect);
     }
 
+    // 1.21 keys the active-effect map by Holder<MobEffect>, and removeEffect takes the holder.
+    //? if forge {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
@@ -71,6 +76,21 @@ public class EntityTaintPig extends Pig {
     private static boolean isCured(MobEffect effect) {
         return CURED_EFFECTS.contains(ForgeRegistries.MOB_EFFECTS.getKey(effect));
     }
+    //?} else {
+    /*@Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        for (net.minecraft.core.Holder<MobEffect> effect : List.copyOf(this.getActiveEffectsMap().keySet())) {
+            if (isCured(effect)) {
+                this.removeEffect(effect);
+            }
+        }
+    }
+
+    private static boolean isCured(net.minecraft.core.Holder<MobEffect> effect) {
+        return effect.unwrapKey().map(key -> key.location()).filter(CURED_EFFECTS::contains).isPresent();
+    }
+    *///?}
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {

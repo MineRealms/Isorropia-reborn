@@ -11,7 +11,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
+//? if forge {
 import net.minecraftforge.event.TickEvent;
+//?} else {
+/*import net.neoforged.neoforge.client.event.ClientTickEvent;
+*///?}
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -47,11 +51,22 @@ public final class LensKeys {
         private Poller() {
         }
 
+        //? if forge {
         @SubscribeEvent
         public static void onLensKeyTick(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) {
                 return;
             }
+            pollLensKeys();
+        }
+        //?} else {
+        /*@SubscribeEvent
+        public static void onLensKeyTick(ClientTickEvent.Post event) {
+            pollLensKeys();
+        }
+        *///?}
+
+        private static void pollLensKeys() {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player == null || minecraft.screen != null) {
                 return;

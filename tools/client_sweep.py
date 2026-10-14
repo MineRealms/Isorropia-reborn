@@ -135,6 +135,11 @@ STEPS = [
     # Containment slow upgrade.
     ("124_containment_slow", ["install=INSTALLED"], 3),
     ("125_containment_slow_check", ["slowed=true", "amplifier=0", "free=true"], 1),
+    # Shared migration smoke: registry completeness, data writes, effects, menus and all item renderers.
+    ("271_dual_boot", ["DUAL_BOOT_OK", "menu=VisDynamoMenu"], 1),
+    ("272_dual_components", ["DUAL_COMPONENTS_OK", "instantTicks=1", "menu=BloodInfuserMenu"], 1),
+    ("273_dual_item_icons", ["DUAL_ITEM_ICONS_OK count=61"], 1),
+    ("274_dual_empty_hand", ["DUAL_EMPTY_HAND_OK menu=VisDynamoMenu"], 1),
 ]
 
 

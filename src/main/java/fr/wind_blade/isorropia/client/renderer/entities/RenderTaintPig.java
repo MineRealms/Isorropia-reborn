@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.client.renderer.entities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.entities.EntityTaintPig;
 import net.minecraft.client.model.PigModel;
@@ -52,7 +53,7 @@ public class RenderTaintPig extends MobRenderer<EntityTaintPig, PigModel<EntityT
             this.getParentModel().copyPropertiesTo(this.model);
             this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTick);
             this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-            this.model.renderToBuffer(poseStack, buffers.getBuffer(RenderType.entityTranslucent(EYES)), light,
+            RenderColors.render(this.model, poseStack, buffers.getBuffer(RenderType.entityTranslucent(EYES)), light,
                     OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 0.32F + 0.32F * pulse);
         }
     }

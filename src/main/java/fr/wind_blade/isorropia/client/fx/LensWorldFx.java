@@ -7,6 +7,7 @@ import dev.tc4port.thaumcraft.api.aspect.AspectQueryApi;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import dev.tc4port.thaumcraft.api.client.WorldRenderTransforms;
 import dev.tc4port.thaumcraft.api.entity.EldritchMob;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.LensClientState;
 import fr.wind_blade.isorropia.common.lenses.Lens;
@@ -89,7 +90,12 @@ public final class LensWorldFx {
         }
         Camera camera = event.getCamera();
         Vec3 cameraPos = camera.getPosition();
+        // 1.21 hands the level-stage event a DeltaTracker instead of a ready float.
+        //? if forge {
         float partialTick = event.getPartialTick();
+        //?} else {
+        /*float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
+        *///?}
         PoseStack poseStack = new PoseStack();
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         try (ThaumcraftClientRenderApi.WorldRenderScope ignored = ThaumcraftClientRenderApi
@@ -187,9 +193,8 @@ public final class LensWorldFx {
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, float x, float y, float u, float v,
             int alpha) {
-        vertices.vertex(pose.pose(), x, y, 0.0F).color(255, 255, 255, alpha).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(FULL_BRIGHT).normal(pose.normal(), 0.0F, 0.0F, 1.0F)
-                .endVertex();
+        RenderColors.vertex(vertices, pose, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY, FULL_BRIGHT,
+                255, 255, 255, alpha, 0.0F, 0.0F, 1.0F);
     }
 
     /**

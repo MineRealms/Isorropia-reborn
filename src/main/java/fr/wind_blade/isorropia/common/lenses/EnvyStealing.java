@@ -19,11 +19,19 @@ public final class EnvyStealing {
     }
 
     public static List<ItemStack> rollDrops(ServerLevel level, LivingEntity target, Player thief) {
+        //? if forge {
         ResourceLocation table = target.getLootTable();
+        //?} else {
+        /*net.minecraft.resources.ResourceKey<LootTable> table = target.getLootTable();
+        *///?}
         if (table == null) {
             return List.of();
         }
+        //? if forge {
         LootTable loot = level.getServer().getLootData().getLootTable(table);
+        //?} else {
+        /*LootTable loot = level.getServer().reloadableRegistries().getLootTable(table);
+        *///?}
         LootParams params = new LootParams.Builder(level)
                 .withParameter(LootContextParams.THIS_ENTITY, target)
                 .withParameter(LootContextParams.ORIGIN, target.position())

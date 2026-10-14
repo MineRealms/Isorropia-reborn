@@ -5,6 +5,7 @@ import dev.tc4port.thaumcraft.api.focus.FocusIdentityItem;
 import dev.tc4port.thaumcraft.api.focus.FocusStateView;
 import dev.tc4port.thaumcraft.api.focus.FocusUpgradeId;
 import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -38,8 +39,8 @@ public class ItemFocusContainment extends Item implements FocusIdentityItem {
 
     @Override
     public FocusStateView focusState(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
+        CompoundTag tag = StackData.read(stack);
+        if (tag.isEmpty()) {
             return new FocusStateView(ID, List.of());
         }
         List<FocusUpgradeId> upgrades = new ArrayList<>();
@@ -60,13 +61,14 @@ public class ItemFocusContainment extends Item implements FocusIdentityItem {
     @Override
     public ItemStack withFocusState(ItemStack stack, FocusStateView state) {
         ItemStack copy = stack.copyWithCount(1);
-        CompoundTag tag = copy.getOrCreateTag();
-        ListTag upgrades = new ListTag();
-        state.upgradeSlots().forEach(upgrade -> upgrades.add(StringTag.valueOf(upgrade.value().toString())));
-        tag.put(UPGRADES, upgrades);
-        CompoundTag properties = new CompoundTag();
-        state.properties().forEach((key, value) -> properties.putString(key.toString(), value));
-        tag.put(PROPERTIES, properties);
+        StackData.update(copy, tag -> {
+            ListTag upgrades = new ListTag();
+            state.upgradeSlots().forEach(upgrade -> upgrades.add(StringTag.valueOf(upgrade.value().toString())));
+            tag.put(UPGRADES, upgrades);
+            CompoundTag properties = new CompoundTag();
+            state.properties().forEach((key, value) -> properties.putString(key.toString(), value));
+            tag.put(PROPERTIES, properties);
+        });
         return copy;
     }
 }

@@ -42,11 +42,19 @@ public class EntitySheeder extends Spider implements IForgeShearable {
         super(type, level);
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(SHEARED, false);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SHEARED, false);
+    }
+    *///?}
 
     @Override
     protected void registerGoals() {
@@ -61,6 +69,7 @@ public class EntitySheeder extends Spider implements IForgeShearable {
     }
 
     /** Skips the spider's jockey and potion-effect rolls. */
+    //? if forge {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
             @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
@@ -71,6 +80,17 @@ public class EntitySheeder extends Spider implements IForgeShearable {
         }
         return result;
     }
+    //?} else {
+    /*@Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+            @Nullable SpawnGroupData data) {
+        SpawnGroupData result = super.finalizeSpawn(level, difficulty, reason, data != null ? data : new SpawnGroupData() { });
+        for (Entity passenger : List.copyOf(this.getPassengers())) {
+            passenger.discard();
+        }
+        return result;
+    }
+    *///?}
 
     @Override
     protected boolean shouldDespawnInPeaceful() {
@@ -101,6 +121,7 @@ public class EntitySheeder extends Spider implements IForgeShearable {
         this.setSheared(false);
     }
 
+    //? if forge {
     @Override
     public boolean isShearable(@NotNull ItemStack item, Level level, BlockPos pos) {
         return this.isAlive() && !this.isSheared();
@@ -119,6 +140,26 @@ public class EntitySheeder extends Spider implements IForgeShearable {
         }
         return drops;
     }
+    //?} else {
+    /*@Override
+    public boolean isShearable(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos) {
+        return this.isAlive() && !this.isSheared();
+    }
+
+    @Override
+    public @NotNull List<ItemStack> onSheared(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos) {
+        level.playSound(null, this, SoundEvents.SHEEP_SHEAR, player == null ? SoundSource.BLOCKS : SoundSource.PLAYERS, 1.0F, 1.0F);
+        List<ItemStack> drops = new ArrayList<>();
+        if (!level.isClientSide) {
+            this.setSheared(true);
+            int count = 2 + this.random.nextInt(4);
+            for (int i = 0; i < count; i++) {
+                drops.add(new ItemStack(Items.STRING));
+            }
+        }
+        return drops;
+    }
+    *///?}
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

@@ -69,6 +69,7 @@ public class ModelJellyRabbit extends EntityModel<EntityJellyRabbit> {
         this.entityHeight = rabbit.getBbHeight();
     }
 
+    //? if forge {
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int light, int overlay, float red, float green, float blue, float alpha) {
         poseStack.pushPose();
@@ -81,4 +82,23 @@ public class ModelJellyRabbit extends EntityModel<EntityJellyRabbit> {
         }
         poseStack.popPose();
     }
+    //?} else {
+    /*@Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int light, int overlay, int color) {
+        float red = (color >> 16 & 255) / 255.0F;
+        float green = (color >> 8 & 255) / 255.0F;
+        float blue = (color & 255) / 255.0F;
+        float alpha = (color >>> 24) / 255.0F;
+        poseStack.pushPose();
+        float offset = this.entityHeight * (SIZE - 1.0F) / 2.0F + 0.08F;
+        poseStack.translate(0.0F, 1.5F + offset, 0.0F);
+        poseStack.scale(SIZE, SIZE, SIZE);
+        poseStack.translate(0.0F, -1.5F, 0.0F);
+        for (ModelPart part : this.parts) {
+            part.render(poseStack, buffer, light, overlay,
+                    RenderColors.pack(red * this.red, green * this.green, blue * this.blue, alpha * JellyColors.ALPHA));
+        }
+        poseStack.popPose();
+    }
+    *///?}
 }

@@ -38,11 +38,19 @@ public class EntityGuardianPanther extends Cat {
         super(type, level);
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(SKIN, 0);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SKIN, 0);
+    }
+    *///?}
 
     @Override
     protected void registerGoals() {
@@ -72,12 +80,21 @@ public class EntityGuardianPanther extends Cat {
         this.entityData.set(SKIN, Math.floorMod(skin, SKINS));
     }
 
+    //? if forge {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
             @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
         this.setSkin(this.random.nextInt(SKINS));
         return super.finalizeSpawn(level, difficulty, reason, data, tag);
     }
+    //?} else {
+    /*@Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+            @Nullable SpawnGroupData data) {
+        this.setSkin(this.random.nextInt(SKINS));
+        return super.finalizeSpawn(level, difficulty, reason, data);
+    }
+    *///?}
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
@@ -85,7 +102,11 @@ public class EntityGuardianPanther extends Cat {
         FoodProperties food = held.getFoodProperties(this);
         if (food != null && this.getHealth() < this.getMaxHealth()) {
             if (!this.level().isClientSide) {
+                //? if forge {
                 this.heal(food.getNutrition());
+                //?} else {
+                /*this.heal(food.nutrition());*/
+                //?}
                 if (!player.getAbilities().instabuild) {
                     held.shrink(1);
                 }

@@ -5,6 +5,7 @@ import fr.wind_blade.isorropia.common.entities.projectile.EntityBlastPhial;
 import fr.wind_blade.isorropia.common.entities.projectile.EntitySyringe;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.items.misc.ItemSyringeInjection;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
@@ -50,7 +51,7 @@ public final class SyringeDispenseBehavior extends DefaultDispenseItemBehavior {
         BlockPos pos = source.getPos().relative(facing);
         Projectile shot = ItemSyringeInjection.isPhial(stack)
                 ? new EntityBlastPhial(level, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, stack.copy())
-                : new EntitySyringe(level, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, stack.getTag());
+                : new EntitySyringe(level, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, StackData.read(stack));
         shot.shoot(facing.getStepX(), facing.getStepY() + 0.1F, facing.getStepZ(), VELOCITY, INACCURACY);
         level.addFreshEntity(shot);
         stack.shrink(1);

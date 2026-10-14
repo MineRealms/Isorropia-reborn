@@ -87,7 +87,11 @@ public final class SoulBeacon {
         // Everything the old body carried stays behind, baubles included.
         player.getInventory().dropAll();
         dropCurios(player);
+        //? if forge {
         player.curePotionEffects(new ItemStack(Items.MILK_BUCKET));
+        //?} else {
+        /*player.removeEffectsCuredBy(net.neoforged.neoforge.common.EffectCures.MILK);
+        *///?}
         player.heal(999.0F);
         // The new body is the one in the vat: its abilities pass to the player and the vat is emptied.
         player.teleportTo(level, beaconPos.getX() + 0.5, beaconPos.getY() - 2.5, beaconPos.getZ() + 0.5,
@@ -101,6 +105,7 @@ public final class SoulBeacon {
 
     /** Ejects every worn curio where the player stands, the way the main inventory is dropped. */
     private static void dropCurios(ServerPlayer player) {
+        //? if forge {
         CuriosApi.getCuriosInventory(player).resolve().ifPresent(handler -> {
             IItemHandlerModifiable worn = handler.getEquippedCurios();
             for (int slot = 0; slot < worn.getSlots(); slot++) {
@@ -111,5 +116,17 @@ public final class SoulBeacon {
                 }
             }
         });
+        //?} else {
+        /*CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+            IItemHandlerModifiable worn = handler.getEquippedCurios();
+            for (int slot = 0; slot < worn.getSlots(); slot++) {
+                ItemStack stack = worn.getStackInSlot(slot);
+                if (!stack.isEmpty()) {
+                    player.drop(stack.copy(), false);
+                    worn.setStackInSlot(slot, ItemStack.EMPTY);
+                }
+            }
+        });
+        *///?}
     }
 }

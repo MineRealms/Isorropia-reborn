@@ -1,0 +1,16 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "isorropia:research/steve"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "isorropia:misc/vortex"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "isorropia:entity/blood_infuser"
+    }
+  ]
+}

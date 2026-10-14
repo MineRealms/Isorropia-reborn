@@ -305,8 +305,8 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
             Vec3 from = Vec3.atCenterOf(pos);
             Vec3 to = new Vec3(tx + 0.5, ty + 0.5, tz + 0.5);
             BlockHitResult hit = level.clip(new net.minecraft.world.level.ClipContext(from, to,
-                    net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE,
-                    null));
+                    net.minecraft.world.level.ClipContext.Block.COLLIDER,                     net.minecraft.world.level.ClipContext.Fluid.NONE,
+                    (net.minecraft.world.entity.Entity) null));
             if (hit.getType() != HitResult.Type.BLOCK || hit.getBlockPos().distSqr(pos) >= 256.0) {
                 continue;
             }
@@ -446,7 +446,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         }
         ItemStack stack = pearl.getItem();
         String name;
+        //? if forge {
         if (stack.hasCustomHoverName()) {
+        //?} else {
+        /*if (stack.has(net.minecraft.core.component.DataComponents.CUSTOM_NAME)) {
+        *///?}
             name = stack.getHoverName().getString();
         } else {
             String owner = ownerName(pearl);
@@ -528,16 +532,34 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         }
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
+        //? if forge {
         saveAdditional(tag);
+        //?} else {
+        /*saveAdditional(tag, registries);
+        *///?}
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
         load(tag);
+        //?} else {
+        /*loadAdditional(tag, registries);
+        *///?}
     }
 
     @Nullable
@@ -546,16 +568,33 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             handleUpdateTag(packet.getTag());
+            //?} else {
+            /*handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putInt("count", this.count);
         tag.putInt("beams", this.beams);
         tag.putBoolean("ateDevices", this.ateDevices);
@@ -574,14 +613,26 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         tag.put("aspects", aspectTags);
         ListTag itemTags = new ListTag();
         for (ItemStack item : this.items) {
+            //? if forge {
             itemTags.add(item.save(new CompoundTag()));
+            //?} else {
+            /*itemTags.add(item.save(registries));
+            *///?}
         }
         tag.put("items", itemTags);
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         this.count = tag.getInt("count");
         this.beams = tag.getInt("beams");
         this.ateDevices = tag.getBoolean("ateDevices");
@@ -606,7 +657,11 @@ public class TileVortex extends BlockEntity implements AspectContainerView {
         this.items.clear();
         ListTag itemTags = tag.getList("items", Tag.TAG_COMPOUND);
         for (int i = 0; i < itemTags.size(); i++) {
+            //? if forge {
             ItemStack stack = ItemStack.of(itemTags.getCompound(i));
+            //?} else {
+            /*ItemStack stack = ItemStack.parseOptional(registries, itemTags.getCompound(i));
+            *///?}
             if (!stack.isEmpty()) {
                 this.items.add(stack);
             }

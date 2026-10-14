@@ -2,6 +2,7 @@ package fr.wind_blade.isorropia.common.infusion;
 
 import dev.tc4port.thaumcraft.api.ThaumcraftContent;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +45,7 @@ public final class SoulJar {
         ItemStack jar = new ItemStack(ItemsIS.JAR_SOUL.get());
         CompoundTag data = new CompoundTag();
         target.save(data);
-        jar.getOrCreateTag().put(ENTITY_TAG, data);
+        StackData.update(jar, tag -> tag.put(ENTITY_TAG, data));
         int slot = findJarSlot(player);
         if (slot < 0 && !player.getAbilities().instabuild) {
             player.displayClientMessage(Component.translatable("isorropia.containment.fail"), true);
@@ -81,7 +82,7 @@ public final class SoulJar {
     }
 
     private static boolean holdsCreature(ItemStack jar) {
-        return jar.getTag() != null && jar.getTag().contains(ENTITY_TAG);
+        return StackData.read(jar).contains(ENTITY_TAG);
     }
 
     /** Puts a stored creature back into the world at a position, and hands back what was freed. */
@@ -101,7 +102,8 @@ public final class SoulJar {
     /** The creature stored in a jar stack, or null for an empty jar or a broken one. */
     @Nullable
     public static LivingEntity peek(ItemStack jar, Level level) {
-        CompoundTag data = jar.getTag() == null ? null : jar.getTag().getCompound(ENTITY_TAG);
+        CompoundTag root = StackData.read(jar);
+        CompoundTag data = root.isEmpty() ? null : root.getCompound(ENTITY_TAG);
         if (data == null || data.isEmpty()) {
             return null;
         }

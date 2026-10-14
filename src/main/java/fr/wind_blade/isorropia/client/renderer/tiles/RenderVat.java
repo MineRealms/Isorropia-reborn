@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.client.renderer.tiles;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.ClientRenderTypes;
 import fr.wind_blade.isorropia.client.fx.VatFx;
@@ -98,7 +99,7 @@ public class RenderVat implements BlockEntityRenderer<TileVat> {
         poseStack.scale(CORPSE_SCALE, CORPSE_SCALE, CORPSE_SCALE);
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(skin));
         // The body hangs in a lit vat, so it is drawn full bright like upstream's renderer did.
-        corpse.renderToBuffer(poseStack, consumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, overlay,
+        RenderColors.render(corpse, poseStack, consumer, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT, overlay,
                 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
     }

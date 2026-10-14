@@ -30,7 +30,7 @@ sb.append("vat holds ").append(vat.getContained() == null ? "nothing" : vat.getC
 player.setItemInHand(hand, new net.minecraft.world.item.ItemStack(warded));
 var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(master),
         net.minecraft.core.Direction.UP, master, false);
-var result = level.getBlockState(master).use(level, player, hand, hit);
+var result = ((fr.wind_blade.isorropia.common.blocks.BlockCurativeVat) level.getBlockState(master).getBlock()).use(level.getBlockState(master), level, master, player, hand, hit);
 net.minecraft.world.item.ItemStack full = net.minecraft.world.item.ItemStack.EMPTY;
 for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
     var stack = player.getInventory().getItem(slot);
@@ -38,19 +38,27 @@ for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
         full = stack;
     }
 }
+boolean customName;
+try {
+    customName = (Boolean) full.getClass().getMethod("hasCustomHoverName").invoke(full);
+} catch (NoSuchMethodException missing) {
+    var type = Class.forName("net.minecraft.core.component.DataComponentType");
+    var name = Class.forName("net.minecraft.core.component.DataComponents").getField("CUSTOM_NAME").get(null);
+    customName = (Boolean) full.getClass().getMethod("has", type).invoke(full, name);
+}
 sb.append("\n1 jar from vat: use=").append(result).append(" vatEmpty=").append(vat.getContained() == null)
   .append(" soulJar=").append(full.getHoverName().getString())
   // Compared with the name in whatever language the client runs, not a hard-coded English string.
   .append(" nameMatches=").append(full.getHoverName().getString().equals(net.minecraft.network.chat.Component.translatable(
           "item.isorropia.jar_soul.jarred", net.minecraft.world.entity.EntityType.PIG.getDescription()).getString()))
-  .append(" customName=").append(full.hasCustomHoverName())
-  .append(" noAiInJar=").append(full.isEmpty() ? "-" : full.getTag().getCompound("EntityData").getBoolean("NoAI"))
+  .append(" customName=").append(customName)
+  .append(" noAiInJar=").append(full.isEmpty() ? "-" : fr.wind_blade.isorropia.common.platform.StackData.read(full).getCompound("EntityData").getBoolean("NoAI"))
   .append(" wardedLeft=").append(player.getInventory().countItem(warded));
 
 // 2. The full jar back on the vat: the pig returns and a warded jar comes back.
 player.setItemInHand(hand, full.copy());
 player.getInventory().removeItem(full);
-var result2 = level.getBlockState(master).use(level, player, hand, hit);
+var result2 = ((fr.wind_blade.isorropia.common.blocks.BlockCurativeVat) level.getBlockState(master).getBlock()).use(level.getBlockState(master), level, master, player, hand, hit);
 sb.append("\n2 jar into vat: use=").append(result2).append(" vatHolds=")
   .append(vat.getContained() == null ? "nothing" : vat.getContained().getType().toShortString())
   .append(" wardedBack=").append(player.getInventory().countItem(warded));
@@ -67,7 +75,7 @@ player.setItemInHand(hand, dev.tc4port.thaumcraft.api.wand.WandApi.createFullyCh
         dev.tc4port.thaumcraft.api.wand.WandMaterialId.WOOD, dev.tc4port.thaumcraft.api.wand.WandMaterialId.IRON));
 var jarHit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(jarPos),
         net.minecraft.core.Direction.UP, jarPos, false);
-var result3 = level.getBlockState(jarPos).use(level, player, hand, jarHit);
+var result3 = ((fr.wind_blade.isorropia.common.blocks.BlockJarSoul) level.getBlockState(jarPos).getBlock()).use(level.getBlockState(jarPos), level, jarPos, player, hand, jarHit);
 var cows = level.getEntitiesOfClass(net.minecraft.world.entity.animal.Cow.class,
         new net.minecraft.world.phys.AABB(jarPos).inflate(0.5));
 sb.append("\n3 wand on jar: use=").append(result3).append(" jarGone=").append(level.getBlockState(jarPos).isAir())

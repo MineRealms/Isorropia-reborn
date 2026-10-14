@@ -55,11 +55,27 @@ public class BlockVortexStabilizer extends Block implements EntityBlock {
     }
 
     /** A wand re-aims an already-placed attenuator at the face the player clicked. */
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (!(player.getItemInHand(hand).getItem() instanceof WandItem)) {
+            //? if forge {
             return super.use(state, level, pos, player, hand, hit);
+            //?} else {
+            /*return InteractionResult.PASS;
+            *///?}
         }
         if (!level.isClientSide) {
             level.setBlock(pos, state.setValue(FACING, hit.getDirection()), 3);

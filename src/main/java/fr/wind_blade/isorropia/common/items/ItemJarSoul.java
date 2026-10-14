@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.items;
 
 import fr.wind_blade.isorropia.common.infusion.SoulJar;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -16,8 +17,8 @@ public class ItemJarSoul extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains(SoulJar.ENTITY_TAG)) {
+        CompoundTag tag = StackData.read(stack);
+        if (tag.isEmpty() || !tag.contains(SoulJar.ENTITY_TAG)) {
             return super.getName(stack);
         }
         CompoundTag data = tag.getCompound(SoulJar.ENTITY_TAG);

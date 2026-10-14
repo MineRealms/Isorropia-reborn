@@ -258,13 +258,10 @@ public class GenericFx extends SingleQuadParticle {
 
     private static ParticleRenderType sheet(String name, GlStateManager.DestFactor destination) {
         return new ParticleRenderType() {
+            //? if forge {
             @Override
             public void begin(BufferBuilder builder, TextureManager textures) {
-                RenderSystem.depthMask(false);
-                RenderSystem.setShaderTexture(0, SHEET);
-                RenderSystem.enableBlend();
-                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, destination);
-                RenderSystem.setShader(GameRenderer::getParticleShader);
+                prepare(destination);
                 builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
             }
 
@@ -274,11 +271,28 @@ public class GenericFx extends SingleQuadParticle {
                 RenderSystem.depthMask(true);
                 RenderSystem.defaultBlendFunc();
             }
+            //?} else {
+            /*// 1.21 starts the buffer here and lets the particle engine draw it and restore depth writes.
+            @Override
+            public BufferBuilder begin(Tesselator tesselator, TextureManager textures) {
+                prepare(destination);
+                return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+            }
+            *///?}
 
             @Override
             public String toString() {
                 return "isorropia:generic_" + name;
             }
         };
+    }
+
+    /** The sheet, its blend and no depth writes: the shared half of both versions' render-type setup. */
+    private static void prepare(GlStateManager.DestFactor destination) {
+        RenderSystem.depthMask(false);
+        RenderSystem.setShaderTexture(0, SHEET);
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, destination);
+        RenderSystem.setShader(GameRenderer::getParticleShader);
     }
 }

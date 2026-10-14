@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
+import fr.wind_blade.isorropia.common.platform.Menus;
 
 import javax.annotation.Nullable;
 
@@ -62,9 +62,21 @@ public class BlockVisDynamo extends Block implements EntityBlock, ThaumBridge.Wa
                 };
     }
 
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (hand != InteractionHand.MAIN_HAND || !(level.getBlockEntity(pos) instanceof TileVisDynamo dynamo)) {
             return InteractionResult.PASS;
         }
@@ -72,7 +84,7 @@ public class BlockVisDynamo extends Block implements EntityBlock, ThaumBridge.Wa
         if (WandApi.view(held).isEmpty()) {
             // TH opened the selection screen for anything but a wand.
             if (player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, new SimpleMenuProvider(
+                Menus.open(serverPlayer, new SimpleMenuProvider(
                         (id, inventory, opener) -> new VisDynamoMenu(id, inventory, dynamo), getName()), pos);
             }
             return InteractionResult.sidedSuccess(level.isClientSide);

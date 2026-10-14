@@ -192,13 +192,8 @@ public final class ObjMesh {
 
     private static void emit(Vertex vertex, PoseStack poseStack, VertexConsumer consumer, int light, int overlay,
             float red, float green, float blue, float alpha) {
-        consumer.vertex(poseStack.last().pose(), vertex.x(), vertex.y(), vertex.z())
-                .color(red, green, blue, alpha)
-                .uv(vertex.u(), vertex.v())
-                .overlayCoords(overlay)
-                .uv2(light)
-                .normal(poseStack.last().normal(), vertex.nx(), vertex.ny(), vertex.nz())
-                .endVertex();
+        RenderColors.vertex(consumer, poseStack.last(), vertex.x(), vertex.y(), vertex.z(), vertex.u(), vertex.v(),
+                overlay, light, red, green, blue, alpha, vertex.nx(), vertex.ny(), vertex.nz());
     }
 
     /** The model's own texture path, for callers that want to log or look it up. */

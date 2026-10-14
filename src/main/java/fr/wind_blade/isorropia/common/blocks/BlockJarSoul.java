@@ -4,6 +4,7 @@ import dev.tc4port.thaumcraft.api.wand.WandApi;
 import fr.wind_blade.isorropia.common.infusion.SoulJar;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.tiles.TileJarSoul;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -36,6 +37,14 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
+    // 1.21 made Block#codec() abstract; 1.20.1 has no such hook.
+    //? if neoforge {
+    /*@Override
+    protected com.mojang.serialization.MapCodec<BlockJarSoul> codec() {
+        return simpleCodec(BlockJarSoul::new);
+    }
+    *///?}
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING);
@@ -62,7 +71,8 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
             ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
-        CompoundTag data = stack.getTag() == null ? null : stack.getTag().getCompound(SoulJar.ENTITY_TAG);
+        CompoundTag tag = StackData.read(stack);
+        CompoundTag data = tag.isEmpty() ? null : tag.getCompound(SoulJar.ENTITY_TAG);
         if (data != null && !data.isEmpty() && level.getBlockEntity(pos) instanceof TileJarSoul jar) {
             jar.setEntityData(data);
         }
@@ -72,9 +82,21 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
      * A wand on a full jar lets the creature out, which is how upstream emptied one. Breaking the jar drops it
      * with the creature still inside, so a captured animal can be carried around.
      */
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (hand != InteractionHand.MAIN_HAND || WandApi.view(player.getItemInHand(hand)).isEmpty()) {
             return InteractionResult.PASS;
         }
@@ -96,7 +118,7 @@ public class BlockJarSoul extends HorizontalDirectionalBlock implements EntityBl
             ItemStack tool) {
         if (be instanceof TileJarSoul jar && jar.getEntityData() != null) {
             ItemStack dropped = new ItemStack(ItemsIS.JAR_SOUL.get());
-            dropped.getOrCreateTag().put(SoulJar.ENTITY_TAG, jar.getEntityData().copy());
+            StackData.update(dropped, tag -> tag.put(SoulJar.ENTITY_TAG, jar.getEntityData().copy()));
             Block.popResource(level, pos, dropped);
         } else {
             Block.popResource(level, pos, new ItemStack(ItemsIS.JAR_SOUL.get()));

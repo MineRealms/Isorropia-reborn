@@ -27,10 +27,15 @@ public final class PocketPlaneEffects {
 
     /**
      * TH's {@code addEffects}, in TH's aspect order: MOTION, FLIGHT, HEAL, TRAVEL, TOOL, WEAPON, ARMOR. The result is
-     * capped at the eight slots TH reserved.
+     * capped at the eight slots TH reserved. 1.21's effect registry is Holder-based, so the element type differs.
      */
+    //? if forge {
     public static List<MobEffect> forAspects(Map<AspectId, Integer> aspects) {
         List<MobEffect> effects = new ArrayList<>(8);
+        //?} else {
+        /*public static List<net.minecraft.core.Holder<MobEffect>> forAspects(Map<AspectId, Integer> aspects) {
+        List<net.minecraft.core.Holder<MobEffect>> effects = new ArrayList<>(8);
+        *///?}
         if (amount(aspects, "motus") > 0) {
             effects.add(MobEffects.MOVEMENT_SPEED);
         }

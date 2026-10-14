@@ -50,24 +50,45 @@ public class TileJarSoul extends BlockEntity {
         return displayed;
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         if (entityData != null) {
             tag.put(SoulJar.ENTITY_TAG, entityData);
         }
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         entityData = tag.contains(SoulJar.ENTITY_TAG) ? tag.getCompound(SoulJar.ENTITY_TAG) : null;
         displayed = null;
     }
 
     /** A jar is small, but what is inside it is the whole point of syncing a block update. */
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
         if (entityData != null) {
             tag.put(SoulJar.ENTITY_TAG, entityData);
@@ -75,8 +96,13 @@ public class TileJarSoul extends BlockEntity {
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         entityData = tag.contains(SoulJar.ENTITY_TAG) ? tag.getCompound(SoulJar.ENTITY_TAG) : null;
         displayed = null;
     }

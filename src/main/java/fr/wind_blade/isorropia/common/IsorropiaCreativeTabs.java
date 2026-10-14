@@ -11,32 +11,34 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 public final class IsorropiaCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Isorropia.MODID);
 
-    public static final RegistryObject<CreativeModeTab> MAIN = TABS.register("isorropia", () -> CreativeModeTab.builder()
+    public static final Supplier<CreativeModeTab> MAIN = TABS.register("isorropia", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.isorropia"))
             .icon(() -> ItemCat.create(ItemCat.EnumCat.CHICKEN))
             .displayItems((parameters, output) -> {
-                for (RegistryObject<Item> entry : ItemsIS.ITEMS.getEntries()) {
-                    if (entry.getId().equals(ItemsIS.CAT.getId())) {
+                // Registry entry types differ per loader (RegistryObject vs DeferredHolder), so the loop
+                // variable is left to inference; both are Suppliers. Identity stands in for the id compare.
+                ItemsIS.ITEMS.getEntries().forEach(entry -> {
+                    if (entry.get() == ItemsIS.CAT.get()) {
                         for (ItemCat.EnumCat cat : ItemCat.EnumCat.values()) {
                             if (cat.getRecipe() != null) {
                                 output.accept(ItemCat.create(cat));
                             }
                         }
-                    } else if (entry.getId().equals(ItemsIS.JELLY.getId())) {
+                    } else if (entry.get() == ItemsIS.JELLY.get()) {
                         output.accept(ItemsIS.JELLY.get());
                         AspectApi.definitions().keySet().stream().sorted(Comparator.comparing(AspectId::toString))
                                 .forEach(aspect -> output.accept(ItemJelly.create(ItemsIS.JELLY.get(), aspect)));
                     } else {
                         output.accept(entry.get());
                     }
-                }
+                });
             })
             .build());
 

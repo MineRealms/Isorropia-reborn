@@ -344,8 +344,15 @@ public final class LiquefactionFocus {
         if (nuggets <= 0) {
             return;
         }
+        //? if forge {
         for (InfernalSmeltingRecipe recipe : level.getRecipeManager().getAllRecipesFor(TCRecipes.INFERNAL_SMELTING.get())) {
             if (!recipe.matches(new SimpleContainer(blockStack), level)) {
+        //?} else {
+        /*for (net.minecraft.world.item.crafting.RecipeHolder<InfernalSmeltingRecipe> holder
+                : level.getRecipeManager().getAllRecipesFor(TCRecipes.INFERNAL_SMELTING.get())) {
+            InfernalSmeltingRecipe recipe = holder.value();
+            if (!recipe.matches(new net.minecraft.world.item.crafting.SingleRecipeInput(blockStack), level)) {
+        *///?}
                 continue;
             }
             for (InfernalOutput output : recipe.outputs()) {
@@ -390,8 +397,14 @@ public final class LiquefactionFocus {
         if (input.isEmpty()) {
             return ItemStack.EMPTY;
         }
+        //? if forge {
         return level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SimpleContainer(input), level)
                 .map(recipe -> recipe.getResultItem(level.registryAccess()))
+        //?} else {
+        /*return level.getRecipeManager().getRecipeFor(RecipeType.SMELTING,
+                        new net.minecraft.world.item.crafting.SingleRecipeInput(input), level)
+                .map(holder -> holder.value().getResultItem(level.registryAccess()))
+        *///?}
                 .filter(result -> !result.isEmpty())
                 .orElse(ItemStack.EMPTY);
     }

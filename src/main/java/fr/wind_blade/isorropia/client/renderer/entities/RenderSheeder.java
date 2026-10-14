@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.client.renderer.entities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.entities.EntitySheeder;
 import net.minecraft.client.model.SpiderModel;
@@ -46,7 +47,7 @@ public class RenderSheeder extends MobRenderer<EntitySheeder, SpiderModel<Entity
                 return;
             }
             poseStack.pushPose();
-            this.getParentModel().renderToBuffer(poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(WOOL)), light,
+            RenderColors.render(this.getParentModel(), poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(WOOL)), light,
                     LivingEntityRenderer.getOverlayCoords(entity, 0.0F), 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();
         }

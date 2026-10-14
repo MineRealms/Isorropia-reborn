@@ -182,16 +182,34 @@ public class TileVortexStabilizer extends BlockEntity {
         }
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
+        //? if forge {
         saveAdditional(tag);
+        //?} else {
+        /*saveAdditional(tag, registries);
+        *///?}
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
         load(tag);
+        //?} else {
+        /*loadAdditional(tag, registries);
+        *///?}
     }
 
     @Nullable
@@ -200,17 +218,35 @@ public class TileVortexStabilizer extends BlockEntity {
         return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(net.minecraft.network.Connection connection,
             net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(net.minecraft.network.Connection connection,
+            net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             handleUpdateTag(packet.getTag());
+            //?} else {
+            /*handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putBoolean("active", this.redstoned);
         tag.putBoolean("hasTarget", this.hasTarget);
         if (this.targetPos != null) {
@@ -221,9 +257,17 @@ public class TileVortexStabilizer extends BlockEntity {
         }
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         this.redstoned = tag.getBoolean("active");
         this.hasTarget = tag.getBoolean("hasTarget");
         this.targetPos = tag.contains("targetPos") ? BlockPos.of(tag.getLong("targetPos")) : null;

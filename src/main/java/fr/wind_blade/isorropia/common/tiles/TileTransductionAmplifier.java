@@ -229,16 +229,34 @@ public class TileTransductionAmplifier extends BlockEntity {
         }
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
+        //? if forge {
         saveAdditional(tag);
+        //?} else {
+        /*saveAdditional(tag, registries);
+        *///?}
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
         load(tag);
+        //?} else {
+        /*loadAdditional(tag, registries);
+        *///?}
     }
 
     @Nullable
@@ -247,26 +265,52 @@ public class TileTransductionAmplifier extends BlockEntity {
         return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(net.minecraft.network.Connection connection,
             net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(net.minecraft.network.Connection connection,
+            net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             handleUpdateTag(packet.getTag());
+            //?} else {
+            /*handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putBoolean("active", this.activated);
         tag.putByte("dir", (byte) (facing != null ? facing.get3DDataValue() : -1));
         tag.putBoolean("shouldactivate", this.shouldActivate);
         tag.putInt("count", this.count);
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         this.activated = tag.getBoolean("active");
         byte dir = tag.getByte("dir");
         this.facing = dir < 0 ? null : Direction.from3DDataValue(dir);

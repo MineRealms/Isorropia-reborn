@@ -101,9 +101,9 @@ public final class LensWheel {
         }
         if (!removing && selected >= 0 && selected < slices.size()) {
             Slice slice = slices.get(selected);
-            IsorropiaNetwork.CHANNEL.sendToServer(LensChangePacket.fitting(slot, slice.inventorySlot(), slice.lens()));
+            IsorropiaNetwork.sendToServer(LensChangePacket.fitting(slot, slice.inventorySlot(), slice.lens()));
         } else if (removing) {
-            IsorropiaNetwork.CHANNEL.sendToServer(LensChangePacket.removing(slot));
+            IsorropiaNetwork.sendToServer(LensChangePacket.removing(slot));
         }
     }
 

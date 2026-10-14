@@ -106,10 +106,19 @@ public class ModelJelly extends EntityModel<EntityJellyRabbit> {
         this.rightArm.xRot = (this.jumpRotation * -40.0F - 11.0F) * DEG;
     }
 
+    //? if forge {
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int light, int overlay, float red, float green, float blue, float alpha) {
         for (ModelPart part : this.parts) {
             part.render(poseStack, buffer, light, overlay, red, green, blue, alpha);
         }
     }
+    //?} else {
+    /*@Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int light, int overlay, int color) {
+        for (ModelPart part : this.parts) {
+            part.render(poseStack, buffer, light, overlay, color);
+        }
+    }
+    *///?}
 }

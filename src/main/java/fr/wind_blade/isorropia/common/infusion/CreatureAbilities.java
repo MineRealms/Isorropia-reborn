@@ -64,9 +64,15 @@ public final class CreatureAbilities {
                     ResourceLocation.withDefaultNamespace(sheep.getColor().getSerializedName() + "_wool"));
             drops = List.of(new ItemStack(wool, 1 + level.random.nextInt(3)));
         } else if (entity instanceof IForgeShearable shearable
+                //? if forge {
                 && shearable.isShearable(ItemStack.EMPTY, level, entity.blockPosition())) {
             // The shearer is optional for a modded shearable, and an auto-shearing coat has none.
             drops = shearable.onSheared(null, ItemStack.EMPTY, level, entity.blockPosition(), 0);
+            //?} else {
+            /*&& shearable.isShearable(null, ItemStack.EMPTY, level, entity.blockPosition())) {
+            // The shearer is optional for a modded shearable, and an auto-shearing coat has none.
+            drops = shearable.onSheared(null, ItemStack.EMPTY, level, entity.blockPosition());
+            *///?}
         }
         if (drops.isEmpty()) {
             return;

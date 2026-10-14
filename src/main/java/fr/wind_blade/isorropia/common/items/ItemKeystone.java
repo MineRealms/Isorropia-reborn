@@ -4,6 +4,7 @@ import fr.wind_blade.isorropia.common.tiles.TileVortex;
 import fr.wind_blade.isorropia.common.world.PocketPlane;
 import fr.wind_blade.isorropia.common.world.PocketPlaneBuilder;
 import fr.wind_blade.isorropia.common.world.PocketPlaneStore;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -37,23 +38,24 @@ public class ItemKeystone extends Item {
 
     /** The plane this keystone is bound to, or -1 while it is still blank. */
     public static int boundPlane(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains(PLANE) ? tag.getInt(PLANE) : -1;
+        CompoundTag tag = StackData.read(stack);
+        return tag.contains(PLANE) ? tag.getInt(PLANE) : -1;
     }
 
     /** The bound plane's colour, or white while blank. */
     public static int boundColour(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains(COLOUR) ? tag.getInt(COLOUR) : 0xFFFFFF;
+        CompoundTag tag = StackData.read(stack);
+        return tag.contains(COLOUR) ? tag.getInt(COLOUR) : 0xFFFFFF;
     }
 
     /** A keystone bound to one plane, as the receptacle drops when it is taken back out. */
     public static ItemStack of(int planeId, String name, int colour) {
         ItemStack stack = new ItemStack(ItemsIS.KEYSTONE.get());
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putInt(PLANE, planeId);
-        tag.putString(NAME, name);
-        tag.putInt(COLOUR, colour);
+        StackData.update(stack, tag -> {
+            tag.putInt(PLANE, planeId);
+            tag.putString(NAME, name);
+            tag.putInt(COLOUR, colour);
+        });
         return stack;
     }
 
@@ -73,9 +75,13 @@ public class ItemKeystone extends Item {
     }
 
     @Override
+    //? if forge {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        CompoundTag tag = stack.getTag();
-        if (tag != null && tag.contains(NAME)) {
+    //?} else {
+    /*public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
+    *///?}
+        CompoundTag tag = StackData.read(stack);
+        if (tag.contains(NAME)) {
             tooltip.add(Component.literal(tag.getString(NAME)).withStyle(ChatFormatting.AQUA));
         }
         super.appendHoverText(stack, level, tooltip, flag);
@@ -95,10 +101,11 @@ public class ItemKeystone extends Item {
         if (plane == null) {
             return InteractionResult.PASS;
         }
-        CompoundTag tag = stack.getOrCreateTag();
-        tag.putInt(PLANE, plane.id());
-        tag.putString(NAME, plane.name());
-        tag.putInt(COLOUR, PocketPlaneBuilder.colourOf(plane.aspects()));
+        StackData.update(stack, tag -> {
+            tag.putInt(PLANE, plane.id());
+            tag.putString(NAME, plane.name());
+            tag.putInt(COLOUR, PocketPlaneBuilder.colourOf(plane.aspects()));
+        });
         return InteractionResult.SUCCESS;
     }
 }

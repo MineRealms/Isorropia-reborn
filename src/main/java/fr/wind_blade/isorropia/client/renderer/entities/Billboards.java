@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.client.ClientRenderTypes;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -42,7 +43,7 @@ public final class Billboards {
     }
 
     private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal, float x, float y, float u, float v, int r, int g, int b) {
-        consumer.vertex(matrix, x, y, 0.0F).color(r, g, b, 255).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(LightTexture.FULL_BRIGHT).normal(normal, 0.0F, 1.0F, 0.0F).endVertex();
+        RenderColors.vertex(consumer, matrix, normal, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY,
+                LightTexture.FULL_BRIGHT, r, g, b, 255, 0.0F, 1.0F, 0.0F);
     }
 }

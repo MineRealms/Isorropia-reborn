@@ -35,7 +35,11 @@ public final class LensManager {
         if (stack.isEmpty()) {
             return false;
         }
+        //? if forge {
         ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());
+        //?} else {
+        /*ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+        *///?}
         if (GOGGLES.equals(id) || RUNIC_GOGGLES.equals(id)) {
             return true;
         }

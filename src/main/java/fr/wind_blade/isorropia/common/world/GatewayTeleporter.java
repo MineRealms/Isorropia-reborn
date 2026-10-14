@@ -1,5 +1,7 @@
 package fr.wind_blade.isorropia.common.world;
 
+// Forge only: 1.21 replaced ITeleporter/PortalInfo with DimensionTransition (see PocketPlane#sendTo).
+//? if forge {
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.portal.PortalInfo;
@@ -40,3 +42,4 @@ public class GatewayTeleporter implements ITeleporter {
         return placed;
     }
 }
+//?}

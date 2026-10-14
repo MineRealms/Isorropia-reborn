@@ -5,7 +5,10 @@ import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+//? if neoforge {
+/*import net.minecraft.core.registries.BuiltInRegistries;
+*///?}
+import java.util.function.Supplier;
 
 /**
  * One type per block: every vat block (walls, connectors, bottom, and the master on top) is the same block,
@@ -15,39 +18,39 @@ public final class TilesIS {
     public static final DeferredRegister<BlockEntityType<?>> TILES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Isorropia.MODID);
 
-    public static final RegistryObject<BlockEntityType<TileVat>> VAT = TILES.register("curative_vat",
+    public static final Supplier<BlockEntityType<TileVat>> VAT = TILES.register("curative_vat",
             () -> BlockEntityType.Builder.of(TileVat::new, BlocksIS.CURATIVE_VAT.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileModifiedMatrix>> MODIFIED_MATRIX = TILES.register("modified_matrix",
+    public static final Supplier<BlockEntityType<TileModifiedMatrix>> MODIFIED_MATRIX = TILES.register("modified_matrix",
             () -> BlockEntityType.Builder.of(TileModifiedMatrix::new, BlocksIS.MODIFIED_MATRIX.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileJarSoul>> JAR_SOUL = TILES.register("soul_jar",
+    public static final Supplier<BlockEntityType<TileJarSoul>> JAR_SOUL = TILES.register("soul_jar",
             () -> BlockEntityType.Builder.of(TileJarSoul::new, BlocksIS.JAR_SOUL.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileSoulBeacon>> SOUL_BEACON = TILES.register("soul_beacon",
+    public static final Supplier<BlockEntityType<TileSoulBeacon>> SOUL_BEACON = TILES.register("soul_beacon",
             () -> BlockEntityType.Builder.of(TileSoulBeacon::new, BlocksIS.SOUL_BEACON.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileVisDynamo>> VIS_DYNAMO = TILES.register("vis_dynamo",
+    public static final Supplier<BlockEntityType<TileVisDynamo>> VIS_DYNAMO = TILES.register("vis_dynamo",
             () -> BlockEntityType.Builder.of(TileVisDynamo::new, BlocksIS.VIS_DYNAMO.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileEssentiaDynamo>> ESSENTIA_DYNAMO = TILES.register("essentia_dynamo",
+    public static final Supplier<BlockEntityType<TileEssentiaDynamo>> ESSENTIA_DYNAMO = TILES.register("essentia_dynamo",
             () -> BlockEntityType.Builder.of(TileEssentiaDynamo::new, BlocksIS.ESSENTIA_DYNAMO.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileNodeMonitor>> NODE_MONITOR = TILES.register("node_monitor",
+    public static final Supplier<BlockEntityType<TileNodeMonitor>> NODE_MONITOR = TILES.register("node_monitor",
             () -> BlockEntityType.Builder.of(TileNodeMonitor::new, BlocksIS.NODE_MONITOR.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileEtherealShard>> ETHEREAL_SHARD = TILES.register("ethereal_shard",
+    public static final Supplier<BlockEntityType<TileEtherealShard>> ETHEREAL_SHARD = TILES.register("ethereal_shard",
             () -> BlockEntityType.Builder.of(TileEtherealShard::new, BlocksIS.ETHEREAL_SHARD.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileTransductionAmplifier>> TRANSDUCTION_AMPLIFIER = TILES.register("transduction_amplifier",
+    public static final Supplier<BlockEntityType<TileTransductionAmplifier>> TRANSDUCTION_AMPLIFIER = TILES.register("transduction_amplifier",
             () -> BlockEntityType.Builder.of(TileTransductionAmplifier::new, BlocksIS.TRANSDUCTION_AMPLIFIER.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileVortexStabilizer>> VORTEX_STABILIZER = TILES.register("vortex_stabilizer",
+    public static final Supplier<BlockEntityType<TileVortexStabilizer>> VORTEX_STABILIZER = TILES.register("vortex_stabilizer",
             () -> BlockEntityType.Builder.of(TileVortexStabilizer::new, BlocksIS.VORTEX_STABILIZER.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileRecombinator>> RECOMBINATOR = TILES.register("recombinator",
+    public static final Supplier<BlockEntityType<TileRecombinator>> RECOMBINATOR = TILES.register("recombinator",
             () -> BlockEntityType.Builder.of(TileRecombinator::new, BlocksIS.RECOMBINATOR.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileVortex>> VORTEX = TILES.register("vortex",
+    public static final Supplier<BlockEntityType<TileVortex>> VORTEX = TILES.register("vortex",
             () -> BlockEntityType.Builder.of(TileVortex::new, BlocksIS.VORTEX.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileBloodInfuser>> BLOOD_INFUSER = TILES.register("blood_infuser",
+    public static final Supplier<BlockEntityType<TileBloodInfuser>> BLOOD_INFUSER = TILES.register("blood_infuser",
             () -> BlockEntityType.Builder.of(TileBloodInfuser::new, BlocksIS.BLOOD_INFUSER.get()).build(null));
-    public static final RegistryObject<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
+    public static final Supplier<BlockEntityType<TileLight>> LIGHT = TILES.register("light",
             () -> BlockEntityType.Builder.of(TileLight::new, BlocksIS.LIGHT.get()).build(null));
     /** The gateway surface: the plane-side twin and the world-side opening share one tile type. */
-    public static final RegistryObject<BlockEntityType<TilePortal>> PORTAL = TILES.register("portal",
+    public static final Supplier<BlockEntityType<TilePortal>> PORTAL = TILES.register("portal",
             () -> BlockEntityType.Builder.of(TilePortal::new, BlocksIS.PORTAL.get()).build(null));
     /** The keystone receptacle at the top of a gateway. */
-    public static final RegistryObject<BlockEntityType<TileSlot>> GATEWAY_SLOT = TILES.register("keystone_receptacle",
+    public static final Supplier<BlockEntityType<TileSlot>> GATEWAY_SLOT = TILES.register("keystone_receptacle",
             () -> BlockEntityType.Builder.of(TileSlot::new, BlocksIS.SLOT.get()).build(null));
 
     private TilesIS() {

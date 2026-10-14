@@ -47,10 +47,17 @@ public class EntityAlchemitePrimed extends Entity {
         this.placer = placer;
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(DATA_FUSE, DEFAULT_FUSE);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_FUSE, DEFAULT_FUSE);
+    }
+    *///?}
 
     @Override
     protected MovementEmission getMovementEmission() {
@@ -98,10 +105,19 @@ public class EntityAlchemitePrimed extends Entity {
         this.setFuse(tag.getShort("Fuse"));
     }
 
+    // 1.21 removed the pose+dimensions eye-height hook; the same override hangs off the
+    // entity's dimensions instead.
+    //? if forge {
     @Override
     protected float getEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0.15F;
     }
+    //?} else {
+    /*@Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return super.getDimensions(pose).withEyeHeight(0.15F);
+    }
+    *///?}
 
     public void setFuse(int fuse) {
         this.entityData.set(DATA_FUSE, fuse);

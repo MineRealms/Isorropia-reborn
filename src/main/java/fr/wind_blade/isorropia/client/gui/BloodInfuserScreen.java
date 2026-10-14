@@ -1,17 +1,13 @@
 package fr.wind_blade.isorropia.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.client.platform.QuadBatch;
 import fr.wind_blade.isorropia.common.menu.BloodInfuserMenu;
 import fr.wind_blade.isorropia.common.tiles.TileBloodInfuser;
 import net.minecraft.client.gui.GuiGraphics;
@@ -123,7 +119,10 @@ public class BloodInfuserScreen extends AbstractContainerScreen<BloodInfuserMenu
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 1.21 draws (and blurs) the background inside Screen#render; a second call throws.
+        //? if forge {
         renderBackground(graphics);
+        //?}
         super.render(graphics, mouseX, mouseY, partialTick);
         renderTooltip(graphics, mouseX, mouseY);
     }
@@ -252,7 +251,11 @@ public class BloodInfuserScreen extends AbstractContainerScreen<BloodInfuserMenu
             int j = 0;
             int k = 0;
             for (Map.Entry<MobEffect, Integer> weight : this.mousedEffects.entrySet()) {
+                //? if forge {
                 this.drawEffectIcon(graphics, weight.getKey(), j * 18 + 171, k * 18 + 72);
+                //?} else {
+                /*this.drawEffectIcon(graphics, net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT.wrapAsHolder(weight.getKey()), j * 18 + 171, k * 18 + 72);
+                *///?}
                 graphics.drawString(this.font, "" + weight.getValue(), j * 18 + 171, k * 18 + 72, 0xFF808080, false);
                 if (j == 0) {
                     j = 1;
@@ -293,7 +296,11 @@ public class BloodInfuserScreen extends AbstractContainerScreen<BloodInfuserMenu
         }
     }
 
+    //? if forge {
     private void drawEffectIcon(GuiGraphics graphics, MobEffect effect, int x, int y) {
+    //?} else {
+    /*private void drawEffectIcon(GuiGraphics graphics, net.minecraft.core.Holder<MobEffect> effect, int x, int y) {
+    *///?}
         TextureAtlasSprite sprite = this.minecraft.getMobEffectTextures().get(effect);
         graphics.blit(x, y, 0, 18, 18, sprite);
     }
@@ -310,17 +317,12 @@ public class BloodInfuserScreen extends AbstractContainerScreen<BloodInfuserMenu
         Matrix4f pose = graphics.pose().last().pose();
         float x = this.flashX;
         float y = this.flashY;
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(pose, x, y + 16.0F, 0.0F).uv(FLASH_CELL + this.flashTimer / 8.0F + 0.5F, 0.5F + FLASH_CELL)
-                .color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x + 16.0F, y + 16.0F, 0.0F)
-                .uv(FLASH_CELL + this.flashTimer / 8.0F + 0.5F, 0.5F).color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x + 16.0F, y, 0.0F).uv(this.flashTimer / 8.0F + 0.5F, 0.5F)
-                .color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x, y, 0.0F).uv(this.flashTimer / 8.0F + 0.5F, 0.5F + FLASH_CELL)
-                .color(red, green, blue, 1.0F).endVertex();
-        BufferUploader.drawWithShader(buffer.end());
+        QuadBatch quads = QuadBatch.positionTexColor(pose);
+        quads.vertex(x, y + 16.0F, 0.0F, FLASH_CELL + this.flashTimer / 8.0F + 0.5F, 0.5F + FLASH_CELL, red, green, blue, 1.0F);
+        quads.vertex(x + 16.0F, y + 16.0F, 0.0F, FLASH_CELL + this.flashTimer / 8.0F + 0.5F, 0.5F, red, green, blue, 1.0F);
+        quads.vertex(x + 16.0F, y, 0.0F, this.flashTimer / 8.0F + 0.5F, 0.5F, red, green, blue, 1.0F);
+        quads.vertex(x, y, 0.0F, this.flashTimer / 8.0F + 0.5F, 0.5F + FLASH_CELL, red, green, blue, 1.0F);
+        quads.draw();
         RenderSystem.disableBlend();
     }
 

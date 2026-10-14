@@ -2,7 +2,7 @@
   "parent": "builtin/entity",
   "gui_light": "side",
   "textures": {
-    "particle": "isorropia:block/blood_infuser"
+    "particle": "isorropia:entity/blood_infuser"
   },
   "display": {
     "gui": {

@@ -7,7 +7,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
+//? if forge {
 import net.minecraftforge.fml.DistExecutor;
+//?}
 
 /**
  * TH's {@code TileLight}: the conjured mote has no model of its own, and this tile exists only so the client can
@@ -20,6 +22,14 @@ public class TileLight extends BlockEntity {
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, TileLight light) {
         int colour = BlockLight.COLOURS[state.getValue(BlockLight.COLOUR)];
+        // DistExecutor is forge-only; NeoForge dropped it. This method is only ever wired into the
+        // client tick handler, so the guard is belt-and-braces against a dedicated-server class load.
+        //? if forge {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LightFx.tick(level, pos, colour));
+        //?} else {
+        /*if (net.neoforged.fml.loading.FMLEnvironment.dist.isClient()) {
+            LightFx.tick(level, pos, colour);
+        }
+        *///?}
     }
 }

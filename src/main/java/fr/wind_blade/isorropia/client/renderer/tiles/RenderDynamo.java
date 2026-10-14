@@ -7,6 +7,7 @@ import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientEffectsApi;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.model.DynamoBaseModel;
 import fr.wind_blade.isorropia.client.model.ObjMesh;
@@ -109,9 +110,8 @@ public class RenderDynamo<T extends BlockEntity & DynamoVisual> implements Block
 
     private static void vertex(VertexConsumer consumer, PoseStack.Pose pose, float x, float y, float u, float v, int red,
             int green, int blue) {
-        consumer.vertex(pose.pose(), x, y, 0.0F).color(red, green, blue, LIGHTNING_ALPHA).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(consumer, pose, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT,
+                red, green, blue, LIGHTNING_ALPHA, 0.0F, 0.0F, 1.0F);
     }
 
     /**

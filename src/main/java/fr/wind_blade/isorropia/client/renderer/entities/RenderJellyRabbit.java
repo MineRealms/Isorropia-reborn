@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.client.renderer.entities;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.model.JellyColors;
 import fr.wind_blade.isorropia.client.model.ModelJelly;
@@ -54,7 +55,7 @@ public class RenderJellyRabbit extends MobRenderer<EntityJellyRabbit, ModelJelly
             poseStack.scale(0.6F, 0.6F, 0.6F);
             this.model.prepareMobModel(rabbit, limbSwing, limbSwingAmount, partialTick);
             this.model.setupAnim(rabbit, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-            this.model.renderToBuffer(poseStack, buffers.getBuffer(RenderType.entityTranslucent(JELLY)), light,
+            RenderColors.render(this.model, poseStack, buffers.getBuffer(RenderType.entityTranslucent(JELLY)), light,
                     LivingEntityRenderer.getOverlayCoords(rabbit, 0.0F), (color >> 16 & 255) / 255.0F, (color >> 8 & 255) / 255.0F,
                     (color & 255) / 255.0F, JellyColors.ALPHA);
             poseStack.popPose();

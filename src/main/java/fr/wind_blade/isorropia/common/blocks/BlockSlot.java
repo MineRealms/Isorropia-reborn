@@ -44,9 +44,21 @@ public class BlockSlot extends Block implements EntityBlock {
         return new TileSlot(pos, state);
     }
 
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (level.isClientSide || !(level.getBlockEntity(pos) instanceof TileSlot slot)) {
             return InteractionResult.SUCCESS;
         }
@@ -88,10 +100,19 @@ public class BlockSlot extends Block implements EntityBlock {
 
     /** TH's {@code breakBlock}: taking the receptacle out closes its gateway and pops the keystone back out. */
     @Override
+    //? if forge {
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         super.playerWillDestroy(level, pos, state, player);
+    //?} else {
+    /*public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockState result = super.playerWillDestroy(level, pos, state, player);
+    *///?}
         if (!(level instanceof ServerLevel) || !(level.getBlockEntity(pos) instanceof TileSlot slot)) {
+            //? if forge {
             return;
+            //?} else {
+            /*return result;
+            *///?}
         }
         if (slot.portalOpen()) {
             slot.destroyPortal();
@@ -102,5 +123,8 @@ public class BlockSlot extends Block implements EntityBlock {
                 popResource(level, pos, keystone);
             }
         }
+        //? if neoforge {
+        /*return result;
+        *///?}
     }
 }

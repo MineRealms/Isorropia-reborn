@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.common.entities.projectile;
 import fr.wind_blade.isorropia.common.entities.EntitiesIS;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import fr.wind_blade.isorropia.common.items.misc.ItemSyringeInjection;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -72,11 +73,19 @@ public class EntitySyringe extends AbstractArrow {
         this.setColor(ItemSyringeInjection.colorOf(this.effects));
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(DATA_COLOR, ItemSyringeInjection.colorOf(null));
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_COLOR, ItemSyringeInjection.colorOf(null));
+    }
+    *///?}
 
     public int getColor() {
         return this.entityData.get(DATA_COLOR);
@@ -87,12 +96,21 @@ public class EntitySyringe extends AbstractArrow {
     }
 
     /** The injection this syringe carries, as an item stack, ready to be taken back out of the ground. */
+    //? if forge {
     @Override
     protected ItemStack getPickupItem() {
         ItemStack injection = new ItemStack(ItemsIS.SYRINGE_INJECTION.get());
         injection.setTag(this.effects.copy());
         return injection;
     }
+    //?} else {
+    /*@Override
+    protected ItemStack getDefaultPickupItem() {
+        ItemStack injection = new ItemStack(ItemsIS.SYRINGE_INJECTION.get());
+        StackData.write(injection, this.effects.copy());
+        return injection;
+    }
+    *///?}
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
@@ -112,17 +130,23 @@ public class EntitySyringe extends AbstractArrow {
                 if (!this.level().isClientSide) {
                     living.setArrowCount(living.getArrowCount() + 1);
                 }
-                if (this.getKnockback() > 0) {
-                    Vec3 motion = this.getDeltaMovement();
-                    double flat = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
-                    if (flat > 0.0D) {
-                        living.push(motion.x * this.getKnockback() * 0.6D / flat, 0.1D,
-                                motion.z * this.getKnockback() * 0.6D / flat);
-                    }
-                }
                 if (this.getOwner() instanceof LivingEntity shooter) {
+                    // 1.21 folded the knockback and post-hurt enchantment steps into the damage
+                    // pipeline (AbstractArrow.doKnockback); the manual block below is forge-only.
+                    //? if forge {
+                    if (this.getKnockback() > 0) {
+                        Vec3 motion = this.getDeltaMovement();
+                        double flat = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
+                        if (flat > 0.0D) {
+                            living.push(motion.x * this.getKnockback() * 0.6D / flat, 0.1D,
+                                    motion.z * this.getKnockback() * 0.6D / flat);
+                        }
+                    }
                     EnchantmentHelper.doPostHurtEffects(living, shooter);
                     EnchantmentHelper.doPostDamageEffects(shooter, living);
+                    //?} else {
+                    /*this.doKnockback(living, source);
+                    *///?}
                 }
                 if (this.getOwner() != null && target != this.getOwner() && target instanceof Player
                         && this.getOwner() instanceof ServerPlayer serverPlayer) {

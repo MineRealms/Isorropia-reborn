@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.items.misc;
 
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -75,9 +76,10 @@ public class ItemSyringeEmpty extends Item {
         critterTag.putString("id", EntityType.getKey(critter.getType()).toString());
         STRIPPED_TAGS.forEach(critterTag::remove);
         ItemStack sample = new ItemStack(ItemsIS.SYRINGE_BLOOD_SAMPLE.get());
-        CompoundTag tag = sample.getOrCreateTag();
-        tag.putString(ItemSyringeBloodSample.CRITTER_NAME, critter.getName().getString());
-        tag.put(ItemSyringeBloodSample.CRITTER, critterTag);
+        StackData.update(sample, tag -> {
+            tag.putString(ItemSyringeBloodSample.CRITTER_NAME, critter.getName().getString());
+            tag.put(ItemSyringeBloodSample.CRITTER, critterTag);
+        });
         return sample;
     }
 

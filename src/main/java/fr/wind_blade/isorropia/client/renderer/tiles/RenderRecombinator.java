@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import dev.tc4port.thaumcraft.block.entity.AuraNodeBlockEntity;
 import dev.tc4port.thaumcraft.registry.TCBlocks;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.model.RecombinatorModel;
 import fr.wind_blade.isorropia.common.tiles.TileRecombinator;
@@ -109,9 +110,8 @@ public class RenderRecombinator implements BlockEntityRenderer<TileRecombinator>
     }
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, float x, float y, float u, float v) {
-        vertices.vertex(pose.pose(), x, y, 0.0F).color(255, 255, 255, 255).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(vertices, pose, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT,
+                255, 255, 255, 255, 0.0F, 0.0F, 1.0F);
     }
 
     private static void ribbonQuad(VertexConsumer vertices, PoseStack.Pose pose, RibbonPoint first, RibbonPoint second,
@@ -124,10 +124,9 @@ public class RenderRecombinator implements BlockEntityRenderer<TileRecombinator>
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, Vec3 pos, float u, float v, int colour,
             float alpha) {
-        vertices.vertex(pose.pose(), (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(colour >> 16 & 255, colour >> 8 & 255, colour & 255, Mth.clamp(Math.round(alpha * 255.0F), 0, 255))
-                .uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(vertices, pose, (float) pos.x, (float) pos.y, (float) pos.z, u, v,
+                OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT, colour >> 16 & 255, colour >> 8 & 255, colour & 255,
+                Mth.clamp(Math.round(alpha * 255.0F), 0, 255), 0.0F, 0.0F, 1.0F);
     }
 
     private record RibbonPoint(Vec3 position, float u, float alpha) {

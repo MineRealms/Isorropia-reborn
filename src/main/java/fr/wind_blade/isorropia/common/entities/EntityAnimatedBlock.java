@@ -77,6 +77,7 @@ public class EntityAnimatedBlock extends PathfinderMob {
                 .add(Attributes.FOLLOW_RANGE, 24.0D);
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -84,6 +85,15 @@ public class EntityAnimatedBlock extends PathfinderMob {
         this.entityData.define(DATA_TYPE, (byte) AnimatedBlockType.ROCK.ordinal());
         this.entityData.define(DATA_FLAGS, (byte) 0);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(DATA_TYPE, (byte) AnimatedBlockType.ROCK.ordinal());
+        builder.define(DATA_FLAGS, (byte) 0);
+    }
+    *///?}
 
     @Override
     protected void registerGoals() {

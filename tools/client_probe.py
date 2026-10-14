@@ -6,7 +6,8 @@
     python tools/client_probe.py guishot <name>   # grab whatever screen is open right now, untouched
     python tools/client_probe.py stop
 
-Screenshots land in run-client/screenshots/<name>.png. The bridge only starts once a world is joined
+Set ISORROPIA_NODE=1.21.1-neoforge for the NeoForge client (separate run directory and port 48792).
+Screenshots land in the selected run-client directory. The bridge only starts once a world is joined
 (ServerStartedEvent on the integrated server), which is why the client quick-plays a world.
 """
 import json
@@ -18,10 +19,14 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RUN = ROOT / "run-client"
+NODE = os.environ.get("ISORROPIA_NODE", "1.20.1-forge")
+if NODE not in ("1.20.1-forge", "1.21.1-neoforge"):
+    raise SystemExit("Unknown ISORROPIA_NODE: " + NODE)
+NEO = NODE == "1.21.1-neoforge"
+RUN = ROOT / ("run-client-1.21.1" if NEO else "run-client")
 WORLD = "iso-probe"
-PORT = 48791
-LOG = ROOT / "build" / "client-run.log"
+PORT = 48792 if NEO else 48791
+LOG = ROOT / "build" / ("client-run-1.21.1.log" if NEO else "client-run.log")
 # The bridge repo is a sibling of the repository that uses it - but a Stonecutter worktree
 # nests the repo one level deeper, so walk up until the sibling shows up.
 def _find_bridge():
@@ -63,35 +68,58 @@ def start():
     saves.mkdir(parents=True, exist_ok=True)
     target = saves / WORLD
     if not target.exists():
-        source = ROOT / "run-server" / "world"
+        source = ROOT / ("run-server-1.21.1" if NEO else "run-server") / "world"
+        if not source.exists():
+            raise SystemExit("Create a fresh matching-version probe world first: " + str(source))
         shutil.copytree(source, target, ignore=shutil.ignore_patterns("session.lock"))
     mods = RUN / "mods"
     mods.mkdir(parents=True, exist_ok=True)
     if not (mods / "rosetta_bridge_dev.jar").exists():
-        shutil.copyfile(ROOT / "run-server" / "mods" / "rosetta_bridge_dev.jar", mods / "rosetta_bridge_dev.jar")
+        source_mods = ROOT / ("run-server-1.21.1" if NEO else "run-server") / "mods"
+        bridge_jar = source_mods / "rosetta_bridge_dev.jar"
+        if not bridge_jar.exists():
+            raise SystemExit("Missing matching bridge jar: " + str(bridge_jar))
+        shutil.copyfile(bridge_jar, mods / "rosetta_bridge_dev.jar")
     options = RUN / "options.txt"
     if not options.exists():
         # No tutorial toasts, no narrator prompt, windowed and not paused when unfocused.
         options.write_text("tutorialStep:none\nnarrator:0\npauseOnLostFocus:false\nfullscreen:false\n"
                            "renderDistance:6\nsimulationDistance:6\nguiScale:2\n", encoding="utf-8")
     token_file = RUN / "RosettaRemoteDebugBridge" / "remote-token.txt"
+    # stop() schedules the shutdown; do not truncate a log still held by the previous Gradle process.
+    import socket
+    deadline = time.time() + 30
+    while time.time() < deadline:
+        try:
+            with socket.create_connection(("127.0.0.1", PORT), timeout=1):
+                time.sleep(1)
+        except OSError:
+            break
+    else:
+        raise SystemExit("Probe port is still occupied: " + str(PORT))
     started = time.time()
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG, "w", encoding="utf-8", errors="replace") as log:
         # Stonecutter: tasks live on the node project, not the root.
-        subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), ":1.20.1-forge:runClient",
+        subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), ":" + NODE + ":runClient",
                           "-PquickPlay=" + WORLD, "--console=plain"],
                          cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     print("client launching, log:", LOG, flush=True)
     while time.time() - started < 540:
         time.sleep(5)
         text = LOG.read_text(encoding="utf-8", errors="replace")
-        if "Remote bridge listening on" in text or ("Remote bridge" in text and "listening" in text):
-            print("BRIDGE_UP after %ds" % (time.time() - started))
-            return 0
         if "BUILD FAILED" in text or "Crash report saved" in text or "---- Minecraft Crash Report ----" in text:
             print("CLIENT_FAILED; see", LOG)
             return 1
+        if "Remote bridge listening on" in text or ("Remote bridge" in text and "listening" in text):
+            # A loaded save can crash on its first ticking block entity after the bridge starts.
+            time.sleep(5)
+            text = LOG.read_text(encoding="utf-8", errors="replace")
+            if "BUILD FAILED" in text or "Crash report saved" in text or "---- Minecraft Crash Report ----" in text:
+                print("CLIENT_FAILED; see", LOG)
+                return 1
+            print("BRIDGE_UP after %ds" % (time.time() - started))
+            return 0
     print("TIMEOUT_NO_BRIDGE; see", LOG)
     return 1
 

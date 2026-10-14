@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
+import fr.wind_blade.isorropia.common.platform.Menus;
 
 import javax.annotation.Nullable;
 
@@ -62,14 +62,26 @@ public class BlockBloodInfuser extends Block implements EntityBlock {
                 : (lvl, pos, st, be) -> TileBloodInfuser.serverTick(lvl, pos, st, (TileBloodInfuser) be);
     }
 
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (hand != InteractionHand.MAIN_HAND || !(level.getBlockEntity(pos) instanceof TileBloodInfuser infuser)) {
             return InteractionResult.PASS;
         }
         if (player instanceof ServerPlayer serverPlayer) {
-            NetworkHooks.openScreen(serverPlayer, infuser, infuser.getBlockPos());
+            Menus.open(serverPlayer, infuser, infuser.getBlockPos());
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

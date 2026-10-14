@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.common.entities.EntityHangingLabel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -81,8 +82,8 @@ public class RenderHangingLabel extends EntityRenderer<EntityHangingLabel> {
 
     private static void vertex(VertexConsumer consumer, Matrix4f matrix, Matrix3f normal, float x, float y, float z, float u, float v,
             int r, int g, int b, int a, int light) {
-        consumer.vertex(matrix, x, y, z).color(r, g, b, a).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-                .normal(normal, 0.0F, 0.0F, -1.0F).endVertex();
+        RenderColors.vertex(consumer, matrix, normal, x, y, z, u, v, OverlayTexture.NO_OVERLAY, light,
+                r, g, b, a, 0.0F, 0.0F, -1.0F);
     }
 
     @Override

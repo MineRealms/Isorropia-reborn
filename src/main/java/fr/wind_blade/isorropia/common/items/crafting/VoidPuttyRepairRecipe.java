@@ -1,12 +1,12 @@
 package fr.wind_blade.isorropia.common.items.crafting;
 
 import fr.wind_blade.isorropia.common.items.ItemsIS;
-import net.minecraft.core.RegistryAccess;
+//? if forge {
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+//?}
+import fr.wind_blade.isorropia.common.platform.GridRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
@@ -15,18 +15,24 @@ import net.minecraft.world.level.Level;
  * outright, whatever its material or enchantments. Void putty is consumed with the grid, so it does not matter how
  * many are present. TH allowed several putty in the grid; the count never changed the result.
  */
-public class VoidPuttyRepairRecipe extends CustomRecipe {
+public class VoidPuttyRepairRecipe extends GridRecipe {
+    //? if forge {
     public VoidPuttyRepairRecipe(ResourceLocation id, CraftingBookCategory category) {
         super(id, category);
     }
+    //?} else {
+    /*public VoidPuttyRepairRecipe(CraftingBookCategory category) {
+        super(category);
+    }
+    *///?}
 
     @Override
-    public boolean matches(CraftingContainer container, Level level) {
+    protected boolean matchesGrid(Grid container, Level level) {
         return !damagedItem(container).isEmpty() && hasPutty(container);
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+    protected ItemStack assembleGrid(Grid container) {
         ItemStack damaged = damagedItem(container);
         if (damaged.isEmpty()) {
             return ItemStack.EMPTY;
@@ -37,10 +43,10 @@ public class VoidPuttyRepairRecipe extends CustomRecipe {
     }
 
     /** The single damaged, damageable item in the grid, or empty if there is none or more than one. */
-    private static ItemStack damagedItem(CraftingContainer container) {
+    private static ItemStack damagedItem(Grid container) {
         ItemStack found = ItemStack.EMPTY;
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
+        for (int i = 0; i < container.size(); i++) {
+            ItemStack stack = container.get(i);
             if (stack.isEmpty()) {
                 continue;
             }
@@ -57,9 +63,9 @@ public class VoidPuttyRepairRecipe extends CustomRecipe {
         return found;
     }
 
-    private static boolean hasPutty(CraftingContainer container) {
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            if (container.getItem(i).is(ItemsIS.VOID_PUTTY.get())) {
+    private static boolean hasPutty(Grid container) {
+        for (int i = 0; i < container.size(); i++) {
+            if (container.get(i).is(ItemsIS.VOID_PUTTY.get())) {
                 return true;
             }
         }

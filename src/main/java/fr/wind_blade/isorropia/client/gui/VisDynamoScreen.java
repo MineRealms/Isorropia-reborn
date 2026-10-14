@@ -1,17 +1,13 @@
 package fr.wind_blade.isorropia.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.VisChannel;
 import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.client.platform.QuadBatch;
 import fr.wind_blade.isorropia.common.menu.VisDynamoMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -50,7 +46,10 @@ public class VisDynamoScreen extends AbstractContainerScreen<VisDynamoMenu> {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 1.21 draws (and blurs) the background inside Screen#render; a second call throws.
+        //? if forge {
         renderBackground(graphics);
+        //?}
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
@@ -112,13 +111,12 @@ public class VisDynamoScreen extends AbstractContainerScreen<VisDynamoMenu> {
         Matrix4f pose = graphics.pose().last().pose();
         float x = this.flashX;
         float y = this.flashY;
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(pose, x, y + 16.0F, 0.0F).uv(uv.u1(), uv.v1()).color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x + 16.0F, y + 16.0F, 0.0F).uv(uv.u1(), uv.v0()).color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x + 16.0F, y, 0.0F).uv(uv.u0(), uv.v0()).color(red, green, blue, 1.0F).endVertex();
-        buffer.vertex(pose, x, y, 0.0F).uv(uv.u0(), uv.v1()).color(red, green, blue, 1.0F).endVertex();
-        BufferUploader.drawWithShader(buffer.end());
+        QuadBatch quads = QuadBatch.positionTexColor(pose);
+        quads.vertex(x, y + 16.0F, 0.0F, uv.u1(), uv.v1(), red, green, blue, 1.0F);
+        quads.vertex(x + 16.0F, y + 16.0F, 0.0F, uv.u1(), uv.v0(), red, green, blue, 1.0F);
+        quads.vertex(x + 16.0F, y, 0.0F, uv.u0(), uv.v0(), red, green, blue, 1.0F);
+        quads.vertex(x, y, 0.0F, uv.u0(), uv.v1(), red, green, blue, 1.0F);
+        quads.draw();
         RenderSystem.disableBlend();
     }
 

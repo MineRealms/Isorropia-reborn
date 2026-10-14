@@ -73,8 +73,16 @@ public final class AlchemiteExplosion {
     }
 
     public static void detonate(ServerLevel level, @Nullable Entity source, double x, double y, double z) {
+        //? if forge {
         Explosion explosion = new Explosion(level, source, ThaumcraftDamageTypes.dissolve(level), NODE_PIERCE,
                 x, y, z, RADIUS, false, Explosion.BlockInteraction.KEEP);
+        //?} else {
+        /*Explosion explosion = new Explosion(level, source, ThaumcraftDamageTypes.dissolve(level), NODE_PIERCE,
+                x, y, z, RADIUS, false, Explosion.BlockInteraction.KEEP,
+                net.minecraft.core.particles.ParticleTypes.EXPLOSION,
+                net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER,
+                net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE);
+        *///?}
         explosion.explode();
         // A server-side blast plays no sound of its own (only the client replays one for its own explosions) and
         // KEEP suppresses the smoke ring, so both are done here the way TH's doExplosionB did them.

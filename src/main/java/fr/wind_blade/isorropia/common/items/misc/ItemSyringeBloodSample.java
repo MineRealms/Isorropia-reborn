@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.items.misc;
 
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -39,8 +40,8 @@ public class ItemSyringeBloodSample extends Item {
 
     /** The donor's name, or TH's bare {@code INVALID} for a sample whose creature data was lost. */
     public static String donorName(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null || !tag.contains(CRITTER_NAME)) {
+        CompoundTag tag = StackData.read(stack);
+        if (tag.isEmpty() || !tag.contains(CRITTER_NAME)) {
             return "INVALID";
         }
         return tag.getString(CRITTER_NAME);
@@ -49,8 +50,8 @@ public class ItemSyringeBloodSample extends Item {
     /** The creature's stored data, ready to be handed back to a spawned entity, or null for a sample without one. */
     @Nullable
     public static CompoundTag critterTag(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null || !tag.contains(CRITTER) ? null : tag.getCompound(CRITTER);
+        CompoundTag tag = StackData.read(stack);
+        return tag.isEmpty() || !tag.contains(CRITTER) ? null : tag.getCompound(CRITTER);
     }
 
     /** What the sample costs to clone, as TH's tooltip listed it. */

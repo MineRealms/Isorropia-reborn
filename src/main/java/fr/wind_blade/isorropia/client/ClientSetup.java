@@ -50,6 +50,8 @@ public final class ClientSetup {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> ItemProperties.register(ItemsIS.CAT.get(), Isorropia.id("cat"),
                 (stack, level, entity, seed) -> ItemCat.getType(stack).ordinal() / 100.0F));
+        // Menu screens: registered here on 1.20.1; 1.21 only accepts them through RegisterMenuScreensEvent below.
+        //? if forge {
         event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
                 fr.wind_blade.isorropia.common.menu.MenusIS.MORPHIC_FINGERS.get(),
                 fr.wind_blade.isorropia.client.gui.MorphicFingersScreen::new));
@@ -59,10 +61,23 @@ public final class ClientSetup {
         event.enqueueWork(() -> net.minecraft.client.gui.screens.MenuScreens.register(
                 fr.wind_blade.isorropia.common.menu.MenusIS.BLOOD_INFUSER.get(),
                 fr.wind_blade.isorropia.client.gui.BloodInfuserScreen::new));
+        //?}
         event.enqueueWork(() -> ItemProperties.register(ItemsIS.FOCUS_ILLUMINATION.get(), Isorropia.id("colour"),
                 (stack, level, entity, seed) -> ItemFocusIllumination.colour(stack) / 100.0F));
         event.enqueueWork(fr.wind_blade.isorropia.client.fx.ContainmentFx::register);
     }
+
+    //? if neoforge {
+    /*@SubscribeEvent
+    public static void onRegisterMenuScreens(net.neoforged.neoforge.client.event.RegisterMenuScreensEvent event) {
+        event.register(fr.wind_blade.isorropia.common.menu.MenusIS.MORPHIC_FINGERS.get(),
+                fr.wind_blade.isorropia.client.gui.MorphicFingersScreen::new);
+        event.register(fr.wind_blade.isorropia.common.menu.MenusIS.VIS_DYNAMO.get(),
+                fr.wind_blade.isorropia.client.gui.VisDynamoScreen::new);
+        event.register(fr.wind_blade.isorropia.common.menu.MenusIS.BLOOD_INFUSER.get(),
+                fr.wind_blade.isorropia.client.gui.BloodInfuserScreen::new);
+    }
+    *///?}
 
     @SubscribeEvent
     public static void onRegisterLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -119,6 +134,7 @@ public final class ClientSetup {
                 ItemsIS.SOMATIC_BRAIN.get(), fr.wind_blade.isorropia.client.curio.SomaticBrainCurioRenderer::new));
     }
 
+    //? if forge {
     @SubscribeEvent
     public static void onRegisterOverlays(net.minecraftforge.client.event.RegisterGuiOverlaysEvent event) {
         event.registerAbove(net.minecraftforge.client.gui.overlay.VanillaGuiOverlay.HOTBAR.id(),
@@ -137,6 +153,25 @@ public final class ClientSetup {
                 (gui, graphics, partialTick, width, height) ->
                         fr.wind_blade.isorropia.client.hud.MatrixReadout.render(graphics));
     }
+    //?} else {
+    /*@SubscribeEvent
+    public static void onRegisterOverlays(net.neoforged.neoforge.client.event.RegisterGuiLayersEvent event) {
+        event.registerAbove(net.neoforged.neoforge.client.gui.VanillaGuiLayers.HOTBAR, Isorropia.id("lens_wheel"),
+                (graphics, deltaTracker) -> {
+                    if (fr.wind_blade.isorropia.client.hud.LensWheel.isOpen()) {
+                        fr.wind_blade.isorropia.client.hud.LensWheel.render(graphics,
+                                deltaTracker.getGameTimeDeltaPartialTick(false));
+                    }
+                });
+        event.registerAbove(net.neoforged.neoforge.client.gui.VanillaGuiLayers.HOTBAR, Isorropia.id("lens_readouts"),
+                (graphics, deltaTracker) ->
+                        fr.wind_blade.isorropia.client.hud.LensHud.render(graphics,
+                                deltaTracker.getGameTimeDeltaPartialTick(false)));
+        event.registerAbove(net.neoforged.neoforge.client.gui.VanillaGuiLayers.HOTBAR, Isorropia.id("matrix_readout"),
+                (graphics, deltaTracker) ->
+                        fr.wind_blade.isorropia.client.hud.MatrixReadout.render(graphics));
+    }
+    *///?}
 
     @SubscribeEvent
     public static void onRegisterBlockEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

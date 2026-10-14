@@ -17,7 +17,9 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+//? if forge {
 import net.minecraftforge.network.NetworkHooks;
+//?}
 import org.jetbrains.annotations.Nullable;
 
 /** A Thaumcraft jar label stuck to the side of any block, showing its aspect. */
@@ -35,11 +37,20 @@ public class EntityHangingLabel extends HangingEntity implements IEntityAddition
         this.setDirection(facing);
     }
 
+    // A label has no synced state of its own; 1.21's HangingEntity no longer supplies the empty definition.
+    //? if neoforge {
+    /*@Override
+    protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {
+    }
+    *///?}
+
     @Nullable
     public AspectId getAspect() {
         return this.aspect;
     }
 
+    // 1.21 replaced the getWidth/getHeight hooks with one abstract bounding-box method.
+    //? if forge {
     @Override
     public int getWidth() {
         return 16;
@@ -49,6 +60,17 @@ public class EntityHangingLabel extends HangingEntity implements IEntityAddition
     public int getHeight() {
         return 16;
     }
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.phys.AABB calculateBoundingBox(net.minecraft.core.BlockPos pos, Direction direction) {
+        // 16 px square: the same maths as a 1x1 painting.
+        net.minecraft.world.phys.Vec3 anchor = net.minecraft.world.phys.Vec3.atCenterOf(pos).relative(direction, -0.46875);
+        Direction.Axis axis = direction.getAxis();
+        double across = axis == Direction.Axis.X ? 0.0625 : 1.0;
+        double along = axis == Direction.Axis.Z ? 0.0625 : 1.0;
+        return net.minecraft.world.phys.AABB.ofSize(anchor, across, 1.0, along);
+    }
+    *///?}
 
     public static ItemStack labelStack(@Nullable AspectId aspect) {
         ItemStack label = new ItemStack(ThaumcraftContent.item("jar_label"));
@@ -97,11 +119,15 @@ public class EntityHangingLabel extends HangingEntity implements IEntityAddition
         this.setDirection(Direction.from2DDataValue(tag.getByte("Facing")));
     }
 
+    //? if forge {
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
-
+    //?}
+    // NeoForge sends the complex-spawn payload for IEntityWithComplexSpawn itself; the
+    // payload methods take a RegistryFriendlyByteBuf there.
+    //? if forge {
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.pos);
@@ -116,6 +142,22 @@ public class EntityHangingLabel extends HangingEntity implements IEntityAddition
         this.aspect = parse(buffer.readUtf());
         this.setDirection(facing);
     }
+    //?} else {
+    /*@Override
+    public void writeSpawnData(net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.pos);
+        buffer.writeByte(this.direction.get2DDataValue());
+        buffer.writeUtf(this.aspect == null ? "" : this.aspect.toString());
+    }
+
+    @Override
+    public void readSpawnData(net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        this.pos = buffer.readBlockPos();
+        Direction facing = Direction.from2DDataValue(buffer.readByte());
+        this.aspect = parse(buffer.readUtf());
+        this.setDirection(facing);
+    }
+    *///?}
 
     @Nullable
     private static AspectId parse(String value) {

@@ -118,6 +118,7 @@ public class EntityGolemTH extends PathfinderMob {
                 .add(Attributes.FOLLOW_RANGE, 32.0D);
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -127,6 +128,17 @@ public class EntityGolemTH extends PathfinderMob {
         this.entityData.define(DATA_CORE, (byte) -1);
         this.entityData.define(DATA_UPGRADES, 0);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(DATA_TYPE, (byte) AnimatedBlockType.ROCK.ordinal());
+        builder.define(DATA_FLAGS, (byte) 0);
+        builder.define(DATA_CORE, (byte) -1);
+        builder.define(DATA_UPGRADES, 0);
+    }
+    *///?}
 
     @Override
     protected void registerGoals() {

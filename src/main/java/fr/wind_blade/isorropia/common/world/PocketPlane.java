@@ -59,7 +59,13 @@ public final class PocketPlane {
     /** As above, but facing a given way, which is what a gateway wants its visitor to do. */
     @Nullable
     public static Entity sendTo(Entity entity, ServerLevel destination, Vec3 arrival, float yaw) {
+        //? if forge {
         Entity moved = entity.changeDimension(destination, new GatewayTeleporter(arrival, yaw));
+        //?} else {
+        /*Entity moved = entity.changeDimension(new net.minecraft.world.level.portal.DimensionTransition(destination,
+                arrival, net.minecraft.world.phys.Vec3.ZERO, yaw, entity.getXRot(),
+                net.minecraft.world.level.portal.DimensionTransition.DO_NOTHING));
+        *///?}
         if (moved != null) {
             // A gateway lands its visitor in the middle of the far opening, which is itself a portal surface, so TH
             // gave the traveller fifty ticks of immunity on every crossing; without it the arrival is bounced

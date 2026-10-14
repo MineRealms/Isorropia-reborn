@@ -26,7 +26,9 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+//? if forge {
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+//?}
 import org.slf4j.Logger;
 
 @Mod(Isorropia.MODID)
@@ -34,8 +36,22 @@ public class Isorropia {
     public static final String MODID = "isorropia";
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    //? if forge {
     public Isorropia(FMLJavaModLoadingContext context) {
-        IEventBus modBus = context.getModEventBus();
+        register(context.getModEventBus());
+        context.registerConfig(ModConfig.Type.COMMON, ConfigIS.SPEC);
+        IsorropiaNetwork.init();
+    }
+    //?} else {
+    /*public Isorropia(net.neoforged.bus.api.IEventBus modBus, net.neoforged.fml.ModContainer container) {
+        register(modBus);
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.COMMON, ConfigIS.SPEC);
+        fr.wind_blade.isorropia.common.capabilities.LivingData.ATTACHMENTS.register(modBus);
+        IsorropiaNetwork.init(modBus);
+    }
+    *///?}
+
+    private void register(IEventBus modBus) {
         BlocksIS.BLOCKS.register(modBus);
         ItemsIS.ITEMS.register(modBus);
         SoundsIS.SOUNDS.register(modBus);
@@ -45,8 +61,6 @@ public class Isorropia {
         EntitiesIS.ENTITIES.register(modBus);
         modBus.addListener(EntitiesIS::onAttributes);
         IsorropiaCreativeTabs.TABS.register(modBus);
-        context.registerConfig(ModConfig.Type.COMMON, ConfigIS.SPEC);
-        IsorropiaNetwork.init();
         // The wand predicts the beam on the client, so the action is registered on both sides.
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(ContainmentFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(IlluminationFocus::register));

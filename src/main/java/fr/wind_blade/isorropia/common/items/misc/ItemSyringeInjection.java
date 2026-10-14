@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.items.misc;
 
 import fr.wind_blade.isorropia.common.entities.projectile.EntityBlastPhial;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -14,7 +15,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+//? if forge {
 import net.minecraft.world.item.alchemy.PotionUtils;
+//?}
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -53,7 +56,11 @@ public class ItemSyringeInjection extends Item {
     }
 
     @Override
+    //? if forge {
     public int getUseDuration(ItemStack stack) {
+    //?} else {
+    /*public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    *///?}
         return USE_TICKS;
     }
 
@@ -110,8 +117,19 @@ public class ItemSyringeInjection extends Item {
 
     /** The effects this injection carries, read the way TH read them: through the vanilla potion tags. */
     public static List<MobEffectInstance> effects(ItemStack stack) {
+        //? if forge {
         CompoundTag tag = stack.getTag();
         return tag == null ? List.of() : PotionUtils.getAllEffects(tag);
+        //?} else {
+        /*net.minecraft.nbt.ListTag list = StackData.read(stack).getList("effects", net.minecraft.nbt.Tag.TAG_COMPOUND);
+        List<MobEffectInstance> effects = new java.util.ArrayList<>();
+        for (net.minecraft.nbt.Tag entry : list) {
+            if (entry instanceof net.minecraft.nbt.CompoundTag compound) {
+                effects.add(net.minecraft.world.effect.MobEffectInstance.load(compound));
+            }
+        }
+        return effects;
+        *///?}
     }
 
     private static void applyEffects(List<MobEffectInstance> effects, LivingEntity target) {
@@ -131,13 +149,24 @@ public class ItemSyringeInjection extends Item {
         if (tag.contains(COLOR)) {
             return tag.getInt(COLOR);
         }
+        //? if forge {
         return tag.contains(PotionUtils.TAG_CUSTOM_POTION_COLOR) ? tag.getInt(PotionUtils.TAG_CUSTOM_POTION_COLOR)
                 : DEFAULT_COLOR;
+        //?} else {
+        /*return tag.contains("CustomPotionColor") ? tag.getInt("CustomPotionColor") : DEFAULT_COLOR;
+        *///?}
     }
 
     @Override
+    //? if forge {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         // TH's addInformation was vanilla's potion tooltip verbatim.
         PotionUtils.addPotionTooltip(stack, tooltip, 1.0F);
     }
+    //?} else {
+    /*public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
+        // TH's addInformation was vanilla's potion tooltip verbatim.
+        net.minecraft.world.item.alchemy.PotionContents.addPotionTooltip(effects(stack), tooltip::add, 1.0F, 20.0F);
+    }
+    *///?}
 }

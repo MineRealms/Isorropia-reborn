@@ -10,6 +10,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
+//? if neoforge {
+/*import net.minecraft.core.registries.BuiltInRegistries;
+*///?}
 
 /**
  * Taint lookups that TC4R's public API does not cover. This is the only class that touches TC4R internals

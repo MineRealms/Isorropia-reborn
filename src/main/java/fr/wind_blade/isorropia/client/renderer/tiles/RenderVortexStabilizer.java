@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.client.model.ObjMesh;
 import fr.wind_blade.isorropia.common.blocks.BlockVortexStabilizer;
 import fr.wind_blade.isorropia.common.tiles.TileVortexStabilizer;
@@ -106,10 +107,9 @@ public class RenderVortexStabilizer implements BlockEntityRenderer<TileVortexSta
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, Vec3 pos, float u, float v, int colour,
             float alpha) {
-        vertices.vertex(pose.pose(), (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(colour >> 16 & 255, colour >> 8 & 255, colour & 255, Mth.clamp(Math.round(alpha * 255.0F), 0, 255))
-                .uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(vertices, pose, (float) pos.x, (float) pos.y, (float) pos.z, u, v,
+                OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT, colour >> 16 & 255, colour >> 8 & 255, colour & 255,
+                Mth.clamp(Math.round(alpha * 255.0F), 0, 255), 0.0F, 0.0F, 1.0F);
     }
 
     private record RibbonPoint(Vec3 position, float u, float alpha) {

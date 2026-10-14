@@ -266,9 +266,17 @@ public class TileSlot extends BlockEntity {
         this.level.sendBlockUpdated(this.worldPosition, updated, updated, Block.UPDATE_CLIENTS);
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putBoolean("hasKeystone", this.hasKeystone);
         tag.putBoolean("portalOpen", this.portalOpen);
         tag.putInt("plane", this.planeId);
@@ -277,9 +285,17 @@ public class TileSlot extends BlockEntity {
         tag.putBoolean("aligned", this.xAligned);
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         this.hasKeystone = tag.getBoolean("hasKeystone");
         this.portalOpen = tag.getBoolean("portalOpen");
         this.planeId = tag.getInt("plane");
@@ -288,16 +304,34 @@ public class TileSlot extends BlockEntity {
         this.xAligned = tag.getBoolean("aligned");
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
+        //? if forge {
         saveAdditional(tag);
+        //?} else {
+        /*saveAdditional(tag, registries);
+        *///?}
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
         load(tag);
+        //?} else {
+        /*loadAdditional(tag, registries);
+        *///?}
     }
 
     @Nullable

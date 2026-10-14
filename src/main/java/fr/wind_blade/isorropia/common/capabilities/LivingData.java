@@ -11,12 +11,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+//? if forge {
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.PacketDistributor;
+//?}
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -31,10 +33,32 @@ import java.util.UUID;
  * Per-entity infusion state, replacing 1.12's LivingBaseCapability/LivingCapability pair: creature infusions
  * applied in the vat (with the organ each occupies), and for players the self infusions, the warp held by a
  * warped tumor and the two ability toggles.
+ *
+ * <p>Forge carries it as a capability attached on spawn; NeoForge 1.21.1 has neither AttachCapabilitiesEvent
+ * nor capability persistence, so it rides a lazily-created data attachment, which the entity save round-trip
+ * carries across dimension changes exactly like the forge clone hook does.</p>
  */
+//? if forge {
 public class LivingData {
+//?} else {
+/*public class LivingData implements net.neoforged.neoforge.common.util.INBTSerializable<CompoundTag> {
+*///?}
+    //? if forge {
     public static final Capability<LivingData> CAPABILITY = CapabilityManager.get(new CapabilityToken<>() {
     });
+    //?} else {
+    /*public static final net.neoforged.neoforge.attachment.AttachmentType<LivingData> ATTACHMENT =
+            net.neoforged.neoforge.attachment.AttachmentType.serializable(
+                    holder -> new LivingData((LivingEntity) holder)).build();
+
+    public static final net.neoforged.neoforge.registries.DeferredRegister<net.neoforged.neoforge.attachment.AttachmentType<?>> ATTACHMENTS =
+            net.neoforged.neoforge.registries.DeferredRegister.create(
+                    net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Isorropia.MODID);
+
+    static {
+        ATTACHMENTS.register("living_data", () -> ATTACHMENT);
+    }
+    *///?}
     public static final ResourceLocation ID = Isorropia.id("living_data");
 
     private final LivingEntity entity;
@@ -55,9 +79,15 @@ public class LivingData {
         this.entity = entity;
     }
 
+    //? if forge {
     public static Optional<LivingData> get(LivingEntity entity) {
         return entity.getCapability(CAPABILITY).resolve();
     }
+    //?} else {
+    /*public static Optional<LivingData> get(LivingEntity entity) {
+        return Optional.of(entity.getData(ATTACHMENT));
+    }
+    *///?}
 
     public boolean hasInfusion(ResourceLocation recipe) {
         return infusions.containsKey(recipe);
@@ -184,12 +214,21 @@ public class LivingData {
             return;
         }
         SyncLivingDataPacket packet = new SyncLivingDataPacket(entity.getId(), serialize());
+        //? if forge {
         IsorropiaNetwork.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), packet);
+        //?} else {
+        /*net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, packet);
+        *///?}
     }
 
     public void syncTo(ServerPlayer player) {
+        //? if forge {
         IsorropiaNetwork.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player),
                 new SyncLivingDataPacket(entity.getId(), serialize()));
+        //?} else {
+        /*net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player,
+                new SyncLivingDataPacket(entity.getId(), serialize()));
+        *///?}
     }
 
     public CompoundTag serialize() {
@@ -250,6 +289,19 @@ public class LivingData {
         owner = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
     }
 
+    //? if neoforge {
+    /*@Override
+    public CompoundTag serializeNBT(net.minecraft.core.HolderLookup.Provider provider) {
+        return serialize();
+    }
+
+    @Override
+    public void deserializeNBT(net.minecraft.core.HolderLookup.Provider provider, CompoundTag tag) {
+        deserialize(tag);
+    }
+    *///?}
+
+    //? if forge {
     public static class Provider implements ICapabilitySerializable<CompoundTag> {
         private final LivingData data;
         private final LazyOptional<LivingData> optional;
@@ -274,4 +326,5 @@ public class LivingData {
             data.deserialize(tag);
         }
     }
+    //?}
 }

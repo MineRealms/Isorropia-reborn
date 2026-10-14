@@ -151,13 +151,13 @@ public class MorphicFingersMenu extends AbstractContainerMenu {
         if (arcane.isPresent()) {
             this.arcane = arcane.get();
             if (canPay(this.arcane)) {
-                out = this.arcane.assemble(this.craft, this.player.level().registryAccess());
+                out = this.arcane.assemble(input(), this.player.level().registryAccess());
             }
         } else {
             Optional<CraftingRecipe> plain = findVanilla();
             if (plain.isPresent()) {
                 this.vanilla = plain.get();
-                out = this.vanilla.assemble(this.craft, this.player.level().registryAccess());
+                out = this.vanilla.assemble(input(), this.player.level().registryAccess());
             }
         }
         this.result.setItem(0, out);
@@ -166,8 +166,13 @@ public class MorphicFingersMenu extends AbstractContainerMenu {
 
     private Optional<ArcaneCraftingRecipe> findArcane() {
         Level level = this.player.level();
+        //? if forge {
         for (ArcaneCraftingRecipe recipe : ArcaneCraftingApi.recipes(level)) {
-            if (recipe.matches(this.craft, level) && knowsResearch(recipe)) {
+        //?} else {
+        /*for (net.minecraft.world.item.crafting.RecipeHolder<ArcaneCraftingRecipe> holder : ArcaneCraftingApi.recipes(level)) {
+            ArcaneCraftingRecipe recipe = holder.value();
+        *///?}
+            if (recipe.matches(input(), level) && knowsResearch(recipe)) {
                 return Optional.of(recipe);
             }
         }
@@ -175,13 +180,28 @@ public class MorphicFingersMenu extends AbstractContainerMenu {
     }
 
     private boolean knowsResearch(ArcaneCraftingRecipe recipe) {
-        return recipe.requiredResearch(this.craft).stream().allMatch(key -> ResearchApi.isComplete(this.player, key));
+        return recipe.requiredResearch(input()).stream().allMatch(key -> ResearchApi.isComplete(this.player, key));
     }
 
     private Optional<CraftingRecipe> findVanilla() {
         return this.player.level().getRecipeManager()
-                .getRecipeFor(RecipeType.CRAFTING, this.craft, this.player.level());
+                .getRecipeFor(RecipeType.CRAFTING, input(), this.player.level())
+                //? if neoforge {
+                /*.map(net.minecraft.world.item.crafting.RecipeHolder::value)
+                *///?}
+                ;
     }
+
+    /** What the recipes read: the live grid on 1.20.1, a snapshot of it on 1.21. */
+    //? if forge {
+    private net.minecraft.world.inventory.CraftingContainer input() {
+        return this.craft;
+    }
+    //?} else {
+    /*private net.minecraft.world.item.crafting.CraftingInput input() {
+        return this.craft.asCraftInput();
+    }
+    *///?}
 
     /** True if the network plus the crystals can cover the recipe's vis. */
     private boolean canPay(ArcaneCraftingRecipe recipe) {
@@ -194,7 +214,7 @@ public class MorphicFingersMenu extends AbstractContainerMenu {
      */
     @Nullable
     private Payment payment(ArcaneCraftingRecipe recipe, VisAction action) {
-        Map<VisChannel, Integer> whole = recipe.vis(this.craft);
+        Map<VisChannel, Integer> whole = recipe.vis(input());
         if (whole.isEmpty()) {
             return new Payment(Map.of(), Map.of());
         }
@@ -245,13 +265,13 @@ public class MorphicFingersMenu extends AbstractContainerMenu {
             for (Map.Entry<VisChannel, Integer> entry : payment.crystals().entrySet()) {
                 spendCrystals(entry.getKey(), entry.getValue());
             }
-            for (ItemStack remaining : arcane.getRemainingItems(this.craft)) {
+            for (ItemStack remaining : arcane.getRemainingItems(input())) {
                 if (!remaining.isEmpty() && !this.playerInventory.add(remaining)) {
                     player.drop(remaining, false);
                 }
             }
         } else if (vanilla != null) {
-            for (ItemStack remaining : vanilla.getRemainingItems(this.craft)) {
+            for (ItemStack remaining : vanilla.getRemainingItems(input())) {
                 if (!remaining.isEmpty() && !this.playerInventory.add(remaining)) {
                     player.drop(remaining, false);
                 }

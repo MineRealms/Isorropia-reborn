@@ -2,6 +2,7 @@ package fr.wind_blade.isorropia.client.curio;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.model.ModelSomaticBrain;
 import net.minecraft.client.Minecraft;
@@ -45,7 +46,7 @@ public class SomaticBrainCurioRenderer implements ICurioRenderer {
         poseStack.translate(0.0F, CROWN, 0.0F);
         poseStack.scale(SCALE, SCALE, SCALE);
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
-        model.brain().render(poseStack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        RenderColors.part(model.brain(), poseStack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
         poseStack.popPose();
     }
 }

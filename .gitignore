@@ -18,6 +18,10 @@ run-client/
 run-server/
 run-gametest/
 run-data/
+run-client-*/
+run-server-*/
+run-gametest-*/
+run-data-*/
 logs/
 
 # Local TC4R artifacts are user-supplied and not redistributed; the manifest is tracked.

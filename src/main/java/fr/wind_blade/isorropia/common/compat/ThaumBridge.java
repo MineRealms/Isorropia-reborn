@@ -37,6 +37,9 @@ public final class ThaumBridge {
         }
     }
 
+    // 1.21's MobEffectInstance takes a Holder; the TC4R registry entry is a DeferredHolder, which
+    // is a Holder, so the neo side hands it over directly.
+    //? if forge {
     public static MobEffect fluxTaint() {
         return TCEffects.FLUX_TAINT.get();
     }
@@ -44,4 +47,13 @@ public final class ThaumBridge {
     public static MobEffect visExhaust() {
         return TCEffects.VIS_EXHAUST.get();
     }
+    //?} else {
+    /*public static net.minecraft.core.Holder<MobEffect> fluxTaint() {
+        return (net.minecraft.core.Holder<MobEffect>) TCEffects.FLUX_TAINT;
+    }
+
+    public static net.minecraft.core.Holder<MobEffect> visExhaust() {
+        return (net.minecraft.core.Holder<MobEffect>) TCEffects.VIS_EXHAUST;
+    }
+    *///?}
 }

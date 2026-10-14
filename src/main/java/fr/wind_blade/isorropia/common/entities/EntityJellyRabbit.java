@@ -62,13 +62,24 @@ public class EntityJellyRabbit extends Rabbit implements IForgeShearable {
         super(type, level);
     }
 
+    //? if forge {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ASPECT, IsorropiaAspects.ORDO.toString());
         this.entityData.define(JELLY, 0);
     }
+    //?} else {
+    /*@Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(ASPECT, IsorropiaAspects.ORDO.toString());
+        builder.define(JELLY, 0);
+    }
+    *///?}
 
+    // 1.21 dropped the spawn NBT parameter from finalizeSpawn.
+    //? if forge {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
             @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
@@ -80,6 +91,19 @@ public class EntityJellyRabbit extends Rabbit implements IForgeShearable {
         this.setJellySize(2);
         return super.finalizeSpawn(level, difficulty, reason, data, tag);
     }
+    //?} else {
+    /*@Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason,
+            @Nullable SpawnGroupData data) {
+        List<AspectId> aspects = new ArrayList<>(AspectApi.definitions().keySet());
+        if (!aspects.isEmpty()) {
+            aspects.sort((a, b) -> a.toString().compareTo(b.toString()));
+            this.setAspect(aspects.get(this.random.nextInt(aspects.size())));
+        }
+        this.setJellySize(2);
+        return super.finalizeSpawn(level, difficulty, reason, data);
+    }
+    *///?}
 
     @Override
     public void aiStep() {
@@ -133,6 +157,7 @@ public class EntityJellyRabbit extends Rabbit implements IForgeShearable {
         return stack;
     }
 
+    //? if forge {
     @Override
     public boolean isShearable(@NotNull ItemStack item, Level level, BlockPos pos) {
         return this.getJellySize() > 0;
@@ -145,6 +170,20 @@ public class EntityJellyRabbit extends Rabbit implements IForgeShearable {
         }
         return List.of(this.peelJelly());
     }
+    //?} else {
+    /*@Override
+    public boolean isShearable(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos) {
+        return this.getJellySize() > 0;
+    }
+
+    @Override
+    public @NotNull List<ItemStack> onSheared(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos) {
+        if (level.isClientSide) {
+            return List.of();
+        }
+        return List.of(this.peelJelly());
+    }
+    *///?}
 
     @Nullable
     public AspectId getAspect() {

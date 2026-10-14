@@ -19,6 +19,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.IForgeShearable;
 import net.minecraftforge.registries.ForgeRegistries;
+//? if neoforge {
+/*import net.minecraft.core.registries.BuiltInRegistries;
+*///?}
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -44,11 +47,44 @@ public record CreatureInfusionRecipe(ResourceLocation id, Kind kind, @Nullable R
         CURATIVE, SPECIE, ORGAN
     }
 
+    /**
+     * One attribute change an infusion makes. 1.20.1 keys modifiers by UUID; 1.21 keys them by id and takes the
+     * attribute as a holder, so the id is derived from the recipe's stable UUID and callers go through these methods.
+     */
+    //? if forge {
     public record Modifier(Attribute attribute, UUID uuid, String name, double amount, AttributeModifier.Operation operation) {
         public AttributeModifier create() {
             return new AttributeModifier(uuid, name, amount, operation);
         }
+
+        public boolean presentOn(net.minecraft.world.entity.ai.attributes.AttributeInstance instance) {
+            return instance.getModifier(uuid) != null;
+        }
+
+        public void removeFrom(net.minecraft.world.entity.ai.attributes.AttributeInstance instance) {
+            instance.removeModifier(uuid);
+        }
     }
+    //?} else {
+    /*public record Modifier(net.minecraft.core.Holder<Attribute> attribute, UUID uuid, String name, double amount,
+            AttributeModifier.Operation operation) {
+        public ResourceLocation id() {
+            return ResourceLocation.fromNamespaceAndPath("isorropia", "infusion/" + uuid);
+        }
+
+        public AttributeModifier create() {
+            return new AttributeModifier(id(), amount, operation);
+        }
+
+        public boolean presentOn(net.minecraft.world.entity.ai.attributes.AttributeInstance instance) {
+            return instance.getModifier(id()) != null;
+        }
+
+        public void removeFrom(net.minecraft.world.entity.ai.attributes.AttributeInstance instance) {
+            instance.removeModifier(id());
+        }
+    }
+    *///?}
 
     public static CreatureInfusionRecipe fromJson(ResourceLocation id, JsonObject json) {
         Kind kind = Kind.valueOf(GsonHelper.getAsString(json, "kind", "curative").toUpperCase(Locale.ROOT));
@@ -62,7 +98,11 @@ public record CreatureInfusionRecipe(ResourceLocation id, Kind kind, @Nullable R
         for (JsonElement element : GsonHelper.getAsJsonArray(json, "modifiers", new JsonArray())) {
             JsonObject modifier = element.getAsJsonObject();
             ResourceLocation attributeId = ResourceLocation.parse(GsonHelper.getAsString(modifier, "attribute"));
+            //? if forge {
             Attribute attribute = ForgeRegistries.ATTRIBUTES.getValue(attributeId);
+            //?} else {
+            /*net.minecraft.core.Holder<Attribute> attribute = BuiltInRegistries.ATTRIBUTE.getHolder(attributeId).orElse(null);
+            *///?}
             if (attribute == null) {
                 throw new JsonParseException("Unknown attribute " + attributeId);
             }
@@ -107,6 +147,10 @@ public record CreatureInfusionRecipe(ResourceLocation id, Kind kind, @Nullable R
         if (!ForgeRegistries.ENTITY_TYPES.containsKey(location)) {
             throw new JsonParseException("Unknown entity type " + id);
         }
+        //? if forge {
         return ForgeRegistries.ENTITY_TYPES.getValue(location);
+        //?} else {
+        /*return BuiltInRegistries.ENTITY_TYPE.get(location);
+        *///?}
     }
 }

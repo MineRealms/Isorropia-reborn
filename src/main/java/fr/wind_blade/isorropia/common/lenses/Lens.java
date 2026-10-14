@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.lenses;
 
 import fr.wind_blade.isorropia.Isorropia;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -68,22 +69,21 @@ public abstract class Lens {
 
     /** Writes this lens into one of the goggles' slots. */
     public static void write(ItemStack goggles, Slot slot, @Nullable Lens lens) {
-        CompoundTag tag = goggles.getOrCreateTag().getCompound(LENS_TAG);
-        if (lens == null) {
-            tag.remove(slot.tag());
-        } else {
-            tag.putString(slot.tag(), lens.id().toString());
-        }
-        goggles.getOrCreateTag().put(LENS_TAG, tag);
+        StackData.update(goggles, root -> {
+            CompoundTag tag = root.getCompound(LENS_TAG);
+            if (lens == null) {
+                tag.remove(slot.tag());
+            } else {
+                tag.putString(slot.tag(), lens.id().toString());
+            }
+            root.put(LENS_TAG, tag);
+        });
     }
 
     /** The lens fitted in one of the goggles' slots, or null for an empty slot. */
     @Nullable
     public static Lens read(ItemStack goggles, Slot slot) {
-        if (!goggles.hasTag()) {
-            return null;
-        }
-        CompoundTag tag = goggles.getTag().getCompound(LENS_TAG);
+        CompoundTag tag = StackData.read(goggles).getCompound(LENS_TAG);
         String id = tag.getString(slot.tag());
         return id.isEmpty() ? null : Lenses.byId(ResourceLocation.tryParse(id));
     }

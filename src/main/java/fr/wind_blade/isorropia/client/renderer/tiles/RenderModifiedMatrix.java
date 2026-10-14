@@ -1,9 +1,9 @@
 package fr.wind_blade.isorropia.client.renderer.tiles;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientVisualsApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.ClientRenderTypes;
 import fr.wind_blade.isorropia.client.fx.VatFx;
@@ -65,8 +65,6 @@ public class RenderModifiedMatrix implements BlockEntityRenderer<TileModifiedMat
             venting(matrix, ticks);
         }
 
-        VertexConsumer body = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
-        VertexConsumer glow = active ? buffers.getBuffer(ClientRenderTypes.additiveGlow(TEXTURE)) : null;
         for (int a = 0; a < 2; a++) {
             for (int b = 0; b < 2; b++) {
                 for (int c = 0; c < 2; c++) {
@@ -77,11 +75,12 @@ public class RenderModifiedMatrix implements BlockEntityRenderer<TileModifiedMat
                     poseStack.mulPose(Axis.YP.rotationDegrees(b > 0 ? 90.0F : 0.0F));
                     poseStack.mulPose(Axis.ZP.rotationDegrees(c > 0 ? 90.0F : 0.0F));
                     poseStack.scale(CUBE_SCALE, CUBE_SCALE, CUBE_SCALE);
-                    model.base().render(poseStack, body, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                    if (glow != null) {
+                    RenderColors.part(model.base(), poseStack, buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)),
+                            light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                    if (active) {
                         float alpha = (Mth.sin((ticks + a * 2.0F + b * 3.0F + c * 4.0F) / 4.0F) * 0.1F + 0.2F) * startUp;
-                        model.overlay().render(poseStack, glow, LightTexture.FULL_BRIGHT, overlay,
-                                0.8F, 0.1F, 1.0F, alpha);
+                        RenderColors.part(model.overlay(), poseStack, buffers.getBuffer(ClientRenderTypes.additiveGlow(TEXTURE)),
+                                LightTexture.FULL_BRIGHT, overlay, 0.8F, 0.1F, 1.0F, alpha);
                     }
                     poseStack.popPose();
                 }

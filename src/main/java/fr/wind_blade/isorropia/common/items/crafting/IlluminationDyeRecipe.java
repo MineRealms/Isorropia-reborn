@@ -1,14 +1,14 @@
 package fr.wind_blade.isorropia.common.items.crafting;
 
 import fr.wind_blade.isorropia.common.items.ItemFocusIllumination;
-import net.minecraft.core.RegistryAccess;
+//? if forge {
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.CraftingContainer;
+//?}
+import fr.wind_blade.isorropia.common.platform.GridRecipe;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
@@ -16,26 +16,32 @@ import net.minecraft.world.level.Level;
  * TH's {@code RecipesFocusIlluminationDyes}: one illumination focus and any dyes recolour the focus, the last dye
  * in the grid winning. TH's palette was indexed by the old dye metadata, which runs opposite to {@link DyeColor}.
  */
-public class IlluminationDyeRecipe extends CustomRecipe {
+public class IlluminationDyeRecipe extends GridRecipe {
+    //? if forge {
     public IlluminationDyeRecipe(ResourceLocation id, CraftingBookCategory category) {
         super(id, category);
     }
+    //?} else {
+    /*public IlluminationDyeRecipe(CraftingBookCategory category) {
+        super(category);
+    }
+    *///?}
 
     @Override
-    public boolean matches(CraftingContainer container, Level level) {
+    protected boolean matchesGrid(Grid container, Level level) {
         return !result(container).isEmpty();
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer container, RegistryAccess registries) {
+    protected ItemStack assembleGrid(Grid container) {
         return result(container);
     }
 
-    private static ItemStack result(CraftingContainer container) {
+    private static ItemStack result(Grid container) {
         ItemStack focus = ItemStack.EMPTY;
         DyeColor dye = null;
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
+        for (int i = 0; i < container.size(); i++) {
+            ItemStack stack = container.get(i);
             if (stack.isEmpty()) {
                 continue;
             }

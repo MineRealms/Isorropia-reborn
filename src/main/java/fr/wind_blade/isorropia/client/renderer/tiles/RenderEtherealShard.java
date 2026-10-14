@@ -8,6 +8,7 @@ import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.client.model.EtherealShardModel;
 import fr.wind_blade.isorropia.common.tiles.TileEtherealShard;
 import net.minecraft.client.Minecraft;
@@ -83,7 +84,7 @@ public class RenderEtherealShard implements BlockEntityRenderer<TileEtherealShar
                 (0.15F + random.nextFloat() * 0.05F) * 1.1F);
         // TH sends 210*shade to the lightmap and divides RGB by 220, not 255.
         int crystalLight = shard.getLevel() == null ? LightTexture.FULL_BRIGHT : (int) (210.0F * shade);
-        crystal.render(poseStack, buffers.getBuffer(RenderType.entityTranslucent(CRYSTAL)), crystalLight,
+        RenderColors.part(crystal, poseStack, buffers.getBuffer(RenderType.entityTranslucent(CRYSTAL)), crystalLight,
                 OverlayTexture.NO_OVERLAY, Math.min(1.0F, (tint >> 16 & 255) / 220.0F),
                 Math.min(1.0F, (tint >> 8 & 255) / 220.0F), Math.min(1.0F, (tint & 255) / 220.0F), 1.0F);
         poseStack.popPose();
@@ -179,10 +180,9 @@ public class RenderEtherealShard implements BlockEntityRenderer<TileEtherealShar
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, Vec3 pos, float u, float v,
             int colour, float alpha) {
-        vertices.vertex(pose.pose(), (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(colour >> 16 & 255, colour >> 8 & 255, colour & 255, Math.round(alpha * 255.0F)).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0, 0, 1).endVertex();
+        RenderColors.vertex(vertices, pose, (float) pos.x, (float) pos.y, (float) pos.z, u, v,
+                OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT, colour >> 16 & 255, colour >> 8 & 255, colour & 255,
+                Math.round(alpha * 255.0F), 0.0F, 0.0F, 1.0F);
     }
 
     private record RibbonPoint(Vec3 position, float u, float alpha) {

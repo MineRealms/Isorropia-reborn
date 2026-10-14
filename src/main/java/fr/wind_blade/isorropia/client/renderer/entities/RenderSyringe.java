@@ -3,6 +3,7 @@ package fr.wind_blade.isorropia.client.renderer.entities;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.model.ModelSyringe;
 import fr.wind_blade.isorropia.common.entities.projectile.EntitySyringe;
@@ -39,7 +40,7 @@ public class RenderSyringe extends EntityRenderer<EntitySyringe> {
         poseStack.mulPose(Axis.ZP.rotationDegrees(-Mth.lerp(partialTick, syringe.xRotO, syringe.getXRot())));
         VertexConsumer vertices = buffers.getBuffer(RenderType.entityTranslucent(TEXTURE));
         int colour = syringe.getColor();
-        this.model.body().render(poseStack, vertices, light, OverlayTexture.NO_OVERLAY, (colour >> 16 & 255) / 255.0F,
+        RenderColors.part(this.model.body(), poseStack, vertices, light, OverlayTexture.NO_OVERLAY, (colour >> 16 & 255) / 255.0F,
                 (colour >> 8 & 255) / 255.0F, (colour & 255) / 255.0F, ALPHA);
         this.model.needle().render(poseStack, vertices, light, OverlayTexture.NO_OVERLAY);
         this.model.plungerA().render(poseStack, vertices, light, OverlayTexture.NO_OVERLAY);

@@ -8,6 +8,7 @@ import fr.wind_blade.isorropia.common.IsorropiaAspects;
 import fr.wind_blade.isorropia.common.items.AspectNbt;
 import fr.wind_blade.isorropia.common.items.IJellyAspectEffectProvider;
 import fr.wind_blade.isorropia.common.items.JellyAspectEffects;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -33,15 +34,15 @@ public class ItemJelly extends Item implements AspectItemView {
     public static ItemStack create(Item item, @Nullable AspectId aspect) {
         ItemStack stack = new ItemStack(item);
         if (aspect != null) {
-            AspectNbt.write(stack.getOrCreateTag(), Map.of(aspect, ASPECT_AMOUNT));
+            StackData.update(stack, tag -> AspectNbt.write(tag, Map.of(aspect, ASPECT_AMOUNT)));
         }
         return stack;
     }
 
     @Nullable
     public static AspectId getAspect(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) {
+        CompoundTag tag = StackData.read(stack);
+        if (tag.isEmpty()) {
             return null;
         }
         return AspectNbt.read(tag).keySet().stream().findFirst().orElse(null);
@@ -58,8 +59,8 @@ public class ItemJelly extends Item implements AspectItemView {
 
     @Override
     public AspectAmounts storedAspectData(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? AspectAmounts.EMPTY : new AspectAmounts(AspectNbt.read(tag));
+        CompoundTag tag = StackData.read(stack);
+        return tag.isEmpty() ? AspectAmounts.EMPTY : new AspectAmounts(AspectNbt.read(tag));
     }
 
     @Override
@@ -80,7 +81,11 @@ public class ItemJelly extends Item implements AspectItemView {
     }
 
     @Override
+    //? if forge {
     public int getUseDuration(ItemStack stack) {
+    //?} else {
+    /*public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    *///?}
         return provider(stack).getEatDuration(stack);
     }
 

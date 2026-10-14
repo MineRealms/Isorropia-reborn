@@ -125,12 +125,22 @@ public class PocketPlaneStore extends SavedData {
     }
 
     public static PocketPlaneStore get(MinecraftServer server) {
+        //? if forge {
         return server.overworld().getDataStorage()
                 .computeIfAbsent(PocketPlaneStore::load, PocketPlaneStore::new, DATA_NAME);
+        //?} else {
+        /*return server.overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(PocketPlaneStore::new,
+                (tag, registries) -> PocketPlaneStore.load(tag), null), DATA_NAME);
+        *///?}
     }
 
+    //? if forge {
     @Override
     public CompoundTag save(CompoundTag tag) {
+    //?} else {
+    /*@Override
+    public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         tag.putInt("NextId", this.nextId);
         ListTag planesTag = new ListTag();
         for (Plane plane : this.planes.values()) {

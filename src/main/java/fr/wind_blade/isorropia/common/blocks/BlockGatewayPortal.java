@@ -42,10 +42,19 @@ public class BlockGatewayPortal extends Block {
 
     /** TH's {@code breakBlock}: walk from the broken cell to the receptacle that owns this gateway, and close it. */
     @Override
+    //? if forge {
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         super.playerWillDestroy(level, pos, state, player);
+    //?} else {
+    /*public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockState result = super.playerWillDestroy(level, pos, state, player);
+    *///?}
         if (!(level instanceof ServerLevel)) {
+            //? if forge {
             return;
+            //?} else {
+            /*return result;
+            *///?}
         }
         int x = pos.getX();
         int y = pos.getY();
@@ -111,6 +120,9 @@ public class BlockGatewayPortal extends Block {
         if (level.getBlockEntity(new BlockPos(slotX, slotY, slotZ)) instanceof TileSlot slot && slot.portalOpen()) {
             slot.destroyPortal();
         }
+        //? if neoforge {
+        /*return result;
+        *///?}
     }
 
     private static boolean isFrame(Level level, int x, int y, int z) {

@@ -27,9 +27,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+//? if forge {
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+//?} else {
+/*import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+*///?}
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -52,12 +57,15 @@ public final class IsorropiaEvents {
     private IsorropiaEvents() {
     }
 
+    // NeoForge 1.21.1 has no attach event: LivingData rides a lazily-created data attachment instead.
+    //? if forge {
     @SubscribeEvent
     public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof LivingEntity living && !living.getCapability(LivingData.CAPABILITY).isPresent()) {
             event.addCapability(LIVING_DATA, new LivingData.Provider(living));
         }
     }
+    //?}
 
     /** Infusions survive a dimension change; a self-infused body does not survive dying in one. */
     @SubscribeEvent
@@ -82,15 +90,30 @@ public final class IsorropiaEvents {
         ContainmentFocus.forget(event.getEntity().getUUID());
     }
 
+    //? if forge {
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)) {
             return;
         }
+        playerTick(player);
+    }
+    //?} else {
+    /*@SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            playerTick(player);
+        }
+    }
+    *///?}
+
+    private static void playerTick(ServerPlayer player) {
         LivingData.get(player).ifPresent(data -> SelfInfusions.tick(player, data));
         LensManager.tick(player);
     }
 
+    // NeoForge 1.21 dropped LivingTickEvent; EntityTickEvent fires for every entity, so narrow it there.
+    //? if forge {
     @SubscribeEvent
     public static void onLivingTick(LivingEvent.LivingTickEvent event) {
         LivingEntity entity = event.getEntity();
@@ -99,6 +122,18 @@ public final class IsorropiaEvents {
         }
         LivingData.get(entity).ifPresent(data -> CreatureAbilities.tick(entity, data));
     }
+    //?} else {
+    /*@SubscribeEvent
+    public static void onLivingTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) {
+            return;
+        }
+        if (entity.level().isClientSide || entity instanceof Player) {
+            return;
+        }
+        LivingData.get(entity).ifPresent(data -> CreatureAbilities.tick(entity, data));
+    }
+    *///?}
 
     /** A silver heart shrugs off taint; a shock skin answers a blow; an ender heart slips out of the way. */
     @SubscribeEvent

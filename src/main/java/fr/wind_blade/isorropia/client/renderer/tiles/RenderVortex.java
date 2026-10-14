@@ -9,6 +9,7 @@ import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
+import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.common.tiles.TileVortex;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -73,9 +74,6 @@ public class RenderVortex implements BlockEntityRenderer<TileVortex> {
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(minecraft.getEntityRenderDispatcher().cameraOrientation());
 
-        VertexConsumer translucent = buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearTranslucentBillboard(NODES));
-        VertexConsumer additive = buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearAdditiveBillboard(NODES));
-
         float lastAngle = 0.0F;
         int index = 0;
         int aspectCount = aspects.size();
@@ -91,8 +89,10 @@ public class RenderVortex implements BlockEntityRenderer<TileVortex> {
             lastAngle = angle;
             boolean isAdditive = definition.blendMode() == AspectBlendMode.ADDITIVE;
             float aspectAlpha = alpha * (isAdditive ? 1.0F : 1.5F) / Math.max(1.0F, aspectCount / 2.0F);
-            emitStrip(poseStack, isAdditive ? additive : translucent, frame, 0, scale, angle, definition.color(),
-                    aspectAlpha);
+            emitStrip(poseStack,
+                    isAdditive ? buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearAdditiveBillboard(NODES))
+                            : buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearTranslucentBillboard(NODES)),
+                    frame, 0, scale, angle, definition.color(), aspectAlpha);
             index++;
         }
 
@@ -109,7 +109,8 @@ public class RenderVortex implements BlockEntityRenderer<TileVortex> {
             emitQuad(poseStack, buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearTranslucentBillboard(CORE)),
                     coreRadius, coreAngle, 0xFFFFFF, alpha * 0.8F);
         } else {
-            emitStrip(poseStack, translucent, frame, 2, 0.4F, lastAngle, 0xFFFFFF, alpha);
+            emitStrip(poseStack, buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearTranslucentBillboard(NODES)),
+                    frame, 2, 0.4F, lastAngle, 0xFFFFFF, alpha);
         }
         poseStack.popPose();
     }
@@ -149,8 +150,7 @@ public class RenderVortex implements BlockEntityRenderer<TileVortex> {
 
     private static void vertex(VertexConsumer vertices, PoseStack.Pose pose, float x, float y, int red, int green,
             int blue, int alpha, float u, float v) {
-        vertices.vertex(pose.pose(), x, y, 0.0F).color(red, green, blue, alpha).uv(u, v)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(LightTexture.FULL_BRIGHT)
-                .normal(pose.normal(), 0.0F, 0.0F, 1.0F).endVertex();
+        RenderColors.vertex(vertices, pose, x, y, 0.0F, u, v, OverlayTexture.NO_OVERLAY, LightTexture.FULL_BRIGHT,
+                red, green, blue, alpha, 0.0F, 0.0F, 1.0F);
     }
 }

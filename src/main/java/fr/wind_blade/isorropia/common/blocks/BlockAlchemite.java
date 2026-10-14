@@ -58,18 +58,39 @@ public class BlockAlchemite extends Block {
         }
     }
 
+    //? if forge {
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         ItemStack stack = player.getItemInHand(hand);
         if (!stack.is(Items.FLINT_AND_STEEL) && !stack.is(Items.FIRE_CHARGE)) {
+            //? if forge {
             return super.use(state, level, pos, player, hand, hit);
+            //?} else {
+            /*return InteractionResult.PASS;
+            *///?}
         }
         this.onCaughtFire(state, level, pos, hit.getDirection(), player);
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         Item item = stack.getItem();
         if (!player.isCreative()) {
             if (stack.is(Items.FLINT_AND_STEEL)) {
+                //? if forge {
                 stack.hurtAndBreak(1, player, broken -> broken.broadcastBreakEvent(hand));
+                //?} else {
+                /*stack.hurtAndBreak(1, player, hand == InteractionHand.MAIN_HAND ? net.minecraft.world.entity.EquipmentSlot.MAINHAND : net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+                *///?}
             } else {
                 stack.shrink(1);
             }

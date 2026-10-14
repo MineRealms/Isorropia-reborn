@@ -40,7 +40,7 @@ level.setBlockAndUpdate(above, fr.wind_blade.isorropia.common.blocks.BlocksIS.MO
 matrix = (fr.wind_blade.isorropia.common.tiles.TileModifiedMatrix) level.getBlockEntity(above);
 matrix.onWandUse(player);
 player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(
-        net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(
-                new net.minecraft.resources.ResourceLocation("thaumcraft", "goggles_of_revealing"))));
+        net.minecraft.core.registries.BuiltInRegistries.ITEM.get(
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("thaumcraft", "goggles_of_revealing"))));
 sb.append("\nready for the readout: active=").append(vat.isActive());
 return sb.toString();

@@ -74,8 +74,10 @@ public class TileSoulBeacon extends BlockEntity {
         return beamScale;
     }
 
+    //? if forge {
     @Override
     public net.minecraft.world.phys.AABB getRenderBoundingBox() {
         return new net.minecraft.world.phys.AABB(worldPosition).expandTowards(0.0, 256.0, 0.0).inflate(1.0);
     }
+    //?}
 }

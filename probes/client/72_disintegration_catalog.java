@@ -4,7 +4,7 @@ var mc = net.minecraft.client.Minecraft.getInstance();
 var server = mc.getSingleplayerServer();
 var sb = new StringBuilder();
 
-sb.append("item=").append(net.minecraftforge.registries.ForgeRegistries.ITEMS
+sb.append("item=").append(net.minecraft.core.registries.BuiltInRegistries.ITEM
         .containsKey(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("isorropia", "focus_disintegration")));
 sb.append(" recipe=").append(server.getRecipeManager().byKey(
         net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("isorropia", "infusion/focus_disintegration")).isPresent());

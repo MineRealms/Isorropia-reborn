@@ -2,6 +2,7 @@ package fr.wind_blade.isorropia.common.world;
 
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
 import fr.wind_blade.isorropia.common.blocks.BlocksIS;
+import fr.wind_blade.isorropia.common.platform.Mobs;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -668,8 +669,7 @@ public final class PocketPlaneTerrain {
         }
         entity.moveTo(x + 0.5, y + 1.0, z + 0.5, level.getRandom().nextFloat() * 360.0F, 0.0F);
         if (entity instanceof Mob mob) {
-            mob.finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.STRUCTURE, null,
-                    null);
+            Mobs.finalizeSpawn(mob, level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.STRUCTURE);
         }
         if (level.addFreshEntity(entity)) {
             creatures++;

@@ -11,7 +11,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
+//? if forge {
 import net.minecraftforge.event.TickEvent;
+//?} else {
+/*import net.neoforged.neoforge.client.event.ClientTickEvent;
+*///?}
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -45,11 +49,22 @@ public final class MorphicKeys {
         private Poller() {
         }
 
+        //? if forge {
         @SubscribeEvent
         public static void onFingersKeyTick(TickEvent.ClientTickEvent event) {
             if (event.phase != TickEvent.Phase.END) {
                 return;
             }
+            pollFingersKey();
+        }
+        //?} else {
+        /*@SubscribeEvent
+        public static void onFingersKeyTick(ClientTickEvent.Post event) {
+            pollFingersKey();
+        }
+        *///?}
+
+        private static void pollFingersKey() {
             Minecraft minecraft = Minecraft.getInstance();
             // Drain the press even when a screen is up, so it does not fire when the screen closes.
             boolean pressed = FINGERS.consumeClick();
@@ -58,7 +73,7 @@ public final class MorphicKeys {
             }
             LivingData.get(minecraft.player).ifPresent(data -> {
                 if (data.hasSelfInfusion(SelfInfusions.MORPHIC_FINGERS)) {
-                    IsorropiaNetwork.CHANNEL.sendToServer(new OpenFingersPacket());
+                    IsorropiaNetwork.sendToServer(new OpenFingersPacket());
                 }
             });
         }

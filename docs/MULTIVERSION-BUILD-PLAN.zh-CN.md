@@ -105,7 +105,48 @@
 | 1.21.1 资源层 | pack_format 34 ✓、neoforge.mods.toml ✓、recipe/loot_table 单数化 ✓、c 命名空间标签 ✓、59/59 配方 `result.id` ✓ |
 | 1.21.1 编译错误 | 1740 → **1272**；剩余全部结构性：TickEvent 拆分(12)、NetworkEvent/SimpleChannel(12)、VanillaGuiOverlay(6)、Capability 拆分、DistExecutor、NetworkHooks、FMLJavaModLoadingContext、ModelData 等符号级错误 |
 
-## S3 — 结构层（计划）：`//? if` 条件 + 节点独有源码，两节点编译通过。
+## S3 — 结构层（编译通过，2026-10-14）
 
-## S4 — 运行时与 CI（计划）：节点各自 JUnit；1.21.1 客户端冒烟（bridge 48792）；
-`buildAndCollect` 收双 jar；CI 矩阵。
+规范源码保留 1.20.1 方言，差异通过 Stonecutter 条件和少量 platform 适配器处理：
+物品自定义数据、配方输入、菜单打开、实体初始化、方块交互、顶点提交、网络 payload、
+方块实体序列化、效果 Holder、跨维度传送与 SavedData。`tools/dual/` 中的两个脚本
+提供机械迁移及 `--check` 遗漏检查。
+
+- 两节点 `compileJava` 通过；`buildAndCollect --offline` 通过，各 13 项 JUnit 通过。
+- 1.20.1 的 S3 适配器和渲染修复会改变类字节，不能沿用 S0/S2 的“仅 13 类差异”结论。
+  与现存 FG6 jar 比较，运行时修复前的非 class 资源在归一化换行后仅 MANIFEST 不同；
+  本轮另有明确资源修复：补图集、修正血液注入器粒子贴图、移动重叠研究节点。
+
+## S4 — 运行时验证已完成，CI 待配置
+
+客户端按版本隔离目录和端口：默认 Forge `run-client` / 48791；设置
+`ISORROPIA_NODE=1.21.1-neoforge` 使用 `run-client-1.21.1` / 48792。
+`tools/client_probe.py` 的 start/exec/shot/guishot/stop 与 `tools/client_sweep.py` 都遵从该变量。
+不得把 1.21 世界交给 1.20 加载；本次 1.21 使用单独复制的探针世界，原 1.20 世界保持原版本。
+
+### 实机发现并修复
+
+- NeoForge TOML 段落缺换行导致模组不被识别，JUnit 执行器和客户端均加载失败。
+- 血液注入器 `Object...` 权重表把 Holder 强转 MobEffect；修复解包及即时治疗的比较。
+- 放大器、矩阵和漩涡跨材质缓存 VertexConsumer，1.21 图标渲染出现 `Not building!`；改为使用时取缓冲。
+- 战利品引用 `name`→`value`，`looting_enchant`→`enchanted_count_increase`，补 looting enchantment。
+- 熔炉配方字符串 result 改为物品对象；`thaumcraft:components`→`neoforge:components`；
+  `forge:swim_speed`→`neoforge:swim_speed`。仅 NeoForge 资源处理时转换。
+- 三个模型缺失图集条目/粒子纹理错误；爆裂药瓶与脑饰品研究坐标重叠。
+
+### 探针
+
+- `271_dual_boot`：22 blocks / 61 items / 16 BE types / 19 entity types，实际打开 VisDynamoMenu。
+- `272_dual_components`：自定义数据隔离与写回、物品子类型、即时治疗、BloodInfuserMenu。
+- `273_dual_item_icons`：在渲染线程逐个绘制 61 个物品，覆盖机器图标的方块实体渲染。
+- 上述三项已在两版本运行通过，并查看机器 GUI 截图。
+- NeoForge 另通过 45/46/53_fingers、56/57/72、114–120 共 13 项交互探针；
+  56/57/72 的旧版探针 API 已改为双版本可用。启动日志不再有数据加载 ERROR 或缺失贴图。
+- Forge 全量 `client_sweep.py` 首轮 90/94：117/119/120 发现 MDG 开发运行未加载 Mixin，
+  加入显式 `--mixin isorropia.mixins.json` 后日志确认 hook installed；63–65、117–120
+  与 271–274 共 11 项复测全部通过。首轮 65 熔炼另有时序失败，独立重跑及重启后重跑均通过。
+- `274_dual_empty_hand` 从原版 ServerPlayerGameMode 入口验证空手开菜单，两版本均通过。
+  NeoForge 最后一次启动后重新运行 271–274 全绿，日志无 ERROR、缺失贴图或研究坐标重叠警告。
+
+CI 矩阵尚未落地：TC4R 是用户提供、不可重分发的本地产物，仓库清单没有可下载 URL。
+自动 CI 需要预装依赖的 runner 或受控的私有依赖源；本地 `buildAndCollect` 已覆盖双节点构建与测试。

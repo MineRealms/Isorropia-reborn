@@ -74,9 +74,21 @@ public class BlockCurativeVat extends Block implements EntityBlock {
      * Right-clicking a vat block: an empty hand on an empty vat puts the player in, and a hand on the vat the
      * player is already in lets them out. Everything that arrives in a jar happens once the soul jar exists.
      */
+    //? if forge {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
             BlockHitResult hit) {
+    //?} else {
+    /*@Override
+    protected net.minecraft.world.ItemInteractionResult useItemOn(net.minecraft.world.item.ItemStack held,
+            BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+        return fr.wind_blade.isorropia.common.platform.BlockInteractions.toItemResult(use(state, level, pos, player, hand, hit));
+    }
+
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand,
+            BlockHitResult hit) {
+    *///?}
         if (hand != InteractionHand.MAIN_HAND) {
             return InteractionResult.PASS;
         }

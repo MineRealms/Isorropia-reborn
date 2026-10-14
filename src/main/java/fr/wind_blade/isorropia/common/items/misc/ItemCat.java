@@ -1,6 +1,7 @@
 package fr.wind_blade.isorropia.common.items.misc;
 
 import fr.wind_blade.isorropia.common.items.ItemsIS;
+import fr.wind_blade.isorropia.common.platform.StackData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
@@ -23,17 +24,23 @@ public class ItemCat extends Item {
 
     public static ItemStack create(EnumCat type) {
         ItemStack stack = new ItemStack(ItemsIS.CAT.get());
-        stack.getOrCreateTag().putString(TAG, type.getSerializedName());
+        StackData.update(stack, tag -> tag.putString(TAG, type.getSerializedName()));
         return stack;
     }
 
     public static ItemStack create(EnumCat type, String name) {
+        //? if forge {
         return create(type).setHoverName(Component.literal(name));
+        //?} else {
+        /*ItemStack stack = create(type);
+        stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME, Component.literal(name));
+        return stack;
+        *///?}
     }
 
     public static EnumCat getType(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? EnumCat.PIG : EnumCat.byName(tag.getString(TAG));
+        CompoundTag tag = StackData.read(stack);
+        return tag.isEmpty() ? EnumCat.PIG : EnumCat.byName(tag.getString(TAG));
     }
 
     public enum EnumCat implements StringRepresentable {

@@ -167,10 +167,12 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     }
 
     /** The vat's mesh is four blocks tall and two wide, so the renderer must not be clipped to this block. */
+    //? if forge {
     @Override
     public net.minecraft.world.phys.AABB getRenderBoundingBox() {
         return new net.minecraft.world.phys.AABB(worldPosition).inflate(2.0, 4.0, 2.0);
     }
+    //?}
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, TileVat vat) {
         if (vat.isMaster() && level instanceof ServerLevel server) {
@@ -1079,9 +1081,17 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
 
     // ---------------------------------------------------------------- persistence
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putInt("Mode", mode);
         tag.putBoolean("Active", active);
         tag.putFloat("Stability", stability);
@@ -1116,13 +1126,25 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
             tag.put("ContainedNbt", containedNbt);
         }
         ListTag consumedTag = new ListTag();
+        //? if forge {
         consumed.forEach(stack -> consumedTag.add(stack.save(new CompoundTag())));
+        //?} else {
+        /*consumed.forEach(stack -> consumedTag.add(stack.save(registries)));
+        *///?}
         tag.put("Consumed", consumedTag);
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         mode = tag.getInt("Mode");
         active = tag.getBoolean("Active");
         stability = tag.getFloat("Stability");
@@ -1152,7 +1174,11 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
         containedNbt = tag.contains("ContainedNbt") ? tag.getCompound("ContainedNbt") : null;
         consumed.clear();
         for (Tag element : tag.getList("Consumed", Tag.TAG_COMPOUND)) {
+            //? if forge {
             ItemStack stack = ItemStack.of((CompoundTag) element);
+            //?} else {
+            /*ItemStack stack = ItemStack.parseOptional(registries, (CompoundTag) element);
+            *///?}
             if (!stack.isEmpty()) {
                 consumed.add(stack);
             }
@@ -1188,8 +1214,13 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
     }
 
     /** The client only needs what the goggles and the matrix tooltip show. */
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
         tag.putInt("Mode", mode);
         tag.putBoolean("Active", active);
@@ -1212,13 +1243,23 @@ public class TileVat extends BlockEntity implements EssentiaTransport, AspectCon
      * The chunk packet and block updates both carry the slim update tag, so the client must read it with its
      * own reader: the full {@link #load} expects fields the update tag never contains.
      */
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         readSync(tag);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = packet.getTag();
         if (tag != null) {
             readSync(tag);

@@ -161,16 +161,26 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
         return colour;
     }
 
+    //? if forge {
     @Override
     public CompoundTag getUpdateTag() {
+    //?} else {
+    /*@Override
+        public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("Supplying", ticksProvided > 0);
         tag.putInt("Channels", channelMask(offering));
         return tag;
     }
 
+    //? if forge {
     @Override
     public void handleUpdateTag(CompoundTag tag) {
+    //?} else {
+    /*@Override
+        public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         shownSupplying = tag.getBoolean("Supplying");
         shownChannels = tag.getInt("Channels");
     }
@@ -180,10 +190,19 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    //? if forge {
     @Override
     public void onDataPacket(net.minecraft.network.Connection connection, ClientboundBlockEntityDataPacket packet) {
+    //?} else {
+    /*@Override
+        public void onDataPacket(net.minecraft.network.Connection connection, ClientboundBlockEntityDataPacket packet, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
         if (packet.getTag() != null) {
+            //? if forge {
             handleUpdateTag(packet.getTag());
+            //?} else {
+            /*handleUpdateTag(packet.getTag(), registries);
+            *///?}
         }
     }
 
@@ -352,9 +371,17 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
         super.setRemoved();
     }
 
+    //? if forge {
     @Override
     protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    //?} else {
+    /*@Override
+        protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.saveAdditional(tag);        //?} else {
+        /*        super.saveAdditional(tag, registries);
+        *///?}
         tag.putInt("ticks", ticksProvided);
         tag.putInt("pulseCooldown", pulseCooldown);
         if (chargingPlayer != null) {
@@ -372,9 +399,17 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
         tag.putIntArray("offering", offer);
     }
 
+    //? if forge {
     @Override
     public void load(CompoundTag tag) {
-        super.load(tag);
+    //?} else {
+    /*@Override
+        protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    *///?}
+        //? if forge {
+        super.load(tag);        //?} else {
+        /*        super.loadAdditional(tag, registries);
+        *///?}
         ticksProvided = tag.getInt("ticks");
         pulseCooldown = tag.getInt("pulseCooldown");
         chargingPlayer = tag.hasUUID("charger") ? tag.getUUID("charger") : null;

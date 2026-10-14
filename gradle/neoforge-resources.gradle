@@ -23,6 +23,15 @@ class NeoForgeConditionsReader extends FilterReader {
         if (result.tag instanceof String && result.tag.startsWith('forge:')) {
             result.tag = 'c:' + result.tag.substring('forge:'.length())
         }
+        if (result.type == 'thaumcraft:components') result.type = 'neoforge:components'
+        if (result.type == 'minecraft:loot_table' && result.containsKey('name')) {
+            result.value = result.remove('name')
+        }
+        if (result.function == 'minecraft:looting_enchant') {
+            result.function = 'minecraft:enchanted_count_increase'
+            result.enchantment = 'minecraft:looting'
+        }
+        if (result.attribute == 'forge:swim_speed') result.attribute = 'neoforge:swim_speed'
         if (result.containsKey('forge:conditions')) {
             result['neoforge:conditions'] = result.remove('forge:conditions')
         }
@@ -42,6 +51,9 @@ class NeoForgeRecipeReader extends FilterReader {
         def data = NeoForgeConditionsReader.convert(new JsonSlurper().parse(input))
         if (data.containsKey('conditions')) {
             data['neoforge:conditions'] = data.remove('conditions')
+        }
+        if (data.result instanceof String) {
+            data.result = [id: data.result, count: 1]
         }
         if (data.result instanceof Map && data.result.containsKey('item')) {
             data.result.id = data.result.remove('item')
@@ -70,6 +82,8 @@ tasks.named('processResources', ProcessResources).configure {
         filter { line -> line.replace('"pack_format": 15', '"pack_format": 34') }
     }
     filesMatching('data/**/recipes/**/*.json') { filter(NeoForgeRecipeReader) }
+    filesMatching('data/**/loot_tables/**/*.json') { filter(NeoForgeConditionsReader) }
+    filesMatching('data/**/isorropia/**/*.json') { filter(NeoForgeConditionsReader) }
     filesMatching('data/**/thaumcraft/**/*.json') { filter(NeoForgeConditionsReader) }
     filesMatching('data/**/advancements/**/*.json') { filter(NeoForgeConditionsReader) }
     eachFile { details ->
