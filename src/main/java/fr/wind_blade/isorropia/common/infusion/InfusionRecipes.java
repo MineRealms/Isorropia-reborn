@@ -7,6 +7,7 @@ import dev.tc4port.thaumcraft.api.research.ResearchApi;
 import dev.tc4port.thaumcraft.api.research.ResearchKey;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.common.capabilities.LivingData;
+import fr.wind_blade.isorropia.common.platform.Mobs;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -99,7 +100,7 @@ public final class InfusionRecipes {
             if (created instanceof LivingEntity living) {
                 living.moveTo(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
                 if (living instanceof Mob mob) {
-                    mob.finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.CONVERSION, null, null);
+                    Mobs.finalizeSpawn(mob, level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.CONVERSION);
                     mob.setPersistenceRequired();
                 }
                 if (entity.hasCustomName()) {
@@ -130,7 +131,7 @@ public final class InfusionRecipes {
         }
         for (CreatureInfusionRecipe.Modifier modifier : recipe.modifiers()) {
             AttributeInstance instance = target.getAttribute(modifier.attribute());
-            if (instance != null && instance.getModifier(modifier.uuid()) == null) {
+            if (instance != null && !modifier.presentOn(instance)) {
                 instance.addPermanentModifier(modifier.create());
             }
         }
@@ -146,7 +147,7 @@ public final class InfusionRecipes {
             for (CreatureInfusionRecipe.Modifier modifier : recipe.modifiers()) {
                 AttributeInstance instance = entity.getAttribute(modifier.attribute());
                 if (instance != null) {
-                    instance.removeModifier(modifier.uuid());
+                    modifier.removeFrom(instance);
                 }
             }
         });
@@ -168,14 +169,20 @@ public final class InfusionRecipes {
         @Override
         protected void apply(Map<ResourceLocation, JsonElement> prepared, ResourceManager manager, ProfilerFiller profiler) {
             Map<ResourceLocation, T> loaded = new LinkedHashMap<>();
+            List<InfusionDisplayData.Entry> display = new java.util.ArrayList<>();
+            boolean selfRecipes = directory.endsWith("self_infusions");
             prepared.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
                 try {
-                    loaded.put(entry.getKey(), parser.parse(entry.getKey(), entry.getValue().getAsJsonObject()));
+                    com.google.gson.JsonObject json = entry.getValue().getAsJsonObject();
+                    if (!net.minecraft.util.GsonHelper.getAsBoolean(json, "enabled", true)) return;
+                    loaded.put(entry.getKey(), parser.parse(entry.getKey(), json));
+                    display.add(new InfusionDisplayData.Entry(entry.getKey(), selfRecipes, json.deepCopy()));
                 } catch (RuntimeException e) {
                     Isorropia.LOGGER.error("Skipping {} {}: {}", directory, entry.getKey(), e.getMessage());
                 }
             });
             sink.accept(java.util.Collections.unmodifiableMap(loaded));
+            InfusionDisplayData.serverRecipes(selfRecipes, display);
             Isorropia.LOGGER.info("Loaded {} {}", loaded.size(), directory);
         }
     }

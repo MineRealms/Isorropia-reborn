@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/** JSON fields shared by both vat recipe kinds. */
-final class InfusionJson {
+/** JSON fields shared by both vat recipe kinds; also reused by the JEI category to lay out the same inputs. */
+public final class InfusionJson {
     private InfusionJson() {
     }
 
@@ -31,7 +31,7 @@ final class InfusionJson {
     }
 
     /** Each entry is one pedestal item; {"count": n} on an entry repeats it. */
-    static List<Ingredient> ingredients(JsonObject json) {
+    public static List<Ingredient> ingredients(JsonObject json) {
         List<Ingredient> result = new ArrayList<>();
         for (JsonElement element : GsonHelper.getAsJsonArray(json, "components", new JsonArray())) {
             int count = 1;
@@ -42,7 +42,12 @@ final class InfusionJson {
                 value = element.getAsJsonObject().deepCopy();
                 value.getAsJsonObject().remove("count");
             }
+            //? if forge {
             Ingredient ingredient = Ingredient.fromJson(value, false);
+            //?} else {
+            /*Ingredient ingredient = Ingredient.CODEC_NONEMPTY.parse(com.mojang.serialization.JsonOps.INSTANCE, value)
+                    .getOrThrow(JsonParseException::new);
+            *///?}
             for (int i = 0; i < count; i++) {
                 result.add(ingredient);
             }
@@ -75,9 +80,15 @@ final class InfusionJson {
 
     static AttributeModifier.Operation operation(String name) {
         return switch (name) {
+            //? if forge {
             case "addition" -> AttributeModifier.Operation.ADDITION;
             case "multiply_base" -> AttributeModifier.Operation.MULTIPLY_BASE;
             case "multiply_total" -> AttributeModifier.Operation.MULTIPLY_TOTAL;
+            //?} else {
+            /*case "addition" -> AttributeModifier.Operation.ADD_VALUE;
+            case "multiply_base" -> AttributeModifier.Operation.ADD_MULTIPLIED_BASE;
+            case "multiply_total" -> AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL;
+            *///?}
             default -> throw new JsonParseException("Unknown attribute operation " + name);
         };
     }

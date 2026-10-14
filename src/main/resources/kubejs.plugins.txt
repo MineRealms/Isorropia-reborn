@@ -1,0 +1,1 @@
+fr.wind_blade.isorropia.common.compat.kubejs.HorizonsKubePlugin

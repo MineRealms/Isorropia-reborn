@@ -1,5 +1,5 @@
 {
-  "itemGroup.isorropia": "Thaumic Isorropia Kedition",
+  "itemGroup.isorropia": "Thaumic Horizons",
   "block.isorropia.curative_vat": "Curative Vat",
   "block.isorropia.vat_interior": "Vat Interior",
   "block.isorropia.modified_matrix": "Modified Matrix",
@@ -67,7 +67,7 @@
   "aspect.isorropia.superbia": "Pride",
   "aspect.isorropia.desidia": "Sloth",
   "aspect.isorropia.ira": "Wrath",
-  "tc.research_category.isorropia:isorropia": "Thaumic Isorropia",
+  "tc.research_category.isorropia:isorropia": "Thaumic Horizons",
   "isorropia.research_page.cultivation.1": "While inanimate matter is easy enough to modify through alchemy, living things seldom survive the process. Your recent work has taken a somewhat different tack - instead of attempting to modify plants, you have simply used alchemy to accelerate their natural life cycle.<BR>By soaking the seeds of common food crops in the concentrated essence of light, water, and soil, plants can be grown with astonishing speed. Unfortunately, this process takes its toll; the plants invariably die shortly after fruiting.",
   "tc.research_name.isorropia:cultivation": "Cultivation",
   "tc.research_text.isorropia:cultivation": "Accelerated agriculture",
@@ -432,5 +432,11 @@
   "isorropia.research_page.golemPowder.3": "Should you desire to have your household tasks performed by an animated cake, you can attach a golem core to one of these temporary constructs. It will henceforth behave like a conventional permanent golem, including the ability to accept upgrades and the Advanced Golem infusion.<BR>You can also pick it up with a golemancer's bell as usual. However, should the core be removed, the golem will immediately revert to inanimate matter, losing any attached upgrades.",
   "tc.research_name.isorropia:voidGolem": "Voidling Golems",
   "tc.research_text.isorropia:voidGolem": "Gaze into the abyss, and it gazes back",
-  "isorropia.research_page.voidGolem.1": "A wild idea has seized you - if tossing salis mundus into the void can precipitate the formation of wisps, what might golem animation powder produce?<BR>The intriguing result, which you have dubbed a voidling golem, bears a disturbing resemblance to eldritch guardians. Nevertheless, it appears that if you carefully toss the powder in one pinch at a time, its control enchantments will take hold. Not only are voidlings obedient, they can survive indefinitely without an animation core.<BR>Still, something about these coreless constructs doesn't seem right. You should keep an eye on them."
+  "isorropia.research_page.voidGolem.1": "A wild idea has seized you - if tossing salis mundus into the void can precipitate the formation of wisps, what might golem animation powder produce?<BR>The intriguing result, which you have dubbed a voidling golem, bears a disturbing resemblance to eldritch guardians. Nevertheless, it appears that if you carefully toss the powder in one pinch at a time, its control enchantments will take hold. Not only are voidlings obedient, they can survive indefinitely without an animation core.<BR>Still, something about these coreless constructs doesn't seem right. You should keep an eye on them.",
+  "jei.isorropia.creature_infusions": "Creature Infusions",
+  "jei.isorropia.self_infusions": "Self Infusions",
+  "jei.isorropia.blood_infuser.info": "Seroconverter: converts a blood sample and essentia into an injection serum. Infusions change the infused creature; the modified matrix grows self infusions into a reincarnation body.",
+  "jei.isorropia.injection.info": "Inject the serum to gain the infusion yourself, or dose a tameable creature to change it in place.",
+  "jei.isorropia.vis": "%s vis: %s",
+  "jei.isorropia.instability": "Instability: %s"
 }
