@@ -259,6 +259,8 @@ repositories {
     maven { url = 'https://maven.blamejared.com' }
     maven { url = 'https://maven.latvian.dev/releases' }
     maven { url = 'https://maven.architectury.dev' }
+    // KubeJS NeoForge pulls com.github.rtyley:animated-gif-lib-for-java, which only JitPack hosts.
+    maven { url = 'https://jitpack.io' }
 }
 dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${isForge ? '15.56.0.205' : '19.57.0.451'}"

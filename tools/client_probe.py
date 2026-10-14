@@ -105,8 +105,11 @@ def start():
         # default: everything is cached, and maven.neoforged.net intermittently drops TLS
         # handshakes, which kills createMinecraftArtifacts mid-boot.
         extra = ["-PcompatTest"] if os.environ.get("ISORROPIA_COMPAT") else []
+        # ISORROPIA_ONLINE=1 lets a first run fetch runtimes the cache is missing (e.g. KubeJS's
+        # transitive deps on the NeoForge node); drop it once everything is cached.
+        net = [] if os.environ.get("ISORROPIA_ONLINE") else ["--offline"]
         subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), ":" + NODE + ":runClient",
-                          "-PquickPlay=" + WORLD, "--offline", "--console=plain"] + extra,
+                          "-PquickPlay=" + WORLD, "--console=plain"] + net + extra,
                          cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     print("client launching, log:", LOG, flush=True)
     while time.time() - started < 540:

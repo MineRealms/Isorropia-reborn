@@ -5,8 +5,8 @@ var mc = net.minecraft.client.Minecraft.getInstance();
 var server = mc.getSingleplayerServer();
 if (server == null) return "NO_SERVER";
 
-var creatureId = new net.minecraft.resources.ResourceLocation("kubejs", "probe_infusion");
-var selfId = new net.minecraft.resources.ResourceLocation("kubejs", "probe_self_infusion");
+var creatureId = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("kubejs", "probe_infusion");
+var selfId = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("kubejs", "probe_self_infusion");
 var creature = fr.wind_blade.isorropia.common.infusion.InfusionRecipes.creatureRecipe(creatureId);
 var self = fr.wind_blade.isorropia.common.infusion.InfusionRecipes.selfRecipe(selfId);
 

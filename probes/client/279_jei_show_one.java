@@ -7,7 +7,7 @@ if (runtime == null) return "NO_JEI_RUNTIME";
 
 var type = fr.wind_blade.isorropia.client.compat.jei.HorizonsJeiPlugin.CREATURE;
 var recipes = runtime.getRecipeManager().createRecipeLookup(type).get().toList();
-var want = new net.minecraft.resources.ResourceLocation(WANT);
+var want = net.minecraft.resources.ResourceLocation.parse(WANT);
 fr.wind_blade.isorropia.common.infusion.InfusionDisplayData.Entry entry = null;
 for (var candidate : recipes) if (candidate.id().equals(want)) entry = candidate;
 if (entry == null) return "NOT_FOUND " + WANT;

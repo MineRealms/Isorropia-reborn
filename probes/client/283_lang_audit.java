@@ -20,7 +20,7 @@ if (rt == null) return sb + "NO_JEI_RUNTIME";
 int badIngredients = 0;
 try {
     for (var s : rt.getIngredientManager().getAllIngredients(mezz.jei.api.constants.VanillaTypes.ITEM_STACK)) {
-        var key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(s.getItem());
+        var key = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(s.getItem());
         if (key == null || !key.getNamespace().equals("isorropia")) continue;
         var name = s.getHoverName().getString();
         if (name.contains("isorropia.") || name.startsWith("item.") || name.startsWith("block.")) {
