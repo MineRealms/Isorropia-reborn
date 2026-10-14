@@ -43,6 +43,17 @@ public class ItemCat extends Item {
         return tag.isEmpty() ? EnumCat.PIG : EnumCat.byName(tag.getString(TAG));
     }
 
+    /**
+     * The catalogue is a research-page icon, so each subtype names itself after what it depicts: a
+     * creature for the species entries, an infusion for the rest. Thaumic Horizons hid the item from
+     * the creative menu entirely; the only place its name shows is the icon tooltip, and a single
+     * shared "creature infusion" label there was just confusing.
+     */
+    @Override
+    public Component getName(ItemStack stack) {
+        return Component.translatable("item.isorropia.cat." + getType(stack).getSerializedName());
+    }
+
     public enum EnumCat implements StringRepresentable {
         PIG("pig"),
         SHEEP("sheep"),

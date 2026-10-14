@@ -1,7 +1,6 @@
 package fr.wind_blade.isorropia.client.compat.jei;
 
 import fr.wind_blade.isorropia.Isorropia;
-import fr.wind_blade.isorropia.common.blocks.BlocksIS;
 import fr.wind_blade.isorropia.common.infusion.InfusionDisplayData;
 import fr.wind_blade.isorropia.common.items.ItemsIS;
 import mezz.jei.api.IModPlugin;
@@ -25,6 +24,7 @@ public final class HorizonsJeiPlugin implements IModPlugin {
             RecipeType.create(Isorropia.MODID, "self_infusions", InfusionDisplayData.Entry.class);
     private IJeiRuntime runtime;
     private List<InfusionDisplayData.Entry> displayed = List.of();
+    private static volatile IJeiRuntime activeRuntime;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -39,8 +39,10 @@ public final class HorizonsJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(BlocksIS.CURATIVE_VAT.get()), CREATURE, SELF);
-        registration.addRecipeCatalyst(new ItemStack(BlocksIS.MODIFIED_MATRIX.get()), CREATURE, SELF);
+        // The curative vat is a multiblock body with no item form, so the blood infuser
+        // (the creature line's entry point) and the modified matrix carry the catalysts.
+        registration.addRecipeCatalyst(new ItemStack(ItemsIS.MODIFIED_MATRIX.get()), CREATURE, SELF);
+        registration.addRecipeCatalyst(new ItemStack(ItemsIS.BLOOD_INFUSER.get()), CREATURE);
     }
 
     @Override
@@ -48,15 +50,21 @@ public final class HorizonsJeiPlugin implements IModPlugin {
         displayed = InfusionDisplayData.entries();
         registration.addRecipes(CREATURE, select(displayed, false));
         registration.addRecipes(SELF, select(displayed, true));
-        registration.addItemStackInfo(new ItemStack(BlocksIS.BLOOD_INFUSER.get()), Component.translatable("jei.isorropia.blood_infuser.info"));
+        registration.addItemStackInfo(new ItemStack(ItemsIS.BLOOD_INFUSER.get()), Component.translatable("jei.isorropia.blood_infuser.info"));
         registration.addItemStackInfo(new ItemStack(ItemsIS.SYRINGE_INJECTION.get()), Component.translatable("jei.isorropia.injection.info"));
     }
 
     @Override
     public void onRuntimeAvailable(IJeiRuntime runtime) {
         this.runtime = runtime;
+        activeRuntime = runtime;
         InfusionDisplayData.listen(this::refresh);
         refresh();
+    }
+
+    /** Client-side handle for tests and deep links; null until JEI is up. */
+    public static IJeiRuntime runtime() {
+        return activeRuntime;
     }
 
     private void refresh() {
@@ -75,6 +83,7 @@ public final class HorizonsJeiPlugin implements IModPlugin {
         InfusionDisplayData.accept(List.of());
         displayed = List.of();
         runtime = null;
+        activeRuntime = null;
     }
 
     private static List<InfusionDisplayData.Entry> select(List<InfusionDisplayData.Entry> entries, boolean self) {

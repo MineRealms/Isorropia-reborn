@@ -100,9 +100,13 @@ def start():
     started = time.time()
     LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(LOG, "w", encoding="utf-8", errors="replace") as log:
-        # Stonecutter: tasks live on the node project, not the root.
+        # Stonecutter: tasks live on the node project, not the root. ISORROPIA_COMPAT=1
+        # pulls the optional JEI/KubeJS runtimes in (see the -PcompatTest blocks). Offline by
+        # default: everything is cached, and maven.neoforged.net intermittently drops TLS
+        # handshakes, which kills createMinecraftArtifacts mid-boot.
+        extra = ["-PcompatTest"] if os.environ.get("ISORROPIA_COMPAT") else []
         subprocess.Popen(["cmd", "/c", str(ROOT / "gradlew.bat"), ":" + NODE + ":runClient",
-                          "-PquickPlay=" + WORLD, "--console=plain"],
+                          "-PquickPlay=" + WORLD, "--offline", "--console=plain"] + extra,
                          cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
     print("client launching, log:", LOG, flush=True)
     while time.time() - started < 540:

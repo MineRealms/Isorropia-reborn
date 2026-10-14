@@ -26,11 +26,9 @@ public final class IsorropiaCreativeTabs {
                 // variable is left to inference; both are Suppliers. Identity stands in for the id compare.
                 ItemsIS.ITEMS.getEntries().forEach(entry -> {
                     if (entry.get() == ItemsIS.CAT.get()) {
-                        for (ItemCat.EnumCat cat : ItemCat.EnumCat.values()) {
-                            if (cat.getRecipe() != null) {
-                                output.accept(ItemCat.create(cat));
-                            }
-                        }
+                        // The catalogue is a research-page icon (data/isorropia/thaumcraft/research),
+                        // not a usable item: Thaumic Horizons hid it from the creative menu, so showing
+                        // its subtypes here just added unlabelled, recipe-less clutter.
                     } else if (entry.get() == ItemsIS.JELLY.get()) {
                         output.accept(ItemsIS.JELLY.get());
                         AspectApi.definitions().keySet().stream().sorted(Comparator.comparing(AspectId::toString))
