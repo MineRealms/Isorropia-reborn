@@ -1,0 +1,73 @@
+name: Build
+
+# TC4R is supplied privately. The archive must contain both nodes' artifacts under dev/tc4port and
+# match the checked-in SHA-256 manifests; it is never uploaded. Without the repository variable the
+# build jobs skip, so a fork or a fresh clone stays green instead of failing on a missing dependency.
+on:
+  push:
+    branches: [main, multiversion]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate canonical data
+    if: ${{ vars.TC4R_ARCHIVE_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: ./.github/actions/forge-setup
+        with:
+          tc4r-archive-url: ${{ vars.TC4R_ARCHIVE_URL }}
+          tc4r-archive-token: ${{ secrets.TC4R_ARCHIVE_TOKEN }}
+      # The vanilla-id checks read the 1.20.1 client jar; on a clean runner only the build produces
+      # it, so resolve it before the script runs. It is up-to-date instantly on a warm cache.
+      - name: Produce the vanilla client jar the checks read
+        run: ./gradlew :1.20.1-forge:createMinecraftArtifacts --console=plain --no-daemon
+      - name: Validate datapack data against TC4R and vanilla
+        run: python tools/validate_tc_data.py
+
+  build:
+    name: Build (${{ matrix.node }})
+    needs: validate
+    if: ${{ vars.TC4R_ARCHIVE_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [1.20.1-forge, 1.21.1-neoforge]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: ./.github/actions/forge-setup
+        with:
+          tc4r-archive-url: ${{ vars.TC4R_ARCHIVE_URL }}
+          tc4r-archive-token: ${{ secrets.TC4R_ARCHIVE_TOKEN }}
+      - name: Build, unit test and inspect release jar
+        run: ./gradlew :${{ matrix.node }}:build --console=plain --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: isorropia-${{ matrix.node }}
+          path: versions/${{ matrix.node }}/build/libs/*.jar
+          if-no-files-found: error
+      - name: Save test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.node }}
+          path: versions/${{ matrix.node }}/build/reports/tests/

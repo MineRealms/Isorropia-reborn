@@ -117,7 +117,7 @@
   与现存 FG6 jar 比较，运行时修复前的非 class 资源在归一化换行后仅 MANIFEST 不同；
   本轮另有明确资源修复：补图集、修正血液注入器粒子贴图、移动重叠研究节点。
 
-## S4 — 运行时验证已完成，CI 待配置
+## S4 — 运行时验证与 CI
 
 客户端按版本隔离目录和端口：默认 Forge `run-client` / 48791；设置
 `ISORROPIA_NODE=1.21.1-neoforge` 使用 `run-client-1.21.1` / 48792。
@@ -148,5 +148,18 @@
 - `274_dual_empty_hand` 从原版 ServerPlayerGameMode 入口验证空手开菜单，两版本均通过。
   NeoForge 最后一次启动后重新运行 271–274 全绿，日志无 ERROR、缺失贴图或研究坐标重叠警告。
 
-CI 矩阵尚未落地：TC4R 是用户提供、不可重分发的本地产物，仓库清单没有可下载 URL。
-自动 CI 需要预装依赖的 runner 或受控的私有依赖源；本地 `buildAndCollect` 已覆盖双节点构建与测试。
+### CI（`.github/workflows/build.yml`）
+
+TC4R 是用户提供、不可重分发的本地产物，仓库清单没有可下载 URL，因此两个作业都以仓库变量
+`vars.TC4R_ARCHIVE_URL` 门控：未配置时整体跳过，fork 或新克隆不会因缺依赖而红。
+
+- `validate`：`forge-setup` 装 JDK 17/21、Gradle 并解压归档到 `local-repo/`；先跑
+  `:1.20.1-forge:createMinecraftArtifacts` 生成校验脚本要读的 1.20.1 客户端 jar（干净 runner 上只有
+  构建会产出它），再执行 `python tools/validate_tc_data.py`。
+- `build`：`needs: validate`，矩阵 `1.20.1-forge` / `1.21.1-neoforge`；各跑 `:<node>:build`
+  （含 `verifyLocalDependencies` 哈希门禁与 JUnit），上传 jar 与测试报告。
+
+`.github/actions/forge-setup` 断言归档同时含 `dev/tc4port/thaumcraft-forge` 与
+`thaumcraft-neoforge`，单边归档会在此直接失败，而不是留到第二个节点才报错。
+`tools/validate_tc_data.py` 的 vanilla jar 现在按“MDG 构建产物 → ForgeGradle 缓存 → NFRT 缓存”
+依次发现，不再依赖已不再生成的 `forge_gradle` 路径。

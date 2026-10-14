@@ -2,8 +2,9 @@
 """Static checks for Isorropia's Thaumcraft (TC4R) datapack data.
 
 Checks research parents/siblings/prerequisites, recipe_ids -> recipe files, recipe research keys,
-item/block/tag ids (ours from BlocksIS/ItemsIS, TC4R from its jar, vanilla from the cached 1.20.1
-client-extra jar), aspect ids, entity scan identities, icon textures and research lang keys.
+item/block/tag ids (ours from BlocksIS/ItemsIS, TC4R from its jar, vanilla from the 1.20.1
+client-extra jar the build produces), aspect ids, entity scan identities, icon textures and
+research lang keys.
 
 Usage: python tools/validate_tc_data.py [--tc4r-jar PATH] [--vanilla-jar PATH]
 Exit code 1 when any error is found.
@@ -23,7 +24,25 @@ ASSETS = os.path.join(RES, 'assets', 'isorropia')
 JAVA = os.path.join(ROOT, 'src', 'main', 'java', 'fr', 'wind_blade', 'isorropia', 'common')
 DEFAULT_TC4R = os.path.join(ROOT, 'local-repo', 'dev', 'tc4port', 'thaumcraft-forge', '0.1.0-20732',
                             'thaumcraft-forge-0.1.0-20732.jar')
-DEFAULT_VANILLA = os.path.expanduser('~/.gradle/caches/forge_gradle/minecraft_repo/versions/1.20.1/client-extra.jar')
+# The 1.20.1 client jar the vanilla checks read. The legacyforge node runs on ModDevGradle, which
+# writes it as a NeoFormRuntime artifact under the node's build directory; the older ForgeGradle 6
+# layout kept it in the Gradle cache, and NFRT's own cache holds the pre-strip client jar. All three
+# carry the same assets tree, so prefer what the build actually produced and fall back from there.
+VANILLA_CANDIDATES = (
+    os.path.join(ROOT, 'versions', '1.20.1-forge', 'build', 'moddev', 'artifacts'),
+    os.path.expanduser('~/.gradle/caches/forge_gradle/minecraft_repo/versions/1.20.1'),
+    os.path.expanduser('~/.gradle/caches/neoformruntime/artifacts'),
+)
+
+
+def find_vanilla_jar():
+    for directory in VANILLA_CANDIDATES:
+        matches = sorted(glob.glob(os.path.join(directory, 'client-extra*.jar'))
+                         or glob.glob(os.path.join(directory, 'minecraft_1.20.1_client.jar')))
+        if matches:
+            return matches[-1]
+    # Nothing built yet: name the build-output path so the warning points at the missing artifact.
+    return os.path.join(VANILLA_CANDIDATES[0], 'client-extra-1.20.1.jar')
 
 ENTRY_FIELDS = {'key', 'forge:conditions', 'category', 'aspects', 'display_column', 'display_row', 'complexity', 'icon',
                 'flags', 'labels', 'parents', 'hidden_parents', 'prerequisite_selectors', 'siblings', 'object_triggers',
@@ -113,7 +132,7 @@ def walk_items(node, path, out):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tc4r-jar', default=DEFAULT_TC4R)
-    parser.add_argument('--vanilla-jar', default=DEFAULT_VANILLA)
+    parser.add_argument('--vanilla-jar', default=find_vanilla_jar())
     args = parser.parse_args()
 
     tc = Jar(args.tc4r_jar)

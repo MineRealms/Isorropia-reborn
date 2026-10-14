@@ -1,0 +1,60 @@
+name: Forge setup
+description: >-
+  Installs JDK 17 and 21 plus Gradle, and lays down both nodes' privately supplied TC4R
+  artifacts. The caller checks out the repository before using this action.
+
+# `dev.tc4port:thaumcraft-forge` (1.20.1) and `dev.tc4port:thaumcraft-neoforge` (1.21.1) are
+# mandatory compile dependencies (versions/<node>/build.gradle) and neither is publicly
+# redistributable: local-repo/README.md and the two DEPENDENCIES*.json manifests record them as
+# user-supplied local builds, and .gitignore excludes local-repo/**/*.jar and *.pom. CI therefore
+# receives them as one archive rather than from Git.
+#
+# `compileJava` and `check` depend on `verifyLocalDependencies`, which hashes every artifact the
+# node's manifest lists, so a stale or partial archive fails the build instead of silently
+# compiling against the wrong Thaumcraft.
+
+inputs:
+  tc4r-archive-url:
+    description: URL of a .tar.gz whose root holds the local-repo contents (dev/tc4port/...).
+    required: true
+  tc4r-archive-token:
+    description: Optional bearer token sent with the download.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK 17 toolchain
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '17'
+
+    - name: Set up JDK 21 for Gradle and NeoForge
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Install the local TC4R repository
+      shell: bash
+      env:
+        TC4R_ARCHIVE_URL: ${{ inputs.tc4r-archive-url }}
+        TC4R_ARCHIVE_TOKEN: ${{ inputs.tc4r-archive-token }}
+      run: |
+        set -euo pipefail
+        archive="$RUNNER_TEMP/tc4r.tar.gz"
+        curl_args=(--fail --location --silent --show-error --retry 3)
+        if [ -n "${TC4R_ARCHIVE_TOKEN}" ]; then
+          curl_args+=(--header "Authorization: Bearer ${TC4R_ARCHIVE_TOKEN}")
+        fi
+        curl "${curl_args[@]}" --output "$archive" "$TC4R_ARCHIVE_URL"
+        tar --extract --gzip --file "$archive" --directory local-repo
+        # Both nodes must be present: the matrix builds them together and a one-sided archive
+        # would only fail later, inside the node that happens to run second.
+        test -d local-repo/dev/tc4port/thaumcraft-forge
+        test -d local-repo/dev/tc4port/thaumcraft-neoforge
