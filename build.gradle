@@ -129,7 +129,8 @@ if (isForge) {
              'warptheory:1.5.8-GTNH-1.20.1-port.0.1.0-20739',
              'nodalmechanics:1.0.7-port.0.1.0-20739',
              'tc4tweaks:1.1.5',
-             'technom:0.1.0-dev'].each { coord ->
+             // .2 carries forge:conditions on the Botania-only loot tables
+             'technom:0.1.0-dev.2'].each { coord ->
                 modRuntimeOnly("tc4addons:${coord}") { transitive = false }
             }
         }
