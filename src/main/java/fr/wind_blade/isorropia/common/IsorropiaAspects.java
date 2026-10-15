@@ -5,8 +5,10 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Aspect identities used by the port. Isorropia created {@code fames} and {@code corpus} because TC6 had
- * dropped them; TC4R has both natively. The seven sin aspects are ours, declared as data under
- * {@code data/isorropia/thaumcraft/aspects/}.
+ * dropped them; TC4R has both natively. The seven sin aspects are declared as data under
+ * {@code data/isorropia/thaumcraft/aspects/}, but only while Forbidden Magic is absent: that mod owns
+ * the sin aspects, so when it is installed our definitions (and every data reference to them) are
+ * skipped and the {@code forbidden_magic:*} ids are reused instead.
  *
  * <p>TC6 constant to TC4 id: AIR aer, EARTH terra, FIRE ignis, WATER aqua, ORDER ordo, ENTROPY perditio,
  * VOID vacuos, LIGHT lux, MOTION motus, COLD gelum, CRYSTAL vitreus, METAL metallum, LIFE victus,

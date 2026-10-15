@@ -1,4 +1,13 @@
 {
+  "forge:conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:mod_loaded",
+        "modid": "forbidden_magic"
+      }
+    }
+  ],
   "color": "#00BA00",
   "components": [
     "thaumcraft:sensus",

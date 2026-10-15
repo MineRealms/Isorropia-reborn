@@ -211,7 +211,9 @@ def main():
 
     def check_aspects(mapping, where):
         for key, amount in (mapping or {}).items():
-            if ns(key) not in aspects:
+            # An optional mod owns its own aspects (Forbidden Magic's seven sins), so a
+            # namespace named by a mod_loaded condition is trusted rather than verified.
+            if ns(key) not in aspects and key.split(':', 1)[0] not in optional_modids:
                 err('%s: unknown aspect %s' % (where, key))
             if not isinstance(amount, int) or amount <= 0:
                 err('%s: aspect %s has non-positive amount %r' % (where, key, amount))

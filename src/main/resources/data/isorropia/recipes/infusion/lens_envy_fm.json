@@ -1,0 +1,51 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "forbidden_magic"
+    }
+  ],
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:envylensFm",
+  "central": {
+    "item": "isorropia:lens"
+  },
+  "components": [
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "type": "thaumcraft:components",
+      "items": "thaumcraft:crystal_essence",
+      "components": {
+        "thaumcraft:aspects": {
+          "forbidden_magic:invidia": 1
+        }
+      },
+      "strict": true
+    },
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "type": "thaumcraft:components",
+      "items": "thaumcraft:crystal_essence",
+      "components": {
+        "thaumcraft:aspects": {
+          "forbidden_magic:invidia": 1
+        }
+      },
+      "strict": true
+    }
+  ],
+  "instability": 6,
+  "aspects": {
+    "lucrum": 32,
+    "fames": 32,
+    "forbidden_magic:luxuria": 32,
+    "forbidden_magic:invidia": 64
+  },
+  "result": {
+    "item": "isorropia:lens_envy"
+  }
+}

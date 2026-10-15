@@ -107,7 +107,7 @@ if (isForge) {
         maven {
             name = 'LocalTC4R'
             url = uri(tc4Repository)
-            content { includeGroup 'dev.tc4port' }
+            content { includeGroup 'dev.tc4port'; includeGroup 'tc4addons' }
         }
         maven { url = 'https://maven.theillusivec4.top' }
         maven { url = 'https://maven.minecraftforge.net' }
@@ -118,6 +118,21 @@ if (isForge) {
         // ModDevGradle's mod* configurations remap SRG -> official and are non-transitive, which
         // is exactly the semantics ForgeGradle's `fg.deobf(..., { transitive = false })` had.
         modImplementation("dev.tc4port:thaumcraft-forge:${thaumcraft_version}") { transitive = false }
+        // Optional local TC4R addon set, for exercising the dev client against real addons
+        // (-PwithTc4Addons). They MUST come through a mod* configuration: ModDevGradle remaps
+        // classpath mods SRG->named, while jars dropped straight into run-client/mods are loaded
+        // untouched and fail at CONSTRUCT with NoSuchFieldError/NoSuchMethodError on SRG names.
+        if (project.hasProperty('withTc4Addons')) {
+            ['forbidden_magic:0.574-1.20.1-port.0.1.0-20739',
+             'thaumictinkerer:2.5-1.20.1-port.0.1.0-20739',
+             'tainted_magic:8.1.1-1.20.1-port.0.1.0-20739',
+             'warptheory:1.5.8-GTNH-1.20.1-port.0.1.0-20739',
+             'nodalmechanics:1.0.7-port.0.1.0-20739',
+             'tc4tweaks:1.1.5',
+             'technom:0.1.0-dev'].each { coord ->
+                modRuntimeOnly("tc4addons:${coord}") { transitive = false }
+            }
+        }
         // TC4R declares both mandatory, and the Somatic Brain is a Curios head item.
         modImplementation("top.theillusivec4.curios:curios-forge:${curios_version}") { transitive = false }
         modRuntimeOnly("com.github.glitchfiend:TerraBlender-forge:${terrablender_version}") {
@@ -225,7 +240,7 @@ if (isForge) {
         maven {
             name = 'LocalTC4R'
             url = uri(tc4Repository)
-            content { includeGroup 'dev.tc4port' }
+            content { includeGroup 'dev.tc4port'; includeGroup 'tc4addons' }
         }
         maven { url = 'https://maven.neoforged.net/releases' }
         maven { url = 'https://maven.theillusivec4.top' }

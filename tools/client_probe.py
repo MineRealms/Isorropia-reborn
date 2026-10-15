@@ -105,6 +105,10 @@ def start():
         # default: everything is cached, and maven.neoforged.net intermittently drops TLS
         # handshakes, which kills createMinecraftArtifacts mid-boot.
         extra = ["-PcompatTest"] if os.environ.get("ISORROPIA_COMPAT") else []
+        # ISORROPIA_ADDONS=1 pulls the local TC4R addon set onto the runtime classpath
+        # (-PwithTc4Addons) so the dev client can be exercised against real addons.
+        if os.environ.get("ISORROPIA_ADDONS"):
+            extra.append("-PwithTc4Addons")
         # ISORROPIA_ONLINE=1 lets a first run fetch runtimes the cache is missing (e.g. KubeJS's
         # transitive deps on the NeoForge node); drop it once everything is cached.
         net = [] if os.environ.get("ISORROPIA_ONLINE") else ["--offline"]

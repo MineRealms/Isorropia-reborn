@@ -1,0 +1,200 @@
+{
+  "forge:conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "forbidden_magic"
+    }
+  ],
+  "direct": {
+    "isorropia:lens_envy": {
+      "vitreus": 3,
+      "sensus": 4,
+      "forbidden_magic:invidia": 4,
+      "lucrum": 2
+    },
+    "isorropia:somatic_brain": {
+      "cognitio": 8,
+      "exanimis": 4,
+      "forbidden_magic:invidia": 2,
+      "lucrum": 2
+    },
+    "isorropia:chocolate_cream": {
+      "fames": 3,
+      "victus": 1,
+      "forbidden_magic:gula": 9
+    }
+  },
+  "edits": [
+    {
+      "kind": "item",
+      "id": "minecraft:baked_potato",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:beetroot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 1
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:beetroot_soup",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:bread",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:carrot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_beef",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_chicken",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_cod",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_mutton",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_porkchop",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_rabbit",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 3
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:cooked_salmon",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:enchanted_golden_apple",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_apple",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 5
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:golden_carrot",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 7
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:mushroom_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 4
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:rabbit_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 6
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:spider_eye",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 2
+      }
+    },
+    {
+      "kind": "item",
+      "id": "minecraft:suspicious_stew",
+      "mode": "add",
+      "phase": "after_inference",
+      "aspects": {
+        "forbidden_magic:gula": 4
+      }
+    }
+  ]
+}

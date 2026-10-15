@@ -1,4 +1,13 @@
 {
+  "forge:conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:mod_loaded",
+        "modid": "forbidden_magic"
+      }
+    }
+  ],
   "color": "#870404",
   "components": [
     "thaumcraft:telum",

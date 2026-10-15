@@ -1,0 +1,36 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "forbidden_magic"
+    }
+  ],
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:somaticbrainFm",
+  "central": {
+    "item": "thaumcraft:brain_jar"
+  },
+  "components": [
+    {
+      "item": "minecraft:iron_ingot"
+    },
+    {
+      "item": "thaumcraft:zombie_brain"
+    },
+    {
+      "item": "minecraft:hopper"
+    },
+    {
+      "item": "thaumcraft:zombie_brain"
+    }
+  ],
+  "instability": 4,
+  "aspects": {
+    "cognitio": 150,
+    "lucrum": 100,
+    "forbidden_magic:invidia": 20
+  },
+  "result": {
+    "item": "isorropia:somatic_brain"
+  }
+}

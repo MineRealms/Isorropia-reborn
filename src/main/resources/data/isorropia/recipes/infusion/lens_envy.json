@@ -1,4 +1,13 @@
 {
+  "conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:mod_loaded",
+        "modid": "forbidden_magic"
+      }
+    }
+  ],
   "type": "thaumcraft:infusion",
   "research": "isorropia:envylens",
   "central": {
