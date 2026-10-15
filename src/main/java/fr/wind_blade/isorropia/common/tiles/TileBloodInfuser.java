@@ -56,6 +56,18 @@ import java.util.Map;
  * last).</p>
  */
 public class TileBloodInfuser extends BlockEntity implements EssentiaTransport, MenuProvider {
+    //? if forge {
+    // TC4R 20740 resolves essentia peers through EssentiaCapabilities.TRANSPORT (EssentiaApi.transport
+    // no longer falls back to an instanceof check on a Level), so expose the interface as a cap.
+    @Override
+    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+            net.minecraftforge.common.capabilities.Capability<T> cap, @Nullable Direction side) {
+        if (cap == dev.tc4port.thaumcraft.api.essentia.EssentiaCapabilities.TRANSPORT) {
+            return net.minecraftforge.common.util.LazyOptional.of(() -> (EssentiaTransport) this).cast();
+        }
+        return super.getCapability(cap, side);
+    }
+    //?}
     /** TH's {@code getSuctionAmount}: the pull the machine shows while it still wants a unit. */
     public static final int SUCTION = 128;
     /** TH dialled at most eight units of essentia into one syringe. */

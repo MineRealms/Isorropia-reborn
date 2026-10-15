@@ -12,7 +12,6 @@ import dev.tc4port.thaumcraft.api.essentia.EssentiaTransferMode;
 import dev.tc4port.thaumcraft.api.essentia.EssentiaTransport;
 import dev.tc4port.thaumcraft.api.node.VisNetworkApi;
 import dev.tc4port.thaumcraft.api.node.VisSource;
-import fr.wind_blade.isorropia.Isorropia;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -70,10 +69,24 @@ public class TileEssentiaDynamo extends BlockEntity implements VisSource, Essent
     }
 
     /** Declares this tile as a network source; call once from common setup. */
-    public static void registerProvider() {
-        VisNetworkApi.registerProvider(Isorropia.id("essentia_dynamo"),
-                entity -> entity instanceof TileEssentiaDynamo dynamo ? List.of(dynamo) : List.of());
+    // TC4R 20740: VisNetworkApi.registerProvider is gone; sources are discovered through
+    // VisCapabilities.SOURCE queried on the block entity, and essentia machines resolve peers through
+    // EssentiaCapabilities.TRANSPORT the same way (EssentiaApi.transport no longer falls back to an
+    // instanceof check on a Level). Expose both; NeoForge wires the vis cap from Isorropia's
+    // RegisterCapabilitiesEvent listener and gets the transport cap from TC4R's blanket registration.
+    //? if forge {
+    @Override
+    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+            net.minecraftforge.common.capabilities.Capability<T> cap, @Nullable Direction side) {
+        if (cap == dev.tc4port.thaumcraft.api.node.VisCapabilities.SOURCE) {
+            return net.minecraftforge.common.util.LazyOptional.of(() -> this).cast();
+        }
+        if (cap == dev.tc4port.thaumcraft.api.essentia.EssentiaCapabilities.TRANSPORT) {
+            return net.minecraftforge.common.util.LazyOptional.of(() -> (EssentiaTransport) this).cast();
+        }
+        return super.getCapability(cap, side);
     }
+    //?}
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, TileEssentiaDynamo dynamo) {
         if (level instanceof ServerLevel server) {
@@ -204,16 +217,10 @@ public class TileEssentiaDynamo extends BlockEntity implements VisSource, Essent
     @Nullable
     @Override
     public BlockPos networkEndpoint() {
-        if (level == null || level.isClientSide) {
-            return null;
-        }
-        for (Direction side : Direction.values()) {
-            BlockPos neighbour = worldPosition.relative(side);
-            if (level.isLoaded(neighbour) && level.getBlockState(neighbour).is(ThaumcraftContent.block("vis_relay"))) {
-                return neighbour;
-            }
-        }
-        return null;
+        // TC4R 20740 sources are wireless: the endpoint is the machine itself (the aura node does
+        // the same) and a vis relay chains to it through relay.parentPos, so the dynamo feeds the
+        // network from its own position instead of hanging off the adjacent relay.
+        return level == null || level.isClientSide ? null : worldPosition;
     }
 
     @Override

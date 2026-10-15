@@ -7,7 +7,7 @@ import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectBlendMode;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
-import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
+import dev.tc4port.thaumcraft.client.EffectAtlases;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.common.tiles.TileVortex;
@@ -122,7 +122,7 @@ public class RenderVortex implements BlockEntityRenderer<TileVortex> {
         float u1 = (frame + 1.0F) / FRAMES;
         float v0 = strip / (float) FRAMES;
         float v1 = (strip + 1.0F) / FRAMES;
-        var uv = ThaumcraftClientRenderApi.effectAtlasUv(EffectSpriteSheet.NODES, u0, u1, v0, v1);
+        var uv = EffectAtlases.NODES.uv( u0, u1, v0, v1);
         quad(poseStack, vertices, radius, angle, colour, alpha, uv.u0(), uv.v0(), uv.u1(), uv.v1());
     }
 

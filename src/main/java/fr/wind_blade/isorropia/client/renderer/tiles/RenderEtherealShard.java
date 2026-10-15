@@ -6,7 +6,7 @@ import com.mojang.math.Axis;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
-import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
+import dev.tc4port.thaumcraft.client.EffectAtlases;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.client.model.RenderColors;
 import fr.wind_blade.isorropia.client.model.EtherealShardModel;
@@ -98,7 +98,7 @@ public class RenderEtherealShard implements BlockEntityRenderer<TileEtherealShar
         }
         int frame = Mth.floor(rotation) % GLYPH_FRAMES;
         // TH samples strip 1. The current TC4R atlas pads every cell, so raw 1/32 UVs are not sufficient.
-        var uv = ThaumcraftClientRenderApi.effectAtlasUv(EffectSpriteSheet.NODES,
+        var uv = EffectAtlases.NODES.uv(
                 frame / 32.0F, (frame + 1) / 32.0F, 1.0F / 32.0F, 2.0F / 32.0F);
         VertexConsumer vertices = buffers.getBuffer(ThaumcraftClientRenderApi.legacyLinearTranslucentBillboard(GLYPHS));
         float step = Mth.TWO_PI / aspects.size();

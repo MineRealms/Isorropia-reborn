@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.AspectId;
-import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.platform.QuadBatch;

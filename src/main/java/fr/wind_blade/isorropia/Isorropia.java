@@ -67,8 +67,18 @@ public class Isorropia {
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(LiquefactionFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DisintegrationFocus::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AnimationFocus::register));
-        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileVisDynamo::registerProvider));
-        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(TileEssentiaDynamo::registerProvider));
+        // TC4R 20740: vis sources are a BlockCapability, and TC4R only registers its own node BE
+        // for it. NeoForge resolves caps through this central registry (no getCapability override),
+        // so the two dynamos are wired here; the essentia transport cap needs nothing - TC4R
+        // blanket-registers every BE type that implements EssentiaTransport.
+        //? if neoforge {
+        /*modBus.addListener((net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent event) -> {
+            event.registerBlockEntity(dev.tc4port.thaumcraft.api.node.VisCapabilities.SOURCE,
+                    TilesIS.VIS_DYNAMO.get(), (be, side) -> (dev.tc4port.thaumcraft.api.node.VisSource) be);
+            event.registerBlockEntity(dev.tc4port.thaumcraft.api.node.VisCapabilities.SOURCE,
+                    TilesIS.ESSENTIA_DYNAMO.get(), (be, side) -> (dev.tc4port.thaumcraft.api.node.VisSource) be);
+        });
+        *///?}
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(AlchemiteDispenseBehavior::register));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(HeldWandTargets::reportHook));
         modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(CrystalWandParts::register));

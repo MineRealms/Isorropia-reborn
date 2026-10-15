@@ -71,6 +71,18 @@ import java.util.UUID;
  * and holds the state. The other vat blocks forward their essentia endpoints to it.
  */
 public class TileVat extends BlockEntity implements EssentiaTransport, AspectContainerView {
+    //? if forge {
+    // TC4R 20740 resolves essentia peers through EssentiaCapabilities.TRANSPORT (EssentiaApi.transport
+    // no longer falls back to an instanceof check on a Level), so expose the interface as a cap.
+    @Override
+    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+            net.minecraftforge.common.capabilities.Capability<T> cap, @Nullable Direction side) {
+        if (cap == dev.tc4port.thaumcraft.api.essentia.EssentiaCapabilities.TRANSPORT) {
+            return net.minecraftforge.common.util.LazyOptional.of(() -> (EssentiaTransport) this).cast();
+        }
+        return super.getCapability(cap, side);
+    }
+    //?}
     public static final int MODE_IDLE = 0;
     public static final int MODE_INFUSING = 2;
     public static final int MODE_EFFIGY = 3;

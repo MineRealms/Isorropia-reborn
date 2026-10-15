@@ -9,7 +9,6 @@ import dev.tc4port.thaumcraft.api.node.VisNetworkApi;
 import dev.tc4port.thaumcraft.api.node.VisSource;
 import dev.tc4port.thaumcraft.api.wand.VisTransferResult;
 import dev.tc4port.thaumcraft.api.wand.WandApi;
-import fr.wind_blade.isorropia.Isorropia;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -31,7 +30,6 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -207,10 +205,19 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
     }
 
     /** Declares this tile as a network source; call once from common setup. */
-    public static void registerProvider() {
-        VisNetworkApi.registerProvider(Isorropia.id("vis_dynamo"),
-                entity -> entity instanceof TileVisDynamo dynamo ? List.of(dynamo) : List.of());
+    //? if forge {
+    // TC4R 20740: the VisNetworkApi.registerProvider registry is gone; sources are discovered
+    // through VisCapabilities.SOURCE queried on the block entity itself, so expose it here. NeoForge
+    // wires the same capability from Isorropia's RegisterCapabilitiesEvent listener instead.
+    @Override
+    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(
+            net.minecraftforge.common.capabilities.Capability<T> cap, @Nullable Direction side) {
+        if (cap == dev.tc4port.thaumcraft.api.node.VisCapabilities.SOURCE) {
+            return net.minecraftforge.common.util.LazyOptional.of(() -> this).cast();
+        }
+        return super.getCapability(cap, side);
     }
+    //?}
 
     /**
      * Starts the held charge. The block has already put the wizard into a use state; the tile only has
@@ -332,16 +339,10 @@ public class TileVisDynamo extends BlockEntity implements VisSource, DynamoVisua
     @Nullable
     @Override
     public BlockPos networkEndpoint() {
-        if (level == null || level.isClientSide) {
-            return null;
-        }
-        for (Direction side : Direction.values()) {
-            BlockPos neighbour = worldPosition.relative(side);
-            if (level.isLoaded(neighbour) && level.getBlockState(neighbour).is(ThaumcraftContent.block("vis_relay"))) {
-                return neighbour;
-            }
-        }
-        return null;
+        // TC4R 20740 sources are wireless: the endpoint is the machine itself (the aura node does
+        // the same) and a vis relay chains to it through relay.parentPos, so the dynamo feeds the
+        // network from its own position instead of hanging off the adjacent relay.
+        return level == null || level.isClientSide ? null : worldPosition;
     }
 
     @Override

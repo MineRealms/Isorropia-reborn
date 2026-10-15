@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.tc4port.thaumcraft.api.aspect.AspectApi;
 import dev.tc4port.thaumcraft.api.aspect.AspectDefinition;
 import dev.tc4port.thaumcraft.api.aspect.VisChannel;
-import dev.tc4port.thaumcraft.api.client.EffectSpriteSheet;
+import dev.tc4port.thaumcraft.api.client.EffectSequence;
 import dev.tc4port.thaumcraft.api.client.ThaumcraftClientRenderApi;
 import fr.wind_blade.isorropia.Isorropia;
 import fr.wind_blade.isorropia.client.platform.QuadBatch;
@@ -12,6 +12,7 @@ import fr.wind_blade.isorropia.common.menu.VisDynamoMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -97,15 +98,16 @@ public class VisDynamoScreen extends AbstractContainerScreen<VisDynamoMenu> {
      * frames step two cells along row eight and run past the sheet's edge, which wrapped in 1.7.
      */
     private void drawFlash(GuiGraphics graphics) {
-        float u0 = (0.5F + this.flashTimer / 8.0F) % 1.0F;
-        var uv = ThaumcraftClientRenderApi.effectAtlasUv(EffectSpriteSheet.PARTICLES, u0, u0 + FLASH_CELL,
-                0.5F, 0.5F + FLASH_CELL);
+        // TC4R 20740 dropped the EffectSpriteSheet lookup; the flash now cycles the native
+        // SPARKS_0 frames through the public effectFrame API, which carries its own texture.
+        var uv = ThaumcraftClientRenderApi.effectFrame(EffectSequence.SPARKS_0,
+                Mth.floor(this.flashTimer) % FLASH_FRAMES);
         float red = (this.flashColour >> 16 & 255) / 255.0F;
         float green = (this.flashColour >> 8 & 255) / 255.0F;
         float blue = (this.flashColour & 255) / 255.0F;
         graphics.flush();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, PARTICLES);
+        RenderSystem.setShaderTexture(0, uv.texture());
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         Matrix4f pose = graphics.pose().last().pose();
