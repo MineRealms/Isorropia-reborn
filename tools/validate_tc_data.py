@@ -129,6 +129,28 @@ def walk_items(node, path, out):
             walk_items(value, path, out)
 
 
+def collect_mod_loaded(node, out=None):
+    """Every modid named by a `mod_loaded` condition anywhere in the tree.
+
+    Recipes and data maps may reference an optional mod's items behind such a condition (the
+    GregTech variants below), and that mod's registry is not resolvable from the jars checked
+    here, so its namespace has to be trusted rather than verified.
+    """
+    if out is None:
+        out = set()
+    if isinstance(node, dict):
+        if isinstance(node.get('type'), str) and node['type'].endswith(':mod_loaded'):
+            modid = node.get('modid')
+            if isinstance(modid, str):
+                out.add(modid)
+        for value in node.values():
+            collect_mod_loaded(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            collect_mod_loaded(value, out)
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tc4r-jar', default=DEFAULT_TC4R)
@@ -150,12 +172,25 @@ def main():
     item_tags = mc_item_tags | {'thaumcraft:' + s for s in tc.stems('data/thaumcraft/tags/items/')} \
         | {'forge:' + s for s in tc.stems('data/forge/tags/items/')}
 
+    optional_modids = set()
+    for root, _dirs, files in os.walk(os.path.join(ROOT, 'src', 'main', 'resources', 'data')):
+        for name in files:
+            if not name.endswith('.json'):
+                continue
+            try:
+                with open(os.path.join(root, name), encoding='utf-8') as f:
+                    optional_modids |= collect_mod_loaded(json.load(f))
+            except (ValueError, OSError):
+                continue
+
     def check_item(value, where):
         if value.startswith('#'):
             if vanilla is not None and value[1:] not in item_tags:
                 warnings.append('%s: item tag %s not found in vanilla/TC4R data (may come from Forge)' % (where, value))
             return
         value = ns(value, 'minecraft')
+        if value.split(':', 1)[0] in optional_modids:
+            return
         if value.startswith('minecraft:') and vanilla is None:
             return
         if value not in items:
@@ -163,6 +198,8 @@ def main():
 
     def check_block(value, where):
         value = ns(value, 'minecraft')
+        if value.split(':', 1)[0] in optional_modids:
+            return
         if value.startswith('minecraft:') and vanilla is None:
             return
         if value not in blocks:

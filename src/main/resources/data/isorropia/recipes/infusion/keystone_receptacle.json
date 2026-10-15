@@ -39,5 +39,39 @@
   },
   "result": {
     "item": "isorropia:keystone_receptacle"
-  }
+  },
+  "conditions": [
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:and",
+        "values": [
+          {
+            "type": "forge:mod_loaded",
+            "modid": "gtceu"
+          },
+          {
+            "type": "forge:item_exists",
+            "item": "gtceu:glass_lens"
+          },
+          {
+            "type": "forge:item_exists",
+            "item": "gtceu:titanium_screw"
+          },
+          {
+            "type": "forge:item_exists",
+            "item": "gtceu:titanium_plate"
+          },
+          {
+            "type": "forge:item_exists",
+            "item": "gtceu:dense_steel_plate"
+          },
+          {
+            "type": "forge:item_exists",
+            "item": "gtceu:dense_tungsten_steel_plate"
+          }
+        ]
+      }
+    }
+  ]
 }

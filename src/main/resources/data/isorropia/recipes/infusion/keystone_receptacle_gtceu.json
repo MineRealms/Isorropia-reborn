@@ -1,0 +1,83 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:planarKeystone",
+  "central": {
+    "item": "isorropia:planar_conduit"
+  },
+  "components": [
+    {
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "item": "gtceu:titanium_screw"
+    },
+    {
+      "item": "gtceu:dense_tungsten_steel_plate"
+    },
+    {
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "item": "gtceu:titanium_plate"
+    },
+    {
+      "item": "gtceu:titanium_screw"
+    },
+    {
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "item": "gtceu:titanium_screw"
+    },
+    {
+      "item": "gtceu:titanium_plate"
+    },
+    {
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "item": "gtceu:dense_tungsten_steel_plate"
+    },
+    {
+      "item": "gtceu:titanium_screw"
+    }
+  ],
+  "instability": 12,
+  "aspects": {
+    "vacuos": 48,
+    "iter": 64,
+    "aer": 64,
+    "machina": 32,
+    "alienis": 64,
+    "praecantatio": 16
+  },
+  "result": {
+    "item": "isorropia:keystone_receptacle"
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "gtceu"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:glass_lens"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:titanium_screw"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:titanium_plate"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:dense_tungsten_steel_plate"
+    }
+  ]
+}

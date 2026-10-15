@@ -429,6 +429,8 @@
   "item.isorropia.portal": "Planar Portal",
   "tc.research_name.isorropia:planarKeystone": "Planar Keystones",
   "tc.research_text.isorropia:planarKeystone": "A door wherever you are",
+  "tc.research_name.isorropia:planarKeystoneGt": "Planar Keystones",
+  "tc.research_text.isorropia:planarKeystoneGt": "A door wherever you are",
   "isorropia.research_page.planarKeystone.1": "It takes tremendous effort to create a pocket plane, yet it is all too easy to permanently lose access to your creation. Now you have developed a much more robust method of dimensional transport which no longer relies on the original planar breach remaining open.<BR>This method relies on two crucial components: an object tied to the target dimension, known as a planar keystone, and a gateway inside which a stable portal can form.<BR>A newly created keystone must be imprinted before it will function: right-click with the keystone in hand while you occupy a pocket plane.",
   "isorropia.research_page.planarKeystone.2": "Once imprinted, a keystone can be slotted into the top of a planar gateway. Charging the keystone receptacle with 100 vis of each primal aspect will then establish a portal to that pocket plane. If desired, you can later close the portal by removing its keystone.<BR>It appears that each pocket plane can support up to four concurrent portals. In the hands of a creative thaumaturge, this technique could allow rapid travel across the overworld by using your pocket plane as a waystation between distant gateways.<BR>Gateways cannot be constructed on pocket planes or in the Outer Lands, however.",
   "item.isorropia.void_putty": "Void Putty",

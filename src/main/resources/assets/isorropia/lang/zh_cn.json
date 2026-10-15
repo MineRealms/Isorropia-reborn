@@ -429,6 +429,8 @@
   "item.isorropia.portal": "位面传送门",
   "tc.research_name.isorropia:planarKeystone": "平面基石",
   "tc.research_text.isorropia:planarKeystone": "身在何处，门便在何处",
+  "tc.research_name.isorropia:planarKeystoneGt": "平面基石",
+  "tc.research_text.isorropia:planarKeystoneGt": "身在何处，门便在何处",
   "isorropia.research_page.planarKeystone.1": "创造一个口袋位面需要付出巨大的努力，然而要永久失去对它的访问却轻而易举。如今你已经开发出一种稳健得多的维度传输方法，不再依赖最初的位面裂口保持开启。<BR>这种方法依赖两个关键部件：一件与目标维度绑定的物体（称为位面基石），以及一个能让稳定传送门成形的门框。<BR>新造的基石必须经过印记才能发挥作用：手持基石在你身处口袋位面时右键点击。",
   "isorropia.research_page.planarKeystone.2": "刻印完成后，基石可以嵌入平面传送门的顶部。用每种原始方面各 100 点灵气为基石插槽充能，便能建立通往那座口袋位面的传送门。如你所愿，之后可以取下基石来关闭传送门。<BR>看起来每座口袋位面最多能同时承载四道传送门。在富有创造力的秘法师手中，这一技巧可以让你以口袋位面作为遥远传送门之间的中转站，从而在整个主世界快速穿梭。<BR>不过，传送门无法建在口袋位面或外境之上。",
   "item.isorropia.void_putty": "虚空腻子",

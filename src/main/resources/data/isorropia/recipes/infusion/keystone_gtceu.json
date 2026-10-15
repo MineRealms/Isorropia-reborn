@@ -1,0 +1,69 @@
+{
+  "type": "thaumcraft:infusion",
+  "research": "isorropia:planarKeystone",
+  "central": {
+    "item": "minecraft:ender_eye"
+  },
+  "components": [
+    {
+      "item": "thaumcraft:balanced_shard"
+    },
+    {
+      "item": "thaumcraft:quicksilver"
+    },
+    {
+      "item": "gtceu:glass_lens"
+    },
+    {
+      "item": "thaumcraft:quicksilver"
+    },
+    {
+      "item": "thaumcraft:balanced_shard"
+    },
+    {
+      "item": "thaumcraft:quicksilver"
+    },
+    {
+      "item": "gtceu:glass_lens"
+    },
+    {
+      "item": "thaumcraft:quicksilver"
+    }
+  ],
+  "instability": 9,
+  "aspects": {
+    "iter": 64,
+    "vacuos": 48,
+    "machina": 32,
+    "alienis": 32
+  },
+  "result": {
+    "item": "isorropia:keystone"
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "gtceu"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:glass_lens"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:titanium_screw"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:titanium_plate"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:dense_steel_plate"
+    },
+    {
+      "type": "forge:item_exists",
+      "item": "gtceu:dense_tungsten_steel_plate"
+    }
+  ]
+}
