@@ -129,8 +129,13 @@ if (isForge) {
              'warptheory:1.5.8-GTNH-1.20.1-port.0.1.0-20739',
              'nodalmechanics:1.0.7-port.0.1.0-20739',
              'tc4tweaks:1.1.5',
-             // .2 carries forge:conditions on the Botania-only loot tables
-             'technom:0.1.0-dev.2'].each { coord ->
+             // Botania is a hard dependency of technom; Patchouli and Curios are Botania's own
+             // mandatory deps (Curios is already on the classpath above).
+             'botania:1.20.1-454-FORGE',
+             'patchouli:1.20.1-85-FORGE',
+             // .3 registers the Botania machines unconditionally (hard dependency), so their
+             // loot tables always name a registered item.
+             'technom:0.1.0-dev.3'].each { coord ->
                 modRuntimeOnly("tc4addons:${coord}") { transitive = false }
             }
         }
